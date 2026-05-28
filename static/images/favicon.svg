@@ -1,37 +1,21 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
-<!-- Generator: Adobe Illustrator 19.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve">
-<circle style="fill:#FFDA44;" cx="256" cy="256" r="256"/>
-<path style="fill:#338AF3;" d="M0,256C0,114.616,114.616,0,256,0s256,114.616,256,256"/>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Green 2D Gaussian</title>
+  <!--
+    Radial gradient approximating a 2D Gaussian with sigma ~= 0.35 of
+    the radius. Stops use exp(-r^2 / (2 sigma^2)) as the alpha so the
+    falloff matches a real Gaussian rather than a linear ramp. The
+    green is #3CB371 (CSS MediumSeaGreen), the same shade used for the
+    PPT highlight color in the paper's figures.
+  -->
+  <defs>
+    <radialGradient id="gauss" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#3CB371" stop-opacity="1.000"/>
+      <stop offset="20%"  stop-color="#3CB371" stop-opacity="0.850"/>
+      <stop offset="40%"  stop-color="#3CB371" stop-opacity="0.520"/>
+      <stop offset="60%"  stop-color="#3CB371" stop-opacity="0.220"/>
+      <stop offset="80%"  stop-color="#3CB371" stop-opacity="0.060"/>
+      <stop offset="100%" stop-color="#3CB371" stop-opacity="0.000"/>
+    </radialGradient>
+  </defs>
+  <circle cx="32" cy="32" r="32" fill="url(#gauss)"/>
 </svg>
