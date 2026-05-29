@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="description"
-        content="Proxy Policy Tuning: Inference-Time Adaptation of Robotic Foundation Models.">
-  <meta name="keywords" content="Proxy Policy Tuning, PPT, VLA, robotic foundation models, flow matching, policy steering">
+        content="Proxy Policy Steering: Inference-Time Adaptation of Robotic Foundation Models.">
+  <meta name="keywords" content="Proxy Policy Steering, PPS, VLA, robotic foundation models, flow matching, policy steering">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Proxy Policy Tuning</title>
+  <title>Proxy Policy Steering</title>
 
   <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
         rel="stylesheet">
@@ -34,7 +34,7 @@
       <div class="columns is-centered">
         <div class="column has-text-centered">
           <h1 class="title is-1 publication-title">
-            Proxy Policy Tuning
+            Proxy Policy Steering
           </h1>
           <h2 class="subtitle is-3 publication-title">
             Inference-Time Adaptation of Robotic Foundation Models
@@ -80,10 +80,10 @@
 <section class="hero teaser">
   <div class="container is-max-desktop">
     <div class="hero-body">
-      <img src="./static/images/teaser.png" alt="PPT teaser figure"
+      <img src="./static/images/teaser.png" alt="PPS teaser figure"
            style="width: 100%; max-width: 100%;">
       <h2 class="subtitle has-text-centered">
-        <span class="ppt">PPT</span> steers a frozen Vision-Language-Action policy at
+        <span class="pps">PPS</span> steers a frozen robotic foundation model at
         inference time through a lightweight task proxy, without modifying the
         base model's weights.
       </h2>
@@ -100,34 +100,30 @@
         <h2 class="title is-3">Abstract</h2>
         <div class="content has-text-justified">
           <p>
-            Vision-Language-Action (VLA) models pretrained on broad robot
-            datasets can solve diverse manipulation tasks but often fall short
-            on specific downstream tasks. Full or LoRA fine-tuning improves
-            performance at the cost of overwriting the broad priors the base
-            model acquired during pretraining and requires running an
-            expensive optimization on a model with billions of parameters.
+            Robotics foundation models internalize broad manipulation priors
+            from large-scale data. However, they still require adaptation when
+            deployed on downstream tasks underrepresented in their training
+            distribution. The dominant strategy, fine-tuning, is computationally
+            expensive at foundation-model scale, requires access to model
+            weights, and risks overwriting general priors.
           </p>
           <p>
-            We propose <strong>Proxy Policy Tuning</strong> (PPT), an
-            inference-time adaptation method that keeps the base VLA
-            <em>frozen</em> and routes the task signal through a lightweight,
-            standalone task proxy. PPT trains two small proxy policies — a
-            <em>reference proxy</em> distilled from the base on the target
-            task's denoising trajectories, and a <em>task proxy</em>
-            initialized from the reference and fine-tuned on the
-            demonstrations. At inference time, the velocity residual between
-            the two proxies is added to the base sampler's flow-matching
-            velocity field, biasing the denoising trajectory toward task
-            success while preserving the base model's manipulation priors.
+            To overcome these challenges, we propose
+            <strong>Proxy Policy Steering (PPS)</strong>. Instead of altering
+            the base model's weights, PPS trains two lightweight proxy
+            policies&mdash;a <em>reference proxy</em> that models the base's
+            action distribution on task observations, and a <em>task proxy</em>
+            that captures how this distribution changes under task supervision.
+            During inference, the two proxies steer the base sampler with their
+            velocity-space residual, guiding the action generation process
+            toward the task-success action distribution while preserving the
+            general priors of the pre-trained base model.
           </p>
           <p>
-            Across 8 real-world and 4 simulation tasks, PPT delivers up to
-            53% absolute success-rate gains over the base model and
-            consistently outperforms LoRA fine-tuning, while only training
-            proxies that are 1% of the base model's size. PPT also exposes a
-            natural multimodal channel: extra modalities (point clouds,
-            audio) can flow into the task proxy without touching the
-            RGB-only base.
+            Evaluations in both simulated and real-world environments
+            demonstrate that PPS significantly enhances the performance of
+            base models on downstream tasks, outperforming other adaptation
+            methods in both success rate and computational efficiency.
           </p>
         </div>
       </div>
@@ -144,7 +140,7 @@
         <h2 class="title is-3 has-text-centered">Method</h2>
         <div class="content has-text-justified">
           <p>
-            PPT trains two small proxy policies and uses their velocity
+            PPS trains two small proxy policies and uses their velocity
             difference to steer the frozen base sampler:
           </p>
           <ul>
@@ -161,7 +157,7 @@
             </li>
           </ul>
           <p>
-            At inference, PPT integrates the guided velocity field
+            At inference, PPS integrates the guided velocity field
           </p>
           <p style="text-align: center;">
             <em>v&#771;</em>(<em>x</em>, <em>k</em>, <em>o</em>, <em>l</em>) =
@@ -172,10 +168,10 @@
           </p>
           <p>
             with the same Euler scheduler the base policy uses, so the residual
-            reshapes the denoising trajectory itself rather than correcting
-            a committed action after the fact. The proxies share initialization
-            and trajectory-level supervision, so their difference isolates
-            the change induced by task fine-tuning instead of unrelated
+            reshapes the denoising trajectory itself rather than correcting a
+            committed action after the fact. The proxies share initialization
+            and trajectory-level supervision, so their difference isolates the
+            change induced by task fine-tuning instead of unrelated
             architecture or optimization noise.
           </p>
         </div>
@@ -192,11 +188,14 @@
         <h2 class="title is-3 has-text-centered">Tasks &amp; Results</h2>
         <div class="content has-text-justified">
           <p>
-            We evaluate PPT on 8 real-world manipulation tasks and 4
+            We evaluate PPS on 8 real-world manipulation tasks and 4
             simulation tasks, spanning rigid, articulated, and deformable
-            object manipulation. The benchmark mixes tasks the base VLA
-            has seen during pretraining (Tissue, Lever) with challenging
-            out-of-distribution tasks (Coffee, Jeans, Flower).
+            object manipulation. The benchmark mixes tasks the base model has
+            seen during pretraining (Tissue Wiping, Lever Pressing) with
+            challenging out-of-distribution tasks (Coffee Brewing, Jeans
+            Folding, Flower Arrangement). PPS delivers consistent gains over
+            the base model and the fine-tuning, training-from-scratch, and
+            RL-based baselines on both averages.
           </p>
         </div>
         <img src="./static/images/tasks_and_results.png" alt="Tasks and averaged results"
@@ -214,12 +213,13 @@
         <h2 class="title is-3 has-text-centered">Robustness</h2>
         <div class="content has-text-justified">
           <p>
-            Because PPT leaves the base model untouched, the combined policy
+            Because PPS leaves the base model untouched, the combined policy
             inherits the base's recovery and out-of-distribution priors.
-            In Jeans Folding, a human perturbs the rollout mid-execution by
-            unfolding or dragging the cloth; PPT recovers both times and
-            completes the task, while LoRA fine-tuning overfits to the
-            demonstrations and fails after the first perturbation.
+            On Jeans Folding, a human perturbs the rollout mid-execution by
+            unfolding or dragging the cloth; PPS recovers from each
+            perturbation and completes the task, while LoRA fine-tuning
+            overfits to the demonstrations and fails after the first
+            perturbation.
           </p>
         </div>
         <img src="./static/images/robustness.png" alt="Recovery and robustness behaviors"
@@ -237,12 +237,13 @@
         <h2 class="title is-3 has-text-centered">Multimodal Steering</h2>
         <div class="content has-text-justified">
           <p>
-            The proxy architecture is independent of the base VLA's
-            conditioning. We can route an additional modality — a 3D point
-            cloud for the Wood (pouring tea) task or an audio spectrogram
-            for the Phone (ringing-phone identification) task — through the
-            task proxy without modifying the RGB-only base. PPT clears both
-            tasks where the base model and RGB-only baselines fall short.
+            The proxy architecture is independent of the base model's
+            conditioning. PPS can route an extra modality &mdash; a 3D point
+            cloud for the wooden-teapot pouring task, or an audio
+            spectrogram for the ringing-phone identification task &mdash;
+            through the task proxy without touching the RGB-only base. PPS
+            clears both tasks where the base model and RGB-only baselines
+            fall short.
           </p>
         </div>
         <img src="./static/images/multimodal.png" alt="Multimodal steering with point cloud and audio"
@@ -256,9 +257,9 @@
 <section class="section" id="BibTeX">
   <div class="container is-max-desktop content">
     <h2 class="title">BibTeX</h2>
-    <pre><code>@article{anonymous2026ppt,
+    <pre><code>@article{anonymous2026pps,
   author    = {Anonymous Authors},
-  title     = {Proxy Policy Tuning: Inference-Time Adaptation of Robotic Foundation Models},
+  title     = {Proxy Policy Steering: Inference-Time Adaptation of Robotic Foundation Models},
   journal   = {Submitted to the Conference on Robot Learning (CoRL)},
   year      = {2026}
 }</code></pre>
