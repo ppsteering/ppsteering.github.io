@@ -20,7 +20,7 @@
       <li><a href="#abstract">Abstract</a></li>
       <li><a href="#method">Method</a></li>
       <li><a href="#tasks">Tasks &amp; Results</a></li>
-      <li><a href="#robustness">Robustness</a></li>
+      <li><a href="#robustness">Recovery Behaviors</a></li>
       <li><a href="#multimodal">Multimodal Steering</a></li>
     </ul>
   </nav>
@@ -208,7 +208,7 @@
     </section>
 
     <section class="section" id="robustness">
-      <div class="tagline">Robustness</div>
+      <div class="tagline">Recovery Behaviors</div>
 
       <p>
         Because PPS leaves the base model untouched, the combined policy
@@ -220,14 +220,20 @@
         perturbation.
       </p>
 
-      <figure class="figure">
-        <img src="./static/images/robustness.png"
-             alt="Recovery and robustness behaviors">
-        <figcaption class="figure-caption">
-          PPS recovers from intermittent grasp failures and from
-          mid-rollout human perturbations.
-        </figcaption>
-      </figure>
+      <div class="recovery-grid">
+        <div class="recovery-col-header">PPS</div>
+        <div class="recovery-col-header">LoRA</div>
+
+        <video class="recovery-video" src="./static/videos/ours_jeans.mp4"
+               autoplay muted loop playsinline preload="metadata"></video>
+        <video class="recovery-video" src="./static/videos/lora_jeans.mp4"
+               autoplay muted loop playsinline preload="metadata"></video>
+
+        <video class="recovery-video" src="./static/videos/ours_utensil.mp4"
+               autoplay muted loop playsinline preload="metadata"></video>
+        <video class="recovery-video" src="./static/videos/lora_utensil.mp4"
+               autoplay muted loop playsinline preload="metadata"></video>
+      </div>
     </section>
 
     <section class="section" id="multimodal">
