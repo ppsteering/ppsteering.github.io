@@ -212,6 +212,7 @@ hr {
 .figure img {
   width: 100%;
   display: block;
+  border-radius: 10px;
 }
 
 .figure-caption {
@@ -295,6 +296,7 @@ hr {
   object-fit: cover;
   background: #1b1b1b;
   display: block;
+  border-radius: 10px;
 }
 
 /* Old fallback for the bare-video markup (no figure wrapper). */
