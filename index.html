@@ -157,9 +157,6 @@
       </figure>
 
       <div class="video-gallery" id="resultsGallery">
-        <button type="button" class="gallery-nav left"
-                aria-label="Scroll videos left"
-                data-target="resultsGalleryTrack">&lsaquo;</button>
         <div class="video-gallery-track" id="resultsGalleryTrack">
           <figure class="gallery-item">
             <video class="gallery-video" src="./static/videos/tissue.mp4"
@@ -202,9 +199,16 @@
             <figcaption class="gallery-caption">Drawer Stowing</figcaption>
           </figure>
         </div>
-        <button type="button" class="gallery-nav right"
-                aria-label="Scroll videos right"
-                data-target="resultsGalleryTrack">&rsaquo;</button>
+        <div class="gallery-nav-controls">
+          <button type="button" class="gallery-nav"
+                  aria-label="Scroll videos left"
+                  data-target="resultsGalleryTrack"
+                  data-direction="left">&lsaquo;</button>
+          <button type="button" class="gallery-nav"
+                  aria-label="Scroll videos right"
+                  data-target="resultsGalleryTrack"
+                  data-direction="right">&rsaquo;</button>
+        </div>
       </div>
     </section>
 
@@ -275,7 +279,8 @@
   <script>
     // Horizontal-scroll buttons for the video gallery.
     // Each .gallery-nav has data-target="<id of the track div>" and
-    // scrolls that track left or right by roughly one card width.
+    // data-direction="left"|"right". Clicking scrolls the track by
+    // roughly one card width.
     document.querySelectorAll('.gallery-nav').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var target = document.getElementById(btn.dataset.target);
@@ -284,10 +289,8 @@
         var step = card
           ? card.getBoundingClientRect().width + 14  /* card + gap */
           : target.clientWidth * 0.8;
-        target.scrollBy({
-          left: btn.classList.contains('right') ? step : -step,
-          behavior: 'smooth'
-        });
+        var dir = btn.dataset.direction === 'right' ? 1 : -1;
+        target.scrollBy({ left: dir * step, behavior: 'smooth' });
       });
     });
   </script>
