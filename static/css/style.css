@@ -419,6 +419,41 @@ hr {
   }
 }
 
+/* ---------- Cross-modality 2x2 video grid ---------- */
+
+.crossmod-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 14px;
+  margin: 28px 0 12px 0;
+  align-items: start;
+}
+
+.crossmod-col-header {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 22px;
+  text-align: center;
+  letter-spacing: -0.3px;
+  margin-bottom: 2px;
+}
+
+.crossmod-video {
+  width: 100%;
+  display: block;
+  background: #fdfaf4;  /* matches the cream padding inside the pointcloud_mod cell */
+  border-radius: 10px;
+}
+
+@media (max-width: 700px) {
+  .crossmod-col-header {
+    font-size: 18px;
+  }
+  .crossmod-grid {
+    gap: 8px 10px;
+  }
+}
+
 /* ---------- BibTeX block ---------- */
 
 pre {
