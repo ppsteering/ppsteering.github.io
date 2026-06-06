@@ -441,7 +441,7 @@ hr {
 .crossmod-video {
   width: 100%;
   display: block;
-  background: #fdfaf4;  /* matches the cream padding inside the pointcloud_mod cell */
+  background: #ffffff;  /* matches the white padding inside the pointcloud_mod cell */
   border-radius: 10px;
 }
 
