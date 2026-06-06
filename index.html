@@ -224,15 +224,27 @@
         <div class="recovery-col-header">PPS</div>
         <div class="recovery-col-header">LoRA</div>
 
-        <video class="recovery-video" src="./static/videos/ours_jeans.mp4"
-               autoplay muted loop playsinline preload="metadata"></video>
-        <video class="recovery-video" src="./static/videos/lora_jeans.mp4"
-               autoplay muted loop playsinline preload="metadata"></video>
+        <div class="recovery-cell">
+          <video class="recovery-video" src="./static/videos/ours_jeans.mp4"
+                 autoplay muted loop playsinline preload="metadata"></video>
+          <span class="recovery-badge">2X</span>
+        </div>
+        <div class="recovery-cell">
+          <video class="recovery-video" src="./static/videos/lora_jeans.mp4"
+                 autoplay muted loop playsinline preload="metadata"></video>
+          <span class="recovery-badge">2X</span>
+        </div>
 
-        <video class="recovery-video" src="./static/videos/ours_utensil.mp4"
-               autoplay muted loop playsinline preload="metadata"></video>
-        <video class="recovery-video" src="./static/videos/lora_utensil.mp4"
-               autoplay muted loop playsinline preload="metadata"></video>
+        <div class="recovery-cell">
+          <video class="recovery-video" src="./static/videos/ours_utensil.mp4"
+                 autoplay muted loop playsinline preload="metadata"></video>
+          <span class="recovery-badge">2X</span>
+        </div>
+        <div class="recovery-cell">
+          <video class="recovery-video" src="./static/videos/lora_utensil.mp4"
+                 autoplay muted loop playsinline preload="metadata"></video>
+          <span class="recovery-badge">2X</span>
+        </div>
       </div>
     </section>
 
@@ -281,6 +293,17 @@
           : target.clientWidth * 0.8;
         var dir = btn.dataset.direction === 'right' ? 1 : -1;
         target.scrollBy({ left: dir * step, behavior: 'smooth' });
+      });
+    });
+
+    // Force the recovery-section videos to play at 2x. Browsers reset
+    // playbackRate when the video is (re)loaded or restarted via loop,
+    // so we re-apply on the relevant events.
+    document.querySelectorAll('.recovery-video').forEach(function (v) {
+      var setRate = function () { v.playbackRate = 2.0; };
+      setRate();
+      ['loadedmetadata', 'loadeddata', 'canplay', 'play', 'seeked'].forEach(function (ev) {
+        v.addEventListener(ev, setRate);
       });
     });
   </script>

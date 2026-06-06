@@ -378,11 +378,36 @@ hr {
   margin-bottom: 2px;
 }
 
+.recovery-cell {
+  position: relative;
+  width: 100%;
+  display: block;
+  border-radius: 10px;
+  overflow: hidden;
+  line-height: 0; /* kill descender gap under the video */
+}
+
 .recovery-video {
   width: 100%;
   display: block;
   background: #1b1b1b;
   border-radius: 10px;
+}
+
+.recovery-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  color: #fdfaf4;
+  background: rgba(27, 27, 27, 0.72);
+  padding: 4px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+  pointer-events: none;
 }
 
 @media (max-width: 700px) {
