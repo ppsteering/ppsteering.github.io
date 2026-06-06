@@ -52,7 +52,9 @@
     </header>
 
     <figure class="figure">
-      <img src="./static/images/teaser.png" alt="PPS teaser figure">
+      <video src="./static/images/introduction.mp4"
+             autoplay muted loop playsinline controls
+             style="width: 100%; display: block;"></video>
       <figcaption class="teaser-caption">
         <strong>PPS</strong> steers a frozen robotic foundation model at
         inference time through a lightweight task proxy, without modifying
@@ -64,35 +66,43 @@
       <div class="tagline">Abstract.</div>
 
       <p>
-        Robotics foundation models internalize broad manipulation priors
-        from large-scale data. However, they still require adaptation when
-        deployed on downstream tasks underrepresented in their training
-        distribution. The dominant strategy, fine-tuning, is computationally
-        expensive at foundation-model scale, requires access to model
-        weights, and risks overwriting general priors.
+        Robotics foundation models carry broad manipulation priors from
+        large-scale data, but specializing them to a new task remains the
+        deployment bottleneck. This requires injecting new task-specific
+        behavior from limited demonstrations without eroding their broad
+        capabilities. We introduce
+        <strong>Proxy Policy Steering (PPS)</strong>, a novel adaptation
+        method that addresses this challenge by training two lightweight
+        proxy policies. A <em>reference proxy</em> models the frozen
+        base's behavior on target-task observations, and a
+        <em>task proxy</em>, initialized from the reference, captures how
+        this behavior changes under task supervision. Their difference
+        forms a calibrated velocity-space residual that steers the frozen
+        base sampler at every denoising step.
       </p>
       <p>
-        To overcome these challenges, we propose
-        <strong>Proxy Policy Steering (PPS)</strong>. Instead of altering
-        the base model's weights, PPS trains two lightweight proxy
-        policies&mdash;a <em>reference proxy</em> that models the base's
-        action distribution on task observations, and a <em>task proxy</em>
-        that captures how this distribution changes under task supervision.
-        During inference, the two proxies steer the base sampler with their
-        velocity-space residual, guiding the action generation process
-        toward the task-success action distribution while preserving the
-        general priors of the pre-trained base model.
-      </p>
-      <p>
-        Evaluations in both simulated and real-world environments
-        demonstrate that PPS significantly enhances the performance of base
-        models on downstream tasks, outperforming other adaptation methods
-        in both success rate and computational efficiency.
+        We identify the conditions under which this residual isolates the
+        change induced by task supervision, and validate them empirically.
+        On 8 real-world and 4 simulation manipulation tasks, PPS lifts the
+        state-of-the-art &pi;<sub>0.5</sub> base policy by 53% absolute
+        success rate on average, with 0-to-1 gains on tasks the base
+        never solves, while preserving the base's broad capabilities. PPS
+        outperforms LoRA fine-tuning, from-scratch specialists, residual
+        policies, and prior inference-time steering methods.
       </p>
     </section>
 
     <section class="section" id="method">
       <div class="tagline">Method.</div>
+
+      <figure class="figure">
+        <img src="./static/images/teaser_5.png" alt="PPS method overview">
+        <figcaption class="figure-caption">
+          Overview of Proxy Policy Steering. Two lightweight proxies
+          produce a velocity-space residual that steers the frozen base
+          sampler at every denoising step.
+        </figcaption>
+      </figure>
 
       <p>
         PPS trains two small proxy policies and uses their velocity
