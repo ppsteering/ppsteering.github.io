@@ -58,7 +58,7 @@
       </video>
       <figcaption class="teaser-caption">
         <strong>PPS</strong> steers a frozen foundation model at
-        inference time through lightweight proxy policies.
+        inference time through proxy policies.
       </figcaption>
     </figure>
 
@@ -79,8 +79,6 @@
         this behavior changes under task supervision. Their difference
         forms a calibrated velocity-space residual that steers the frozen
         base sampler at every denoising step.
-      </p>
-      <p>
         We identify the conditions under which this residual isolates the
         change induced by task supervision, and validate them empirically.
         On 8 real-world and 4 simulation manipulation tasks, PPS lifts the
@@ -120,7 +118,7 @@
       <p>At inference, PPS integrates the guided velocity field:</p>
 
       <div class="equation">
-        v&#771;(x, k, o, l) =
+        v<sub>PPS(x, k, o, l) =
         v<sub>base</sub>(x, k, o, l) +
         γ &middot; [
         v<sub>task</sub>(x, k, o) &minus;
@@ -211,13 +209,9 @@
       <div class="tagline">Recovery Behaviors</div>
 
       <p>
-        Because PPS leaves the base model untouched, the combined policy
-        inherits the base's recovery and out-of-distribution priors. On
-        Jeans Folding, a human perturbs the rollout mid-execution by
-        unfolding or dragging the cloth; PPS recovers from each
-        perturbation and completes the task, while LoRA fine-tuning
-        overfits to the demonstrations and fails after the first
-        perturbation.
+        Because PPS leaves the base model intact, the combined policy
+        inherits the base's board priors and shows robust recovery behaviors even no recovery data is collected in the demonstrations.
+        Whereas LoRA fine-tuning overfits to the limited demonstrations and loses these priors, leading to failures under perturbations.
       </p>
 
       <div class="recovery-grid">
@@ -253,11 +247,9 @@
 
       <p>
         The proxy architecture is independent of the base model's
-        conditioning. PPS can route an extra modality &mdash; a 3D point
-        cloud for the wooden-teapot pouring task, or an audio spectrogram
-        for the ringing-phone identification task &mdash; through the task
-        proxy without touching the RGB-only base. PPS clears both tasks
-        where the base model and RGB-only baselines fall short.
+        input design. Therefore, PPS can route extra modalities like point cloud or audio into the base model through the task
+        proxy. Here, the poin cloud input helps to locate the texture-less object, and the audio input distinguishes the rining phone from the silent one.
+        This makes PPS a flexible enhancement module for possible hardware updates.
       </p>
 
       <div class="crossmod-grid">
