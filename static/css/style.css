@@ -270,14 +270,28 @@ hr {
   display: none;
 }
 
-.gallery-video {
+.gallery-item {
   flex: 0 0 auto;
+  scroll-snap-align: start;
+  margin: 0;
+}
+
+.gallery-video {
   width: 360px;
   height: 240px;
   object-fit: cover;
   background: #1b1b1b;
-  scroll-snap-align: start;
   display: block;
+}
+
+.gallery-caption {
+  width: 360px;
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 16px;
+  text-align: center;
+  color: #444;
+  margin: 8px 0 0 0;
 }
 
 .gallery-nav {
@@ -309,8 +323,11 @@ hr {
 .gallery-nav.right { right: -8px; }
 
 @media (max-width: 700px) {
-  .gallery-video {
+  .gallery-video,
+  .gallery-caption {
     width: 260px;
+  }
+  .gallery-video {
     height: 174px;
   }
 }

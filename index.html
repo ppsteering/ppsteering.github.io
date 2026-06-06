@@ -161,22 +161,46 @@
                 aria-label="Scroll videos left"
                 data-target="resultsGalleryTrack">&lsaquo;</button>
         <div class="video-gallery-track" id="resultsGalleryTrack">
-          <video class="gallery-video" src="./static/videos/tissue.mp4"
-                 autoplay muted loop playsinline preload="metadata"></video>
-          <video class="gallery-video" src="./static/videos/utensile.mp4"
-                 autoplay muted loop playsinline preload="metadata"></video>
-          <video class="gallery-video" src="./static/videos/lever.mp4"
-                 autoplay muted loop playsinline preload="metadata"></video>
-          <video class="gallery-video" src="./static/videos/shoe.mp4"
-                 autoplay muted loop playsinline preload="metadata"></video>
-          <video class="gallery-video" src="./static/videos/coffee.mp4"
-                 autoplay muted loop playsinline preload="metadata"></video>
-          <video class="gallery-video" src="./static/videos/jeans.mp4"
-                 autoplay muted loop playsinline preload="metadata"></video>
-          <video class="gallery-video" src="./static/videos/flower.mp4"
-                 autoplay muted loop playsinline preload="metadata"></video>
-          <video class="gallery-video" src="./static/videos/drawer.mp4"
-                 autoplay muted loop playsinline preload="metadata"></video>
+          <figure class="gallery-item">
+            <video class="gallery-video" src="./static/videos/tissue.mp4"
+                   autoplay muted loop playsinline preload="metadata"></video>
+            <figcaption class="gallery-caption">Tissue Wiping</figcaption>
+          </figure>
+          <figure class="gallery-item">
+            <video class="gallery-video" src="./static/videos/utensile.mp4"
+                   autoplay muted loop playsinline preload="metadata"></video>
+            <figcaption class="gallery-caption">Utensil Insertion</figcaption>
+          </figure>
+          <figure class="gallery-item">
+            <video class="gallery-video" src="./static/videos/lever.mp4"
+                   autoplay muted loop playsinline preload="metadata"></video>
+            <figcaption class="gallery-caption">Lever Pressing</figcaption>
+          </figure>
+          <figure class="gallery-item">
+            <video class="gallery-video" src="./static/videos/shoe.mp4"
+                   autoplay muted loop playsinline preload="metadata"></video>
+            <figcaption class="gallery-caption">Shoe Retrieval</figcaption>
+          </figure>
+          <figure class="gallery-item">
+            <video class="gallery-video" src="./static/videos/coffee.mp4"
+                   autoplay muted loop playsinline preload="metadata"></video>
+            <figcaption class="gallery-caption">Coffee Brewing</figcaption>
+          </figure>
+          <figure class="gallery-item">
+            <video class="gallery-video" src="./static/videos/jeans.mp4"
+                   autoplay muted loop playsinline preload="metadata"></video>
+            <figcaption class="gallery-caption">Jeans Folding</figcaption>
+          </figure>
+          <figure class="gallery-item">
+            <video class="gallery-video" src="./static/videos/flower.mp4"
+                   autoplay muted loop playsinline preload="metadata"></video>
+            <figcaption class="gallery-caption">Flower Arrangement</figcaption>
+          </figure>
+          <figure class="gallery-item">
+            <video class="gallery-video" src="./static/videos/drawer.mp4"
+                   autoplay muted loop playsinline preload="metadata"></video>
+            <figcaption class="gallery-caption">Drawer Stowing</figcaption>
+          </figure>
         </div>
         <button type="button" class="gallery-nav right"
                 aria-label="Scroll videos right"
@@ -256,7 +280,7 @@
       btn.addEventListener('click', function () {
         var target = document.getElementById(btn.dataset.target);
         if (!target) return;
-        var card = target.querySelector('.gallery-video');
+        var card = target.querySelector('.gallery-item, .gallery-video');
         var step = card
           ? card.getBoundingClientRect().width + 14  /* card + gap */
           : target.clientWidth * 0.8;
