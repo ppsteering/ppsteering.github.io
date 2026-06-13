@@ -477,6 +477,24 @@ hr {
   line-height: 0; /* kill descender gap under the video */
 }
 
+/* Modality label overlay (e.g. "point cloud", "audio") on cross-mod cells. */
+.crossmod-tag {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  color: #fdfaf4;
+  background: rgba(27, 27, 27, 0.72);
+  padding: 5px 9px;
+  border-radius: 6px;
+  letter-spacing: 0.4px;
+  pointer-events: none;
+  z-index: 4;
+}
+
 .crossmod-audio-toggle {
   position: absolute;
   bottom: 10px;

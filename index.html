@@ -292,8 +292,11 @@
 
         <video class="crossmod-video" src="./static/videos/pointcloud_base.mp4"
                autoplay muted loop playsinline preload="metadata"></video>
-        <video class="crossmod-video" src="./static/videos/pointcloud_mod.mp4"
-               autoplay muted loop playsinline preload="metadata"></video>
+        <div class="crossmod-cell">
+          <video class="crossmod-video" src="./static/videos/pointcloud_mod.mp4"
+                 autoplay muted loop playsinline preload="metadata"></video>
+          <span class="crossmod-tag">point cloud</span>
+        </div>
 
         <video class="crossmod-video" src="./static/videos/audio_base.mp4"
                autoplay muted loop playsinline preload="metadata"></video>
@@ -301,6 +304,7 @@
           <video class="crossmod-video" id="crossmodAudioMod"
                  src="./static/videos/audio_mod.mp4"
                  autoplay muted loop playsinline preload="metadata"></video>
+          <span class="crossmod-tag">audio</span>
           <button type="button" class="crossmod-audio-toggle"
                   data-target="crossmodAudioMod"
                   aria-label="Play sound" title="Play sound">
