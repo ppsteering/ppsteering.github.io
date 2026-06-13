@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto+Mono:wght@400;500&family=Inter:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto+Mono:wght@400;500&family=Inter:wght@400;500;700;800&display=swap');
 
 /* ---------- Base ---------- */
 
@@ -178,6 +178,16 @@ hr {
   margin-top: 10px;
 }
 
+/* Stat taglines (e.g. "+53% on Real-world Tasks") look awkward in a
+   serif display face — the "+" and "%" glyphs become heavy. Override
+   with a clean sans for these specific headings. */
+.tagline.stat-tagline {
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 800;
+  font-feature-settings: 'tnum' 1, 'lnum' 1;
+  letter-spacing: -1.2px;
+}
+
 /* ---------- Body text ---------- */
 
 .section p {
@@ -251,6 +261,7 @@ hr {
 /* ---------- Video gallery ---------- */
 
 .video-gallery {
+  position: relative;
   margin: 28px 0 12px 0;
 }
 
@@ -314,20 +325,23 @@ hr {
   width: 100%;
 }
 
-/* Nav buttons sit below the row, centered. */
+/* Nav buttons float over the gallery, vertically centered on the video. */
 .gallery-nav-controls {
-  display: flex;
-  justify-content: center;
-  gap: 14px;
-  margin-top: 8px;
+  /* Empty wrapper — kept for backwards-compat HTML. Buttons inside
+     this div use absolute positioning relative to .video-gallery. */
+  position: static;
 }
 
 .gallery-nav {
+  position: absolute;
+  top: calc(4px + 120px);   /* 4px track padding + half of 240px video */
+  transform: translateY(-50%);
+  z-index: 5;
   width: 40px;
   height: 40px;
   border-radius: 50%;
   border: 0;
-  background: #1b1b1b;
+  background: rgba(27, 27, 27, 0.78);
   color: #fdfaf4;
   font-family: 'Roboto Mono', monospace;
   font-size: 22px;
@@ -339,12 +353,15 @@ hr {
   transition: background 0.15s ease, transform 0.1s ease;
 }
 
+.gallery-nav[data-direction="left"]  { left: 8px; }
+.gallery-nav[data-direction="right"] { right: 8px; }
+
 .gallery-nav:hover {
-  background: #444;
+  background: rgba(27, 27, 27, 0.95);
 }
 
 .gallery-nav:active {
-  transform: scale(0.94);
+  transform: translateY(-50%) scale(0.94);
 }
 
 @media (max-width: 700px) {
@@ -356,6 +373,12 @@ hr {
   }
   .video-gallery-track > .gallery-video {
     width: 260px;
+  }
+  .gallery-nav {
+    top: calc(4px + 87px);  /* half of 174px video */
+    width: 34px;
+    height: 34px;
+    font-size: 19px;
   }
 }
 
