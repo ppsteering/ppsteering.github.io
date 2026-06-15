@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto+Mono:wght@400;500&family=Inter:wght@400;500;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&family=Inter:wght@400;500;700;800&display=swap');
 
 /* ---------- Base ---------- */
 
@@ -46,82 +46,34 @@ hr {
   margin: 0 auto;
 }
 
-.toc {
-  position: fixed;
-  top: 140px;
-  width: 200px;
-  font-family: 'Roboto Mono', monospace;
-  font-size: 14px;
-  display: none;
-  z-index: 1000;
+/* ---------- Hero (centered) ---------- */
+
+header {
+  text-align: center;
+  margin-bottom: 8px;
 }
 
-@media (min-width: 1400px) {
-  .toc {
-    display: block;
-    left: max(30px, calc(50vw - 660px));
-  }
-}
-
-.toc h3 {
-  font-family: 'Playfair Display', serif;
-  font-size: 22px;
-  font-weight: 700;
-  margin: 0 0 8px 0;
-}
-
-.toc-line {
-  border: 0;
-  height: 1px;
-  background-color: #c6bba0;
+.hero-title {
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 800;
+  font-size: 56px;
+  line-height: 1.08;
+  letter-spacing: -1.5px;
   margin: 0 0 14px 0;
 }
 
-.toc ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.toc li {
-  margin: 8px 0;
-}
-
-.toc a {
-  color: #333;
-  text-decoration: none;
-}
-
-.toc a:hover {
-  color: #000;
-  text-decoration: underline;
-}
-
-/* ---------- Hero ---------- */
-
-.hero-title {
-  font-family: 'Playfair Display', serif;
-  font-weight: 700;
-  font-size: 60px;
-  line-height: 1.05;
-  letter-spacing: -1px;
-  margin: 0 0 12px 0;
-}
-
 .hero-subtitle {
-  font-family: 'Playfair Display', serif;
-  font-weight: 400;
-  font-style: italic;
-  font-size: 26px;
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 500;
+  font-size: 24px;
   line-height: 1.3;
   color: #444;
-  margin: 0 0 28px 0;
+  margin: 0 0 20px 0;
 }
 
 .authors {
   font-size: 18px;
   line-height: 1.5;
-  margin-bottom: 8px;
 }
 
 .affiliation {
@@ -142,13 +94,13 @@ hr {
 /* ---------- Quick links ---------- */
 
 .quick-links {
-  font-family: 'Roboto Mono', monospace;
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
   font-size: 17px;
-  margin: 28px 0 36px 0;
+  margin: 24px 0 8px 0;
 }
 
 .quick-links a {
-  margin-right: 22px;
+  margin: 0 11px;
   text-decoration: none;
   color: #1b1b1b;
   border-bottom: 1.5px solid #c6bba0;
@@ -159,33 +111,31 @@ hr {
   border-bottom-color: #1b1b1b;
 }
 
-/* ---------- Section headers ---------- */
+/* ---------- Section headers (no underline bar) ---------- */
 
 .tagline {
-  font-family: 'Playfair Display', serif;
-  font-size: 32px;
-  font-weight: 700;
-  margin: 56px 0 18px 0;
-  letter-spacing: -0.5px;
-}
-
-.tagline::after {
-  content: '';
-  display: block;
-  width: 60px;
-  height: 2px;
-  background-color: #1b1b1b;
-  margin-top: 10px;
-}
-
-/* Stat taglines (e.g. "+53% on Real-world Tasks") look awkward in a
-   serif display face — the "+" and "%" glyphs become heavy. Override
-   with a clean sans for these specific headings. */
-.tagline.stat-tagline {
   font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 30px;
   font-weight: 800;
-  font-feature-settings: 'tnum' 1, 'lnum' 1;
-  letter-spacing: -1.2px;
+  letter-spacing: -1px;
+  margin: 56px 0 16px 0;
+}
+
+#abstract .tagline {
+  text-align: center;
+}
+
+.subheader {
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 700;
+  font-size: 21px;
+  letter-spacing: -0.4px;
+  margin: 34px 0 10px 0;
+}
+
+.stat-line {
+  font-size: 18px;
+  margin: 6px 0 14px 0;
 }
 
 /* ---------- Body text ---------- */
@@ -202,7 +152,7 @@ hr {
 }
 
 .section li {
-  margin: 6px 0;
+  margin: 8px 0;
 }
 
 .section em {
@@ -210,7 +160,7 @@ hr {
 }
 
 .section strong {
-  font-weight: 600;
+  font-weight: 700;
 }
 
 /* ---------- Figures ---------- */
@@ -226,159 +176,108 @@ hr {
 }
 
 .figure-caption {
-  font-family: 'Playfair Display', serif;
-  font-style: italic;
-  font-size: 17px;
-  line-height: 1.45;
-  color: #444;
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #555;
   margin: 10px 0 0 0;
-  text-align: center;
+  text-align: left;
 }
 
 .teaser-caption {
-  font-family: 'Playfair Display', serif;
-  font-style: italic;
-  font-size: 19px;
-  line-height: 1.4;
-  text-align: center;
-  margin: 16px auto 0 auto;
-  max-width: 760px;
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.45;
+  color: #444;
+  text-align: left;
+  margin: 16px 0 0 0;
 }
 
-/* ---------- Equation block ---------- */
+/* ---------- Math ---------- */
+
+/* Single-letter variables are italic; multi-letter subscripts
+   (base, ref, task, PPS) and operators stay upright, matching
+   standard math typesetting. */
+.math {
+  font-family: 'Cambria Math', 'Latin Modern Math', Georgia, 'Times New Roman', serif;
+}
+
+.math .var,
+.equation .var {
+  font-style: italic;
+}
+
+.math sub,
+.equation sub {
+  font-style: normal;
+}
 
 .equation {
-  font-family: 'Roboto Mono', monospace;
-  font-size: 18px;
+  font-family: 'Cambria Math', 'Latin Modern Math', Georgia, 'Times New Roman', serif;
+  font-size: 20px;
   text-align: center;
   margin: 18px 0;
-  padding: 14px 8px;
+  padding: 16px 10px;
   background-color: #f4eed8;
   border-left: 3px solid #c6bba0;
   overflow-x: auto;
 }
 
-/* ---------- Video gallery ---------- */
+/* ---------- Analysis figure row (three across, equal height) ---------- */
 
-.video-gallery {
-  position: relative;
-  margin: 28px 0 12px 0;
-}
-
-/* The scrolling row. flex-wrap: nowrap is set explicitly so a stale
-   browser cache that misses a later rule can't suddenly start wrapping
-   cards onto new rows. */
-.video-gallery-track {
+.figure-row {
   display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
+  gap: 24px;
+  flex-wrap: wrap;
   align-items: flex-start;
-  gap: 14px;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  scroll-snap-type: x mandatory;
-  padding: 4px 4px 16px 4px;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  justify-content: center;
+  margin: 22px 0 12px 0;
 }
 
-.video-gallery-track::-webkit-scrollbar {
-  display: none;
+.figure-row > figure {
+  flex: 1 1 0;
+  min-width: 240px;
+  margin: 0;
 }
 
-/* Each card. Both .gallery-item AND the legacy .gallery-video rule
-   carry the no-shrink flex shorthand so the layout works either with
-   the new <figure> wrappers or the old bare-video markup. */
-.gallery-item,
-.gallery-track > .gallery-video {
-  flex: 0 0 auto;
-  scroll-snap-align: start;
+.figure-row .figure-caption {
+  text-align: left;
 }
 
-.gallery-item {
-  width: 360px;
+/* ---------- Results video grid (N x 2) ---------- */
+
+.results-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 22px 0 12px 0;
+}
+
+.result-item {
   margin: 0;
   display: block;
 }
 
-.gallery-video {
+.result-video {
   width: 100%;
-  height: 240px;
+  aspect-ratio: 16 / 10;
   object-fit: cover;
   background: #1b1b1b;
   display: block;
   border-radius: 10px;
 }
 
-/* Old fallback for the bare-video markup (no figure wrapper). */
-.video-gallery-track > .gallery-video {
-  width: 360px;
-}
-
-.gallery-caption {
-  font-family: 'Playfair Display', serif;
-  font-style: italic;
-  font-size: 16px;
-  text-align: center;
-  color: #444;
+.result-caption {
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 15px;
+  text-align: left;
+  color: #555;
   margin: 8px 0 0 0;
-  width: 100%;
-}
-
-/* Nav buttons float over the gallery, vertically centered on the video. */
-.gallery-nav-controls {
-  /* Empty wrapper — kept for backwards-compat HTML. Buttons inside
-     this div use absolute positioning relative to .video-gallery. */
-  position: static;
-}
-
-.gallery-nav {
-  position: absolute;
-  top: calc(4px + 120px);   /* 4px track padding + half of 240px video */
-  transform: translateY(-50%);
-  z-index: 5;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 0;
-  background: rgba(27, 27, 27, 0.78);
-  color: #fdfaf4;
-  font-family: 'Roboto Mono', monospace;
-  font-size: 22px;
-  line-height: 1;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s ease, transform 0.1s ease;
-}
-
-.gallery-nav[data-direction="left"]  { left: 8px; }
-.gallery-nav[data-direction="right"] { right: 8px; }
-
-.gallery-nav:hover {
-  background: rgba(27, 27, 27, 0.95);
-}
-
-.gallery-nav:active {
-  transform: translateY(-50%) scale(0.94);
 }
 
 @media (max-width: 700px) {
-  .gallery-item {
-    width: 260px;
-  }
-  .gallery-video {
-    height: 174px;
-  }
-  .video-gallery-track > .gallery-video {
-    width: 260px;
-  }
-  .gallery-nav {
-    top: calc(4px + 87px);  /* half of 174px video */
-    width: 34px;
-    height: 34px;
-    font-size: 19px;
+  .results-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -393,9 +292,9 @@ hr {
 }
 
 .recovery-col-header {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
   font-weight: 700;
-  font-size: 22px;
+  font-size: 21px;
   text-align: center;
   letter-spacing: -0.3px;
   margin-bottom: 2px;
@@ -421,9 +320,9 @@ hr {
   position: absolute;
   top: 8px;
   right: 8px;
-  font-family: 'Roboto Mono', monospace;
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1;
   color: #fdfaf4;
   background: rgba(27, 27, 27, 0.72);
@@ -453,9 +352,9 @@ hr {
 }
 
 .crossmod-col-header {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
   font-weight: 700;
-  font-size: 22px;
+  font-size: 21px;
   text-align: center;
   letter-spacing: -0.3px;
   margin-bottom: 2px;
@@ -482,9 +381,9 @@ hr {
   position: absolute;
   top: 10px;
   right: 10px;
-  font-family: 'Roboto Mono', monospace;
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1;
   color: #fdfaf4;
   background: rgba(27, 27, 27, 0.72);
@@ -545,7 +444,7 @@ hr {
   }
 }
 
-/* ---------- BibTeX block ---------- */
+/* ---------- BibTeX / code block ---------- */
 
 pre {
   font-family: 'Roboto Mono', monospace;
@@ -582,12 +481,15 @@ pre {
     font-size: 17px;
   }
   .hero-title {
-    font-size: 42px;
+    font-size: 40px;
   }
   .hero-subtitle {
-    font-size: 22px;
+    font-size: 21px;
   }
   .tagline {
-    font-size: 26px;
+    font-size: 25px;
+  }
+  .subheader {
+    font-size: 19px;
   }
 }

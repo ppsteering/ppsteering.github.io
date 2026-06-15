@@ -20,7 +20,7 @@
 
       <div class="authors">
         Anonymous Authors
-        <!-- <span class="affiliation">Submitted to CoRL 2026</span> -->
+        <span class="review-note">Under review</span>
       </div>
 
       <!--
@@ -41,12 +41,19 @@
         Your browser does not support the HTML5 video tag.
       </video>
       <figcaption class="teaser-caption">
-        <strong>PPS</strong> steers a frozen foundation model at
-        inference time through proxy policies.
+        We propose <strong>Proxy Policy Steering (PPS)</strong>, which adapts a
+        frozen base policy
+        <span class="math"><span class="var">&pi;</span><sub>base</sub></span>
+        using two learned proxy policies,
+        <span class="math"><span class="var">&pi;</span><sub>ref</sub></span> and
+        <span class="math"><span class="var">&pi;</span><sub>task</sub></span>,
+        combined in velocity space. By adding the proxy residual to the base
+        prior, PPS shifts the action distribution toward task behaviors while
+        preserving general priors.
       </figcaption>
     </figure>
 
-    <section class="section" id="abstract">
+    <section class="section" id="abstract" style="max-width:700px; margin-left:auto; margin-right:auto;">
       <div class="tagline">Abstract</div>
 
       <p>
@@ -77,160 +84,152 @@
     <section class="section" id="method">
       <div class="tagline">Method</div>
 
+      <p>
+        Our key insight is that effective adaptation should neither steer only within the base's existing distribution nor replace the base with a narrowly trained specialist. Instead of changing the base or biasing it toward its own modes, PPS estimates the direction in which task supervision would shift the base's action distribution, leaving its weights and broad priors untouched.
+      </p>
+
       <figure class="figure">
         <img src="./static/images/teaser_web.png" alt="PPS method overview">
       </figure>
 
       <p>
-        PPS trains two small proxy policies and uses their velocity
-        difference to steer the frozen base sampler:
+        To estimate that direction without access to base gradients, PPS
+        trains two lightweight proxy policies and takes their difference in
+        velocity space:
       </p>
       <ul>
         <li>
           <strong>Reference proxy</strong>
-          <em>v</em><sub>ref</sub>: distilled from the base's denoising
-          trajectories on the target task. It captures the base-like
-          behavior on this specific task that the proxy architecture can express.
+          <span class="math"><span class="var">v</span><sub>ref</sub></span>:
+          distilled on-policy from the base's own denoising trajectories, so
+          it reproduces base behavior on exactly the states the sampler visits
+          at inference.
         </li>
         <li>
           <strong>Task proxy</strong>
-          <em>v</em><sub>task</sub>: initialized from
-          <em>v</em><sub>ref</sub>, then fine-tuned on task
-          demonstrations with the standard flow-matching loss.
+          <span class="math"><span class="var">v</span><sub>task</sub></span>:
+          initialized from
+          <span class="math"><span class="var">v</span><sub>ref</sub></span>
+          and fine-tuned on the task demonstrations. Sharing initialization and
+          architecture with the reference, it differs from it through task
+          supervision alone, and the difference
+          <span class="math"><span class="var">v</span><sub>task</sub> &minus; <span class="var">v</span><sub>ref</sub></span>
+          isolates the task-induced change.
         </li>
       </ul>
+
       <p>At inference, PPS integrates the guided velocity field:</p>
 
       <div class="equation">
-        v<sub>PPS(x, k, o, l) =
-        v<sub>base</sub>(x, k, o, l) +
-        γ &middot; [
-        v<sub>task</sub>(x, k, o) &minus;
-        v<sub>ref</sub>(x, k, o) ]
+        <span class="var">v</span><sub>PPS</sub>(<span class="var">x</span>, <span class="var">k</span>, <span class="var">o</span>, <span class="var">l</span>)
+        = <span class="var">v</span><sub>base</sub>(<span class="var">x</span>, <span class="var">k</span>, <span class="var">o</span>, <span class="var">l</span>)
+        + <span class="var">&gamma;</span> &middot; [ <span class="var">v</span><sub>task</sub>(<span class="var">x</span>, <span class="var">k</span>, <span class="var">o</span>)
+        &minus; <span class="var">v</span><sub>ref</sub>(<span class="var">x</span>, <span class="var">k</span>, <span class="var">o</span>) ]
       </div>
 
       <p>
-        their velocity-space residual captures the task-induced distribution shift and steers the
-        frozen base policy at inference to apprximate a fine-tuned distribution.
+        The coefficient <span class="math"><span class="var">&gamma;</span></span>
+        sets the steering strength: when the demonstrations call for new
+        actions the residual drives the sampler toward the task proxy, and when
+        the proxies agree it vanishes and the frozen base stays in control,
+        preserving broadly useful priors.
       </p>
     </section>
 
-    <section class="section" id="tasks">
-      <div class="tagline stat-tagline">+53% on Real-world Tasks</div>
+    <section class="section" id="results">
+      <div class="tagline">Effective Steering</div>
 
       <p>
-        We evaluate PPS on 8 real-world manipulation tasks, spanning long-horizon goals, articulated and deformable
-        objects, and diverse skills. The benchmark mixes tasks the base
-        model has seen during pretraining with challenging
-        out-of-distribution tasks. PPS delivers consistent gains over the
-        base model and outperforms fine-tuned models, training-from-scratch policies, and
-        prior steering-based baselines.
+        We evaluate PPS on 8 real-world and 4 simulation manipulation tasks,
+        spanning long-horizon goals, articulated and deformable objects, and
+        diverse skills. PPS delivers consistent gains over the base model and
+        outperforms fine-tuned models, from-scratch specialists, and prior
+        steering baselines, with <strong>0-to-1 gains on tasks the base never
+        solves on its own</strong>.
       </p>
 
-      <div class="video-gallery" id="resultsGallery">
-        <div class="video-gallery-track" id="resultsGalleryTrack">
-          <figure class="gallery-item">
-            <video class="gallery-video" src="./static/videos/coffee.mp4"
-                   autoplay muted loop playsinline preload="metadata"></video>
-            <figcaption class="gallery-caption">Coffee Brewing</figcaption>
-          </figure>
-          <figure class="gallery-item">
-            <video class="gallery-video" src="./static/videos/drawer.mp4"
-                   autoplay muted loop playsinline preload="metadata"></video>
-            <figcaption class="gallery-caption">Drawer Stowing</figcaption>
-          </figure>
-          <figure class="gallery-item">
-            <video class="gallery-video" src="./static/videos/flower.mp4"
-                   autoplay muted loop playsinline preload="metadata"></video>
-            <figcaption class="gallery-caption">Flower Arrangement</figcaption>
-          </figure>
-          <figure class="gallery-item">
-            <video class="gallery-video" src="./static/videos/jeans.mp4"
-                   autoplay muted loop playsinline preload="metadata"></video>
-            <figcaption class="gallery-caption">Jeans Folding</figcaption>
-          </figure>
-          <figure class="gallery-item">
-            <video class="gallery-video" src="./static/videos/lever.mp4"
-                   autoplay muted loop playsinline preload="metadata"></video>
-            <figcaption class="gallery-caption">Lever Pressing</figcaption>
-          </figure>
-          <figure class="gallery-item">
-            <video class="gallery-video" src="./static/videos/shoe.mp4"
-                   autoplay muted loop playsinline preload="metadata"></video>
-            <figcaption class="gallery-caption">Shoe Retrieval</figcaption>
-          </figure>
-          <figure class="gallery-item">
-            <video class="gallery-video" src="./static/videos/tissue.mp4"
-                   autoplay muted loop playsinline preload="metadata"></video>
-            <figcaption class="gallery-caption">Tissue Wiping</figcaption>
-          </figure>
-          <figure class="gallery-item">
-            <video class="gallery-video" src="./static/videos/utensile.mp4"
-                   autoplay muted loop playsinline preload="metadata"></video>
-            <figcaption class="gallery-caption">Utensil Insertion</figcaption>
-          </figure>
-        </div>
-        <div class="gallery-nav-controls">
-          <button type="button" class="gallery-nav"
-                  aria-label="Scroll videos left"
-                  data-target="resultsGalleryTrack"
-                  data-direction="left">&lsaquo;</button>
-          <button type="button" class="gallery-nav"
-                  aria-label="Scroll videos right"
-                  data-target="resultsGalleryTrack"
-                  data-direction="right">&rsaquo;</button>
-        </div>
+      <div class="subheader">Real-World Tasks</div>
+      <p class="stat-line">
+        <strong>+53% absolute success</strong> over the
+        &pi;<sub>0.5</sub> base, averaged across 8 real-world tasks.
+      </p>
+
+      <div class="results-grid">
+        <figure class="result-item">
+          <video class="result-video" src="./static/videos/coffee.mp4"
+                 autoplay muted loop playsinline preload="metadata"></video>
+          <figcaption class="result-caption">Coffee Brewing</figcaption>
+        </figure>
+        <figure class="result-item">
+          <video class="result-video" src="./static/videos/drawer.mp4"
+                 autoplay muted loop playsinline preload="metadata"></video>
+          <figcaption class="result-caption">Drawer Stowing</figcaption>
+        </figure>
+        <figure class="result-item">
+          <video class="result-video" src="./static/videos/flower.mp4"
+                 autoplay muted loop playsinline preload="metadata"></video>
+          <figcaption class="result-caption">Flower Arrangement</figcaption>
+        </figure>
+        <figure class="result-item">
+          <video class="result-video" src="./static/videos/jeans.mp4"
+                 autoplay muted loop playsinline preload="metadata"></video>
+          <figcaption class="result-caption">Jeans Folding</figcaption>
+        </figure>
+        <figure class="result-item">
+          <video class="result-video" src="./static/videos/lever.mp4"
+                 autoplay muted loop playsinline preload="metadata"></video>
+          <figcaption class="result-caption">Lever Pressing</figcaption>
+        </figure>
+        <figure class="result-item">
+          <video class="result-video" src="./static/videos/shoe.mp4"
+                 autoplay muted loop playsinline preload="metadata"></video>
+          <figcaption class="result-caption">Shoe Retrieval</figcaption>
+        </figure>
+        <figure class="result-item">
+          <video class="result-video" src="./static/videos/tissue.mp4"
+                 autoplay muted loop playsinline preload="metadata"></video>
+          <figcaption class="result-caption">Tissue Wiping</figcaption>
+        </figure>
+        <figure class="result-item">
+          <video class="result-video" src="./static/videos/utensile.mp4"
+                 autoplay muted loop playsinline preload="metadata"></video>
+          <figcaption class="result-caption">Utensil Insertion</figcaption>
+        </figure>
       </div>
 
       <figure class="figure">
         <img src="./static/images/results_merged_web.png"
-             alt="Per-task success rate across models, with the average column at the right">
+             alt="Per-task real-world success rate across models, with the average column at the right">
       </figure>
-    </section>
 
-    <section class="section" id="sim">
-      <div class="tagline stat-tagline">+51% on Simulation Tasks</div>
-
-      <p>
-        In simulation, PPS lifts the &pi;<sub>0.5</sub> base policy by 51% absolute
-        success rate on average across four tasks,
-        outperforming LoRA, specialist, residual, and DSRL baselines on
-        every task.
+      <div class="subheader">Simulated Tasks</div>
+      <p class="stat-line">
+        <strong>+51% absolute success</strong> over the
+        &pi;<sub>0.5</sub> base, averaged across 4 simulation tasks,
+        outperforming LoRA, specialist, residual, and DSRL on every task.
       </p>
 
-      <div class="video-gallery" id="simGallery">
-        <div class="video-gallery-track" id="simGalleryTrack">
-          <figure class="gallery-item">
-            <video class="gallery-video" src="./static/videos/sim_fruit.mp4"
-                   autoplay muted loop playsinline preload="metadata"></video>
-            <figcaption class="gallery-caption">Fruit Weighing</figcaption>
-          </figure>
-          <figure class="gallery-item">
-            <video class="gallery-video" src="./static/videos/sim_egg.mp4"
-                   autoplay muted loop playsinline preload="metadata"></video>
-            <figcaption class="gallery-caption">Egg Cooking</figcaption>
-          </figure>
-          <figure class="gallery-item">
-            <video class="gallery-video" src="./static/videos/sim_tea.mp4"
-                   autoplay muted loop playsinline preload="metadata"></video>
-            <figcaption class="gallery-caption">Tea Pouring</figcaption>
-          </figure>
-          <figure class="gallery-item">
-            <video class="gallery-video" src="./static/videos/sim_capsule.mp4"
-                   autoplay muted loop playsinline preload="metadata"></video>
-            <figcaption class="gallery-caption">Capsule Loading</figcaption>
-          </figure>
-        </div>
-        <div class="gallery-nav-controls">
-          <button type="button" class="gallery-nav"
-                  aria-label="Scroll videos left"
-                  data-target="simGalleryTrack"
-                  data-direction="left">&lsaquo;</button>
-          <button type="button" class="gallery-nav"
-                  aria-label="Scroll videos right"
-                  data-target="simGalleryTrack"
-                  data-direction="right">&rsaquo;</button>
-        </div>
+      <div class="results-grid">
+        <figure class="result-item">
+          <video class="result-video" src="./static/videos/sim_fruit.mp4"
+                 autoplay muted loop playsinline preload="metadata"></video>
+          <figcaption class="result-caption">Fruit Weighing</figcaption>
+        </figure>
+        <figure class="result-item">
+          <video class="result-video" src="./static/videos/sim_egg.mp4"
+                 autoplay muted loop playsinline preload="metadata"></video>
+          <figcaption class="result-caption">Egg Cooking</figcaption>
+        </figure>
+        <figure class="result-item">
+          <video class="result-video" src="./static/videos/sim_tea.mp4"
+                 autoplay muted loop playsinline preload="metadata"></video>
+          <figcaption class="result-caption">Tea Pouring</figcaption>
+        </figure>
+        <figure class="result-item">
+          <video class="result-video" src="./static/videos/sim_capsule.mp4"
+                 autoplay muted loop playsinline preload="metadata"></video>
+          <figcaption class="result-caption">Capsule Loading</figcaption>
+        </figure>
       </div>
 
       <figure class="figure">
@@ -240,12 +239,14 @@
     </section>
 
     <section class="section" id="robustness">
-      <div class="tagline">Robustness of PPS</div>
+      <div class="tagline">Robust Execution</div>
 
       <p>
-        Because PPS leaves the base model intact, the combined policy
-        inherits the base's board priors and shows robust recovery behaviors even no recovery data is collected in the demonstrations.
-        Whereas LoRA fine-tuning overfits to the limited demonstrations and loses these priors, leading to failures under perturbations.
+        Because PPS leaves the base model untouched, the combined policy
+        inherits its broad priors and recovers from failures it never saw in
+        the demonstrations. LoRA fine-tuning, by contrast, overfits to the
+        handful of demonstrations and loses these priors, breaking down under
+        the same perturbations.
       </p>
 
       <div class="recovery-grid">
@@ -276,30 +277,71 @@
       </div>
     </section>
 
+    <section class="section" id="analysis">
+      <div class="tagline">Analysis</div>
+
+      <p>
+        Through a series of analyses, we study what makes PPS effective and
+        where it still falls short.
+      </p>
+
+      <div class="figure-row">
+        <figure>
+          <img src="./static/images/gamma.png" style="width:100%; height:220px; object-fit:contain;"
+               alt="Success rate versus steering scale: PPS peaks near 0.4 to 0.6, above the specialist and base baselines.">
+          <p class="figure-caption">
+            <strong>Steering strength.</strong> The coefficient
+            <span class="math"><span class="var">&gamma;</span></span> trades
+            base priors against task steering. Success peaks for
+            <span class="math"><span class="var">&gamma;</span></span> in
+            (0.4, 0.6), well above both baselines.
+          </p>
+        </figure>
+        <figure>
+          <img src="./static/images/ablation_average_success_rate.png" style="width:100%; height:220px; object-fit:contain;"
+               alt="Proxy-training ablation: w/o ref, w/o vel, and w/o tune all trail the full method.">
+          <p class="figure-caption">
+            <strong>Proxy training.</strong> On-policy distillation,
+            velocity-level supervision, and reference initialization each
+            ensure the two proxies differ by task supervision alone, and their
+            difference is an informative task signal.           </p>
+        </figure>
+        <figure>
+          <img src="./static/images/failure_pps.png" style="width:100%; height:220px; object-fit:contain;"
+               alt="Failure-mode breakdown for Specialist, base, and PPS by root cause; PPS has far fewer total failures.">
+          <p class="figure-caption">
+            <strong>Failure modes.</strong> PPS fails far less often than the
+            specialist and base, cutting incorrect-mode errors 69% versus the
+            base and out-of-distribution errors 44% versus the specialist.
+          </p>
+        </figure>
+      </div>
+    </section>
+
     <section class="section" id="multimodal">
       <div class="tagline">Cross-Modality Steering</div>
 
       <p>
-        The proxy architecture is independent of the base model's
-        input design. Therefore, PPS can route extra modalities like point cloud or audio into the base model through the task
-        proxy. Here, the poin cloud input helps to locate the texture-less object, and the audio input distinguishes the rining phone from the silent one.
-        This makes PPS a flexible enhancement module for possible hardware updates.
+        Because the proxies are separate networks, they can take inputs the
+        base never receives. PPS routes extra modalities such as point cloud or
+        audio into the frozen, RGB-only base through the task proxy: the point
+        cloud locates a texture-less object, and audio tells the ringing phone
+        from the silent one. This makes PPS a lightweight way to add new
+        sensors without retraining the base.
       </p>
 
       <div class="crossmod-grid">
-        <div class="crossmod-col-header">Base policy input</div>
-        <div class="crossmod-col-header">Additional modality</div>
+        <div class="crossmod-col-header">Additional Modality</div>
+        <div class="crossmod-col-header">Steered Policy Rollout</div>
 
-        <video class="crossmod-video" src="./static/videos/pointcloud_base.mp4"
-               autoplay muted loop playsinline preload="metadata"></video>
         <div class="crossmod-cell">
           <video class="crossmod-video" src="./static/videos/pointcloud_mod.mp4"
                  autoplay muted loop playsinline preload="metadata"></video>
           <span class="crossmod-tag">point cloud</span>
         </div>
-
-        <video class="crossmod-video" src="./static/videos/audio_base.mp4"
+        <video class="crossmod-video" src="./static/videos/pointcloud_base.mp4"
                autoplay muted loop playsinline preload="metadata"></video>
+
         <div class="crossmod-cell">
           <video class="crossmod-video" id="crossmodAudioMod"
                  src="./static/videos/audio_mod.mp4"
@@ -308,19 +350,21 @@
           <button type="button" class="crossmod-audio-toggle"
                   data-target="crossmodAudioMod"
                   aria-label="Play sound" title="Play sound">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M3 9v6h4l5 5V4l-5 5H3z"></path>
-              <g class="speaker-waves">
-                <path d="M15.5 8a4.5 4.5 0 010 8" fill="none"
-                      stroke-width="2" stroke-linecap="round"></path>
-                <path d="M18 5a8 8 0 010 14" fill="none"
-                      stroke-width="2" stroke-linecap="round"></path>
-              </g>
-              <line class="speaker-slash" x1="4" y1="20" x2="20" y2="4"
-                    stroke-width="2.5" stroke-linecap="round"></line>
-            </svg>
+            <!-- <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"> -->
+            <!--   <path d="M3 9v6h4l5 5V4l-5 5H3z"></path> -->
+            <!--   <g class="speaker-waves"> -->
+            <!--     <path d="M15.5 8a4.5 4.5 0 010 8" fill="none" -->
+            <!--           stroke-width="2" stroke-linecap="round"></path> -->
+            <!--     <path d="M18 5a8 8 0 010 14" fill="none" -->
+            <!--           stroke-width="2" stroke-linecap="round"></path> -->
+            <!--   </g> -->
+            <!--   <line class="speaker-slash" x1="4" y1="20" x2="20" y2="4" -->
+            <!--         stroke-width="2.5" stroke-linecap="round"></line> -->
+            <!-- </svg> -->
           </button>
         </div>
+        <video class="crossmod-video" src="./static/videos/audio_base.mp4"
+               autoplay muted loop playsinline preload="metadata"></video>
       </div>
     </section>
 
@@ -333,23 +377,6 @@
   </main>
 
   <script>
-    // Horizontal-scroll buttons for the video gallery.
-    // Each .gallery-nav has data-target="<id of the track div>" and
-    // data-direction="left"|"right". Clicking scrolls the track by
-    // roughly one card width.
-    document.querySelectorAll('.gallery-nav').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var target = document.getElementById(btn.dataset.target);
-        if (!target) return;
-        var card = target.querySelector('.gallery-item, .gallery-video');
-        var step = card
-          ? card.getBoundingClientRect().width + 14  /* card + gap */
-          : target.clientWidth * 0.8;
-        var dir = btn.dataset.direction === 'right' ? 1 : -1;
-        target.scrollBy({ left: dir * step, behavior: 'smooth' });
-      });
-    });
-
     // Force the recovery-section videos to play at 2x. Browsers reset
     // playbackRate when the video is (re)loaded or restarted via loop,
     // so we re-apply on the relevant events.
@@ -361,9 +388,9 @@
       });
     });
 
-    // Cross-modality: speaker icon toggles audio on the second audio
-    // video. Browsers block autoplay-with-sound, so the video starts
-    // muted and the user has to click to enable sound.
+    // Cross-modality: speaker icon toggles audio on the audio_mod video.
+    // Browsers block autoplay-with-sound, so the video starts muted and
+    // the user clicks to enable sound.
     document.querySelectorAll('.crossmod-audio-toggle').forEach(function (btn) {
       var video = document.getElementById(btn.dataset.target);
       if (!video) return;
@@ -371,7 +398,6 @@
         var willUnmute = video.muted;
         video.muted = !willUnmute;
         if (willUnmute) {
-          // First user gesture — kick playback in case the browser paused it.
           var p = video.play();
           if (p && typeof p.catch === 'function') p.catch(function () {});
         }

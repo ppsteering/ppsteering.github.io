@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proxy Policy Steering</title>
+  <meta name="description"
+        content="Proxy Policy Steering: Inference-Time Adaptation of Robotic Foundation Models.">
+  <meta name="keywords"
+        content="Proxy Policy Steering, PPS, VLA, robotic foundation models, flow matching, policy steering">
+  <link rel="icon" href="./static/images/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./static/css/style.css">
+</head>
+<body>
+
+  <main class="main">
+
+    <header>
+      <h1 class="hero-title">Proxy Policy Steering</h1>
+
+      <div class="authors">
+        Anonymous Authors
+        <!-- <span class="affiliation">Submitted to CoRL 2026</span> -->
+      </div>
+
+      <!--
+      Quick-links block is hidden until the public-facing URLs exist.
+      Re-enable by removing the HTML comment wrappers below.
+
+      <nav class="quick-links">
+        <a href="#" target="_blank" rel="noopener">[paper]</a>
+        <a href="#" target="_blank" rel="noopener">[code]</a>
+      </nav>
+      -->
+    </header>
+
+    <figure class="figure">
+      <video controls autoplay muted loop playsinline preload="auto"
+             style="width: 100%; display: block;">
+        <source src="./static/images/introduction.mp4" type="video/mp4">
+        Your browser does not support the HTML5 video tag.
+      </video>
+      <figcaption class="teaser-caption">
+        <strong>PPS</strong> steers a frozen foundation model at
+        inference time through proxy policies.
+      </figcaption>
+    </figure>
+
+    <section class="section" id="abstract">
+      <div class="tagline">Abstract</div>
+
+      <p>
+        Robotics foundation models carry broad manipulation priors from
+        large-scale data, but specializing them to a new task remains the
+        deployment bottleneck. This requires injecting new task-specific
+        behavior from limited demonstrations without eroding their broad
+        capabilities. We introduce
+        <strong>Proxy Policy Steering (PPS)</strong>, a novel adaptation
+        method that addresses this challenge by training two lightweight
+        proxy policies. A <em>reference proxy</em> models the frozen
+        base's behavior on target-task observations, and a
+        <em>task proxy</em>, initialized from the reference, captures how
+        this behavior changes under task supervision. Their difference
+        forms a calibrated velocity-space residual that steers the frozen
+        base sampler at every denoising step.
+        We identify the conditions under which this residual isolates the
+        change induced by task supervision, and validate them empirically.
+        On 8 real-world and 4 simulation manipulation tasks, PPS lifts the
+        state-of-the-art &pi;<sub>0.5</sub> base policy by 53% absolute
+        success rate on average, with 0-to-1 gains on tasks the base
+        never solves, while preserving the base's broad capabilities. PPS
+        outperforms LoRA fine-tuning, from-scratch specialists, residual
+        policies, and prior inference-time steering methods.
+      </p>
+    </section>
+
+    <section class="section" id="method">
+      <div class="tagline">Method</div>
+
+      <figure class="figure">
+        <img src="./static/images/teaser_web.png" alt="PPS method overview">
+      </figure>
+
+      <p>
+        PPS trains two small proxy policies and uses their velocity
+        difference to steer the frozen base sampler:
+      </p>
+      <ul>
+        <li>
+          <strong>Reference proxy</strong>
+          <em>v</em><sub>ref</sub>: distilled from the base's denoising
+          trajectories on the target task. It captures the base-like
+          behavior on this specific task that the proxy architecture can express.
+        </li>
+        <li>
+          <strong>Task proxy</strong>
+          <em>v</em><sub>task</sub>: initialized from
+          <em>v</em><sub>ref</sub>, then fine-tuned on task
+          demonstrations with the standard flow-matching loss.
+        </li>
+      </ul>
+      <p>At inference, PPS integrates the guided velocity field:</p>
+
+      <div class="equation">
+        v<sub>PPS(x, k, o, l) =
+        v<sub>base</sub>(x, k, o, l) +
+        γ &middot; [
+        v<sub>task</sub>(x, k, o) &minus;
+        v<sub>ref</sub>(x, k, o) ]
+      </div>
+
+      <p>
+        their velocity-space residual captures the task-induced distribution shift and steers the
+        frozen base policy at inference to apprximate a fine-tuned distribution.
+      </p>
+    </section>
+
+    <section class="section" id="tasks">
+      <div class="tagline stat-tagline">+53% on Real-world Tasks</div>
+
+      <p>
+        We evaluate PPS on 8 real-world manipulation tasks, spanning long-horizon goals, articulated and deformable
+        objects, and diverse skills. The benchmark mixes tasks the base
+        model has seen during pretraining with challenging
+        out-of-distribution tasks. PPS delivers consistent gains over the
+        base model and outperforms fine-tuned models, training-from-scratch policies, and
+        prior steering-based baselines.
+      </p>
+
+      <div class="video-gallery" id="resultsGallery">
+        <div class="video-gallery-track" id="resultsGalleryTrack">
+          <figure class="gallery-item">
+            <video class="gallery-video" src="./static/videos/coffee.mp4"
+                   autoplay muted loop playsinline preload="metadata"></video>
+            <figcaption class="gallery-caption">Coffee Brewing</figcaption>
+          </figure>
+          <figure class="gallery-item">
+            <video class="gallery-video" src="./static/videos/drawer.mp4"
+                   autoplay muted loop playsinline preload="metadata"></video>
+            <figcaption class="gallery-caption">Drawer Stowing</figcaption>
+          </figure>
+          <figure class="gallery-item">
+            <video class="gallery-video" src="./static/videos/flower.mp4"
+                   autoplay muted loop playsinline preload="metadata"></video>
+            <figcaption class="gallery-caption">Flower Arrangement</figcaption>
+          </figure>
+          <figure class="gallery-item">
+            <video class="gallery-video" src="./static/videos/jeans.mp4"
+                   autoplay muted loop playsinline preload="metadata"></video>
+            <figcaption class="gallery-caption">Jeans Folding</figcaption>
+          </figure>
+          <figure class="gallery-item">
+            <video class="gallery-video" src="./static/videos/lever.mp4"
+                   autoplay muted loop playsinline preload="metadata"></video>
+            <figcaption class="gallery-caption">Lever Pressing</figcaption>
+          </figure>
+          <figure class="gallery-item">
+            <video class="gallery-video" src="./static/videos/shoe.mp4"
+                   autoplay muted loop playsinline preload="metadata"></video>
+            <figcaption class="gallery-caption">Shoe Retrieval</figcaption>
+          </figure>
+          <figure class="gallery-item">
+            <video class="gallery-video" src="./static/videos/tissue.mp4"
+                   autoplay muted loop playsinline preload="metadata"></video>
+            <figcaption class="gallery-caption">Tissue Wiping</figcaption>
+          </figure>
+          <figure class="gallery-item">
+            <video class="gallery-video" src="./static/videos/utensile.mp4"
+                   autoplay muted loop playsinline preload="metadata"></video>
+            <figcaption class="gallery-caption">Utensil Insertion</figcaption>
+          </figure>
+        </div>
+        <div class="gallery-nav-controls">
+          <button type="button" class="gallery-nav"
+                  aria-label="Scroll videos left"
+                  data-target="resultsGalleryTrack"
+                  data-direction="left">&lsaquo;</button>
+          <button type="button" class="gallery-nav"
+                  aria-label="Scroll videos right"
+                  data-target="resultsGalleryTrack"
+                  data-direction="right">&rsaquo;</button>
+        </div>
+      </div>
+
+      <figure class="figure">
+        <img src="./static/images/results_merged_web.png"
+             alt="Per-task success rate across models, with the average column at the right">
+      </figure>
+    </section>
+
+    <section class="section" id="sim">
+      <div class="tagline stat-tagline">+51% on Simulation Tasks</div>
+
+      <p>
+        In simulation, PPS lifts the &pi;<sub>0.5</sub> base policy by 51% absolute
+        success rate on average across four tasks,
+        outperforming LoRA, specialist, residual, and DSRL baselines on
+        every task.
+      </p>
+
+      <div class="video-gallery" id="simGallery">
+        <div class="video-gallery-track" id="simGalleryTrack">
+          <figure class="gallery-item">
+            <video class="gallery-video" src="./static/videos/sim_fruit.mp4"
+                   autoplay muted loop playsinline preload="metadata"></video>
+            <figcaption class="gallery-caption">Fruit Weighing</figcaption>
+          </figure>
+          <figure class="gallery-item">
+            <video class="gallery-video" src="./static/videos/sim_egg.mp4"
+                   autoplay muted loop playsinline preload="metadata"></video>
+            <figcaption class="gallery-caption">Egg Cooking</figcaption>
+          </figure>
+          <figure class="gallery-item">
+            <video class="gallery-video" src="./static/videos/sim_tea.mp4"
+                   autoplay muted loop playsinline preload="metadata"></video>
+            <figcaption class="gallery-caption">Tea Pouring</figcaption>
+          </figure>
+          <figure class="gallery-item">
+            <video class="gallery-video" src="./static/videos/sim_capsule.mp4"
+                   autoplay muted loop playsinline preload="metadata"></video>
+            <figcaption class="gallery-caption">Capsule Loading</figcaption>
+          </figure>
+        </div>
+        <div class="gallery-nav-controls">
+          <button type="button" class="gallery-nav"
+                  aria-label="Scroll videos left"
+                  data-target="simGalleryTrack"
+                  data-direction="left">&lsaquo;</button>
+          <button type="button" class="gallery-nav"
+                  aria-label="Scroll videos right"
+                  data-target="simGalleryTrack"
+                  data-direction="right">&rsaquo;</button>
+        </div>
+      </div>
+
+      <figure class="figure">
+        <img src="./static/images/sim_results_merged_web.png"
+             alt="Simulation per-task success rate across models, with the average column at the right">
+      </figure>
+    </section>
+
+    <section class="section" id="robustness">
+      <div class="tagline">Robustness of PPS</div>
+
+      <p>
+        Because PPS leaves the base model intact, the combined policy
+        inherits the base's board priors and shows robust recovery behaviors even no recovery data is collected in the demonstrations.
+        Whereas LoRA fine-tuning overfits to the limited demonstrations and loses these priors, leading to failures under perturbations.
+      </p>
+
+      <div class="recovery-grid">
+        <div class="recovery-col-header">LoRA</div>
+        <div class="recovery-col-header">PPS (Ours)</div>
+
+        <div class="recovery-cell">
+          <video class="recovery-video" src="./static/videos/lora_jeans.mp4"
+                 autoplay muted loop playsinline preload="metadata"></video>
+          <span class="recovery-badge">2X</span>
+        </div>
+        <div class="recovery-cell">
+          <video class="recovery-video" src="./static/videos/ours_jeans.mp4"
+                 autoplay muted loop playsinline preload="metadata"></video>
+          <span class="recovery-badge">2X</span>
+        </div>
+
+        <div class="recovery-cell">
+          <video class="recovery-video" src="./static/videos/lora_utensil.mp4"
+                 autoplay muted loop playsinline preload="metadata"></video>
+          <span class="recovery-badge">2X</span>
+        </div>
+        <div class="recovery-cell">
+          <video class="recovery-video" src="./static/videos/ours_utensil.mp4"
+                 autoplay muted loop playsinline preload="metadata"></video>
+          <span class="recovery-badge">2X</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="multimodal">
+      <div class="tagline">Cross-Modality Steering</div>
+
+      <p>
+        The proxy architecture is independent of the base model's
+        input design. Therefore, PPS can route extra modalities like point cloud or audio into the base model through the task
+        proxy. Here, the poin cloud input helps to locate the texture-less object, and the audio input distinguishes the rining phone from the silent one.
+        This makes PPS a flexible enhancement module for possible hardware updates.
+      </p>
+
+      <div class="crossmod-grid">
+        <div class="crossmod-col-header">Base policy input</div>
+        <div class="crossmod-col-header">Additional modality</div>
+
+        <video class="crossmod-video" src="./static/videos/pointcloud_base.mp4"
+               autoplay muted loop playsinline preload="metadata"></video>
+        <div class="crossmod-cell">
+          <video class="crossmod-video" src="./static/videos/pointcloud_mod.mp4"
+                 autoplay muted loop playsinline preload="metadata"></video>
+          <span class="crossmod-tag">point cloud</span>
+        </div>
+
+        <video class="crossmod-video" src="./static/videos/audio_base.mp4"
+               autoplay muted loop playsinline preload="metadata"></video>
+        <div class="crossmod-cell">
+          <video class="crossmod-video" id="crossmodAudioMod"
+                 src="./static/videos/audio_mod.mp4"
+                 autoplay muted loop playsinline preload="metadata"></video>
+          <span class="crossmod-tag">audio</span>
+          <button type="button" class="crossmod-audio-toggle"
+                  data-target="crossmodAudioMod"
+                  aria-label="Play sound" title="Play sound">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M3 9v6h4l5 5V4l-5 5H3z"></path>
+              <g class="speaker-waves">
+                <path d="M15.5 8a4.5 4.5 0 010 8" fill="none"
+                      stroke-width="2" stroke-linecap="round"></path>
+                <path d="M18 5a8 8 0 010 14" fill="none"
+                      stroke-width="2" stroke-linecap="round"></path>
+              </g>
+              <line class="speaker-slash" x1="4" y1="20" x2="20" y2="4"
+                    stroke-width="2.5" stroke-linecap="round"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      Design adapted from the
+      <a href="https://www.videomimic.net/" target="_blank" rel="noopener">VideoMimic</a>
+      project page.
+    </footer>
+
+  </main>
+
+  <script>
+    // Horizontal-scroll buttons for the video gallery.
+    // Each .gallery-nav has data-target="<id of the track div>" and
+    // data-direction="left"|"right". Clicking scrolls the track by
+    // roughly one card width.
+    document.querySelectorAll('.gallery-nav').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var target = document.getElementById(btn.dataset.target);
+        if (!target) return;
+        var card = target.querySelector('.gallery-item, .gallery-video');
+        var step = card
+          ? card.getBoundingClientRect().width + 14  /* card + gap */
+          : target.clientWidth * 0.8;
+        var dir = btn.dataset.direction === 'right' ? 1 : -1;
+        target.scrollBy({ left: dir * step, behavior: 'smooth' });
+      });
+    });
+
+    // Force the recovery-section videos to play at 2x. Browsers reset
+    // playbackRate when the video is (re)loaded or restarted via loop,
+    // so we re-apply on the relevant events.
+    document.querySelectorAll('.recovery-video').forEach(function (v) {
+      var setRate = function () { v.playbackRate = 2.0; };
+      setRate();
+      ['loadedmetadata', 'loadeddata', 'canplay', 'play', 'seeked'].forEach(function (ev) {
+        v.addEventListener(ev, setRate);
+      });
+    });
+
+    // Cross-modality: speaker icon toggles audio on the second audio
+    // video. Browsers block autoplay-with-sound, so the video starts
+    // muted and the user has to click to enable sound.
+    document.querySelectorAll('.crossmod-audio-toggle').forEach(function (btn) {
+      var video = document.getElementById(btn.dataset.target);
+      if (!video) return;
+      btn.addEventListener('click', function () {
+        var willUnmute = video.muted;
+        video.muted = !willUnmute;
+        if (willUnmute) {
+          // First user gesture — kick playback in case the browser paused it.
+          var p = video.play();
+          if (p && typeof p.catch === 'function') p.catch(function () {});
+        }
+        btn.classList.toggle('is-on', willUnmute);
+        btn.setAttribute('aria-label', willUnmute ? 'Mute sound' : 'Play sound');
+        btn.setAttribute('title', willUnmute ? 'Mute sound' : 'Play sound');
+      });
+    });
+  </script>
+
+</body>
+</html>
