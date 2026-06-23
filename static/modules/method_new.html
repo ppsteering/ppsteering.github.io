@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PPS Interactive Method Diagram</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root { --maxw: 1180px; }
+
+  /* ===== Brand fonts (from the PPS site) ===== */
+  body {
+    --font-original: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    --font-mono: 'Roboto Mono', ui-monospace, monospace;
+    --font-math: 'Cambria Math', 'Latin Modern Math', Georgia, 'Times New Roman', serif;
+  }
+
+  /* ---------- Direction A : site / light (warm cream) ---------- */
+  body[data-theme="a"] {
+    --bg: #fdfaf4; --panel: #fffdf8; --ink: #1b1b1b; --sub: #6b6453;
+    --line: #e4dcc8; --soft: #efece4; --accent: #3f7fc4; --resid: #e0863a;
+    --eqborder: #c6bba0; --c-base: #7b5ea7; --c-pps: #4f9d5d; --good: #3f8f6a; --warn: #c08a3a; --bad: #bf5a45;
+    --shadow: 0 1px 2px rgba(40,32,16,0.05);
+  }
+  /* ---------- Direction B : dark (warm) ---------- */
+  body[data-theme="b"] {
+    --bg: #1c1913; --panel: #241f18; --ink: #efe8d7; --sub: #a99e84;
+    --line: #332e23; --soft: #262019; --accent: #5fa0e0; --resid: #e8a05a;
+    --eqborder: #6b5f44; --c-base: #a98fd0; --c-pps: #6fc080; --good: #5cbf93; --warn: #e0b25a; --bad: #df7a63;
+    --shadow: 0 4px 18px rgba(0,0,0,0.32);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--ink); font-family: var(--font-original);
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+    transition: background .35s ease, color .35s ease;
+  }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 28px 26px 60px; }
+
+  .top { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--sub); margin: 0 0 10px; }
+  h1 { font-weight: 600; letter-spacing: -0.015em; font-size: clamp(26px, 3.4vw, 40px);
+    line-height: 1.05; margin: 0 0 12px; max-width: 16ch; }
+  .lede { font-size: 16px; line-height: 1.5; color: var(--sub); margin: 0; max-width: 52ch; }
+
+  .toggle { display: inline-flex; padding: 4px; background: var(--soft);
+    border: 1px solid var(--line); border-radius: 999px; gap: 2px; }
+  .toggle button { font-family: var(--font-original); font-size: 12.5px; font-weight: 600;
+    color: var(--sub); background: transparent; border: 0; cursor: pointer;
+    padding: 8px 15px; border-radius: 999px; transition: all .2s ease; white-space: nowrap; }
+  .toggle button.on { background: var(--panel); color: var(--ink); box-shadow: var(--shadow); }
+  .toggle .tlabel { display:block; font-size: 10px; font-weight: 500; opacity: .7; margin-top: 1px; }
+
+  /* control bar */
+  .bar { margin-top: 24px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .bar .cap { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--sub); }
+  .seg { display: inline-flex; padding: 3px; background: var(--soft); border: 1px solid var(--line); border-radius: 9px; gap: 2px; }
+  .seg button { font-family: var(--font-original); font-size: 12.5px; font-weight: 600; color: var(--sub);
+    background: transparent; border: 0; cursor: pointer; padding: 7px 13px; border-radius: 7px; transition: all .18s ease; }
+  .seg button.on { background: var(--panel); color: var(--ink); box-shadow: var(--shadow); }
+
+  .module { margin-top: 14px; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; }
+  .grid { display: grid; grid-template-columns: 1.55fr 1fr; }
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+
+  .fieldwrap { position: relative; border-right: 1px solid var(--line); }
+  @media (max-width: 860px) { .fieldwrap { border-right: 0; border-bottom: 1px solid var(--line); } }
+  #field { display: block; width: 100%; height: 460px; }
+  @media (max-width: 860px) { #field { height: 380px; } }
+  .badge { position: absolute; top: 14px; right: 14px; font-family: var(--font-mono);
+    font-size: 10.5px; color: var(--sub); background: var(--bg); border: 1px solid var(--line);
+    padding: 5px 9px; border-radius: 7px; }
+  .vhint { position: absolute; bottom: 14px; left: 16px; right: 16px; font-size: 12px; line-height: 1.4;
+    color: var(--sub); pointer-events: none; }
+
+  .side { padding: 22px 22px 24px; display: flex; flex-direction: column; gap: 18px; }
+  .eq { font-family: var(--font-math); font-size: 17px; line-height: 1.6; text-align: center;
+    white-space: nowrap; letter-spacing: -0.2px;
+    background: var(--soft); border-left: 3px solid var(--eqborder); border-radius: 4px;
+    padding: 14px 10px; color: var(--ink); }
+  .eq i { font-style: italic; } .eq sub { font-style: normal; }
+  .eq .pps { color: var(--c-pps); font-weight: 600; }
+  .eq .b { color: var(--c-base); } .eq .t { color: var(--accent); } .eq .r { color: var(--resid); }
+  .eq .g { color: var(--resid); font-weight: 700; font-style: normal; }
+
+  .ctl-label { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .ctl-label .k { font-size: 13px; font-weight: 600; }
+  .ctl-label .v { font-family: var(--font-mono); font-size: 15px; color: var(--resid); font-weight: 500; }
+  input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 4px;
+    background: var(--line); border-radius: 99px; outline: none; margin: 6px 0 2px; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none;
+    width: 18px; height: 18px; border-radius: 50%; background: var(--resid);
+    border: 3px solid var(--panel); box-shadow: var(--shadow); cursor: pointer; }
+  input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%;
+    background: var(--resid); border: 3px solid var(--panel); cursor: pointer; }
+  .ticks { display: flex; justify-content: space-between; font-family: var(--font-mono);
+    font-size: 10px; color: var(--sub); margin-top: 4px; }
+
+  .btns { display: flex; gap: 8px; }
+  .btns button { flex: 1; font-family: var(--font-original); font-size: 13px; font-weight: 600;
+    color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+    padding: 9px 10px; cursor: pointer; transition: background .15s ease; }
+  .btns button:hover { background: var(--soft); }
+
+  .curvewrap { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 6px 6px 2px; }
+  .curve-title { font-size: 11px; font-weight: 600; color: var(--sub); padding: 6px 8px 2px; display:flex; justify-content: space-between; }
+  #curve { display: block; width: 100%; height: 150px; }
+
+  .verdict { display: flex; gap: 11px; align-items: flex-start; padding: 13px 14px; border-radius: 8px; background: var(--soft); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 4px; flex: 0 0 auto; background: var(--good); }
+  .verdict .vh { font-size: 13.5px; font-weight: 600; margin: 0 0 2px; }
+  .verdict .vp { font-size: 12.5px; line-height: 1.45; color: var(--sub); margin: 0; }
+
+  .caption { margin-top: 22px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  @media (max-width: 720px) { .caption { grid-template-columns: 1fr; } }
+  .caption .n { font-family: var(--font-mono); font-size: 11px; color: var(--resid); margin: 0 0 6px; }
+  .caption h3 { font-size: 15px; margin: 0 0 5px; font-weight: 600; }
+  .caption p { font-size: 13px; line-height: 1.5; color: var(--sub); margin: 0; }
+
+  .foot { margin-top: 30px; font-size: 12px; color: var(--sub); line-height: 1.5; max-width: 70ch; }
+  .foot code { font-family: var(--font-mono); font-size: 11px; background: var(--soft); padding: 1px 5px; border-radius: 4px; }
+
+  html.pps-embedded, body.embed { background: transparent; }
+  body.embed .wrap { padding: 0; max-width: none; }
+  body.embed .eyebrow, body.embed h1, body.embed .lede, body.embed .foot { display: none; }
+  body.embed .top { justify-content: flex-end; }
+</style>
+</head>
+<body data-theme="a">
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <p class="eyebrow">Proxy Policy Steering · interactive figure</p>
+        <h1>Steering a frozen policy with a velocity-space residual</h1>
+        <p class="lede">Drag <strong>γ</strong> to set the steering strength. The residual
+          γ·(v<sub>task</sub>&nbsp;−&nbsp;v<sub>ref</sub>) slides the sampler's target from the base
+          prior toward the task mode. Success peaks where the paper reports it.</p>
+      </div>
+      <div class="toggle" role="tablist" aria-label="Visual direction">
+        <button id="ta" class="on" onclick="setDir('a')">Direction A<span class="tlabel">site / cream</span></button>
+        <button id="tb" onclick="setDir('b')">Direction B<span class="tlabel">dark / warm</span></button>
+      </div>
+    </div>
+
+    <div class="module">
+      <div class="grid">
+        <div class="fieldwrap">
+          <canvas id="field"></canvas>
+          <div class="badge">action space · 2D projection</div>
+          <div class="vhint" id="vhint"></div>
+        </div>
+        <div class="side">
+          <div class="eq">
+            <span class="pps"><i>v</i><sub>PPS</sub></span> = <span class="b"><i>v</i><sub>base</sub></span> +
+            <span class="g" id="eqg">0.50</span> · [ <span class="t"><i>v</i><sub>task</sub></span> − <span class="r"><i>v</i><sub>ref</sub></span> ]
+          </div>
+          <div>
+            <div class="ctl-label"><span class="k">Steering strength γ</span><span class="v" id="gval">0.50</span></div>
+            <input id="gamma" type="range" min="0" max="1.2" step="0.01" value="0.5" />
+            <div class="ticks"><span>0 · base</span><span>0.5 · best</span><span>1.2 · overshoot</span></div>
+          </div>
+          <div class="btns">
+            <button id="play" onclick="togglePlay()">❚❚ Pause</button>
+            <button onclick="resetGamma()">Reset γ</button>
+          </div>
+          <div class="curvewrap">
+            <div class="curve-title"><span>Success rate vs γ</span><span id="srate">80%</span></div>
+            <canvas id="curve"></canvas>
+          </div>
+          <div class="verdict">
+            <span class="dot" id="vdot"></span>
+            <div><p class="vh" id="vh">Steers into the task mode</p>
+              <p class="vp" id="vp">The residual is strong enough to reach task behaviour while the base prior keeps the sampler robust.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="caption">
+      <div class="c"><p class="n">γ = 0</p><h3>Frozen base</h3>
+        <p>The residual vanishes. The sampler stays at the base prior, which never solves an out-of-distribution task.</p></div>
+      <div class="c"><p class="n">γ ≈ 0.5</p><h3>Calibrated steering</h3>
+        <p>v<sub>task</sub> − v<sub>ref</sub> isolates the task change and tilts the sampler into the demonstrated mode while keeping base priors.</p></div>
+      <div class="c"><p class="n">γ &gt; 1</p><h3>Overshoot</h3>
+        <p>Over-trusting the proxy overshoots the task mode and discards base robustness. Success falls back off.</p></div>
+    </div>
+
+    <p class="foot">Proof-of-concept module. The 2D field is a faithful schematic of Eq. (4) with v<sub>ref</sub>&nbsp;≈&nbsp;v<sub>base</sub>; the success curve is traced from Fig. 4a (peak at γ = 0.4). Set your page's typeface once via <code>--font-original</code>. To make it data-exact I'll ingest your stored per-step <code>x_k</code>, <code>v_base</code>, <code>v_ref</code>, <code>v_task</code> for the three models.</p>
+  </div>
+
+  <script src="pps-embed.js"></script>
+  <script src="pps-diagram_new.js"></script>
+  <script>
+    var diag = new window.PPSDiagramNew({
+      field: document.getElementById('field'),
+      curve: document.getElementById('curve')
+    });
+    var gammaEl = document.getElementById('gamma');
+    function fmt(g){ return g.toFixed(2); }
+
+    // Single combined view: one denoising path noise → action plus the
+    // velocity-decomposition inset. No quiver field, no action cloud.
+    var COMBO_HINT = 'A single denoising rollout, noise → action, steered toward L(γ). The inset decomposes the velocity into v_base + γ·(v_task − v_ref).';
+
+    function updateVerdict(g){
+      var s = window.PPS_successAt(g);
+      document.getElementById('srate').textContent = Math.round(s*100) + '%';
+      var dot = document.getElementById('vdot'), vh = document.getElementById('vh'), vp = document.getElementById('vp');
+      var cs = getComputedStyle(document.body);
+      if (g < 0.25) { dot.style.background = cs.getPropertyValue('--bad');
+        vh.textContent = 'Collapses to the base prior';
+        vp.textContent = 'Too little steering: the sampler stays in the frozen base mode and the OOD task is rarely solved.';
+      } else if (g <= 0.62) { dot.style.background = cs.getPropertyValue('--good');
+        vh.textContent = 'Steers into the task mode';
+        vp.textContent = 'The residual reaches task behaviour while the base prior keeps the sampler robust. This is the peak.';
+      } else if (g <= 0.85) { dot.style.background = cs.getPropertyValue('--warn');
+        vh.textContent = 'Over-steering, success declining';
+        vp.textContent = 'Past the peak the residual pushes too hard and base robustness starts to erode.';
+      } else { dot.style.background = cs.getPropertyValue('--bad');
+        vh.textContent = 'Overshoots the task mode';
+        vp.textContent = 'The sampler trusts the proxy too much, overshoots, and falls back toward base-level success.';
+      }
+    }
+    gammaEl.addEventListener('input', function(){
+      var g = parseFloat(this.value); diag.gamma = g;
+      document.getElementById('gval').textContent = fmt(g);
+      document.getElementById('eqg').textContent = fmt(g);
+      updateVerdict(g);
+    });
+    function togglePlay(){ diag.playing = !diag.playing;
+      document.getElementById('play').textContent = diag.playing ? '❚❚ Pause' : '►  Play'; }
+    function resetGamma(){ gammaEl.value = 0.5; gammaEl.dispatchEvent(new Event('input')); }
+    function setDir(d){ document.body.setAttribute('data-theme', d); diag.theme = d;
+      document.getElementById('ta').classList.toggle('on', d==='a');
+      document.getElementById('tb').classList.toggle('on', d==='b');
+      updateVerdict(parseFloat(gammaEl.value)); }
+    document.getElementById('vhint').textContent = COMBO_HINT;
+    updateVerdict(0.5);
+  </script>
+</body>
+</html>
