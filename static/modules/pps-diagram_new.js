@@ -310,14 +310,12 @@
     ctx.fillText('init noise  x₁ ~ N(0, I)', Ns.x, this.W2S({ x: N.x, y: N.y + NS * 2.1 }).y + 17);
   };
 
-  // Three-stop color interpolation that mirrors plot_flow_matching.py's
-  // base → pps → task progression: purple (γ=0) → green (γ=0.5) → blue (γ=1).
-  // For γ outside [0,1] we clamp to the endpoint colour.
+  // Two-stop color interpolation aligned with the shape morph base → pps:
+  // purple (γ=0) → green (γ=1). Clamped outside [0,1].
   function ppsColorAt(g, p) {
     if (g <= 0) return p.base;
-    if (g >= 1) return p.task;
-    if (g <= 0.5) return mix(p.base, p.pps, g * 2);
-    return mix(p.pps, p.task, (g - 0.5) * 2);
+    if (g >= 1) return p.pps;
+    return mix(p.base, p.pps, g);
   }
 
   // Linear interpolation of two Gaussian kernels (mean + covariance).
@@ -471,43 +469,40 @@
     var g = this.gamma, self = this;
     var ppsCol = ppsColorAt(g, p);
 
-    // (1) PPS distribution as two Gaussian kernels, each interpolated in
-    // mean *and* covariance between a base config (γ=0) and a task config
-    // (γ=1). At γ=1 both kernels collapse onto the task mode, so the pair
-    // visually reads as the single tilted ellipse from _right_pdf_task.
-    // Covariances are taken from plot_flow_matching.py's PDFs; means are
-    // placed around B and T to fit the canvas.
-    var muA0 = { x: B.x - 0.08, y: B.y - 0.18 };
-    var muB0 = { x: B.x + 0.07, y: B.y + 0.16 };
-    var muA1 = { x: T.x,        y: T.y        };
-    var muB1 = { x: T.x,        y: T.y        };
-    var covA0 = [0.60, -0.40, 1.00];   // plot.base[0]
-    var covB0 = [0.80,  0.00, 0.55];   // plot.base[1]
-    var covA1 = [0.43, -0.10, 0.98];   // plot.task
-    var covB1 = [0.43, -0.10, 0.98];   // plot.task
+    // (1) PPS distribution as two Gaussian kernels at *fixed* positions —
+    // only the covariances morph with γ, from the base config (γ=0) to the
+    // PPS config (γ=1). Covariances are taken straight from
+    // plot_flow_matching.py's _right_pdf_base and _right_pdf_pps.
+    var muA = { x: -0.18, y: 0.30 };
+    var muB = { x:  0.16, y: 0.74 };
+    var covA0 = [0.60, -0.40, 1.00];   // plot.base mode 1
+    var covB0 = [0.80,  0.00, 0.55];   // plot.base mode 2
+    var covA1 = [0.36, -0.21, 0.84];   // plot.pps  mode 1
+    var covB1 = [0.30, -0.19, 0.95];   // plot.pps  mode 2
 
     var gC = Math.min(1, Math.max(0, g));
-    var muA = lerpMu(muA0, muA1, gC), muB = lerpMu(muB0, muB1, gC);
-    var covA = lerpCov(covA0, covA1, gC), covB = lerpCov(covB0, covB1, gC);
+    var covA = lerpCov(covA0, covA1, gC);
+    var covB = lerpCov(covB0, covB1, gC);
     var eA = covEig(covA), eB = covEig(covB);
 
-    // visScale: world units per source-σ. Tuned so the outer 2-σ band of
-    // the largest plot covariance still fits the canvas.
-    var KS = MS * 0.95;
+    // visScale: world units per source-σ. Bumped from MS·0.95 → MS·1.55
+    // so the contour bands are clearly visible at the canvas size.
+    var KS = MS * 1.55;
     var rxA = KS * Math.sqrt(eA.lmax) * 2, ryA = KS * Math.sqrt(eA.lmin) * 2;
     var rxB = KS * Math.sqrt(eB.lmax) * 2, ryB = KS * Math.sqrt(eB.lmin) * 2;
     // Canvas y points down (world y is flipped on screen) → negate angle.
     this.ellipseBands(ctx, muA, rxA, ryA, -eA.theta, ppsCol, 0.22);
     this.ellipseBands(ctx, muB, rxB, ryB, -eB.theta, ppsCol, 0.22);
 
-    // Caption: place under the visually-bottom edge of either mode
-    // (largest world-y after adding the outer radius).
-    var botA = muA.y + rxA, botB = muB.y + rxB;
-    var labelAnchor = { x: (muA.x + muB.x) / 2, y: Math.max(botA, botB) };
+    // Caption: place under the bottom-most extent of either mode (world y
+    // increases downward on canvas, so larger y = lower on screen).
+    var bottomY = Math.max(muA.y + Math.max(rxA, ryA),
+                           muB.y + Math.max(rxB, ryB));
+    var labelAnchor = { x: (muA.x + muB.x) / 2, y: bottomY };
     ctx.font = '600 15px ' + fontStack(); ctx.textAlign = 'center';
     ctx.fillStyle = ppsCol;
     ctx.fillText('PPS distribution', this.W2S(labelAnchor).x,
-                 this.W2S(labelAnchor).y + 18);
+                 this.W2S(labelAnchor).y + 14);
 
     // (2) Single denoising rollout noise → action; end-of-path colour
     // matches the PPS-distribution colour so the path lands inside its mode.
