@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PPS Baseline Comparison</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  body {
+    --font: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    --mono: 'Roboto Mono', ui-monospace, monospace;
+    --bg: #fdfaf4; --panel: #fffdf8; --ink: #1b1b1b; --sub: #6b6453;
+    --line: #e4dcc8; --soft: #efece4; --shadow: 0 1px 2px rgba(40,32,16,0.05);
+    --pps: #4f9d5d; --base: #8a72b3; --lora: #c0563f;
+    margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font);
+    -webkit-font-smoothing: antialiased;
+  }
+  * { box-sizing: border-box; }
+  .wrap { max-width: 940px; margin: 0 auto; padding: 30px 24px 40px; }
+  .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--sub); margin: 0 0 10px; }
+  h1 { font-weight: 700; letter-spacing: -0.015em; font-size: clamp(24px, 3vw, 32px); line-height: 1.1; margin: 0 0 10px; }
+  .lede { font-size: 16px; line-height: 1.55; color: var(--sub); margin: 0 0 20px; max-width: 60ch; }
+
+  /* task tabs */
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+  .tabs button { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font); font-size: 14px; font-weight: 600;
+    color: var(--sub); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 9px 16px; cursor: pointer; box-shadow: var(--shadow); transition: all .18s ease; }
+  .tabs button:hover { background: var(--soft); }
+  .tabs button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  .stage { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 18px; }
+  .nav { position: absolute; top: 50%; transform: translateY(-50%); z-index: 4; width: 42px; height: 42px; border-radius: 50%;
+    background: rgba(27,27,27,0.62); color: #fff; border: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s ease; }
+  .nav:hover { background: rgba(27,27,27,0.85); }
+  .nav svg { width: 18px; height: 18px; }
+  .nav.prev { left: 8px; } .nav.next { right: 8px; }
+
+  /* hero (Ours) */
+  .hero { position: relative; border-radius: 12px; overflow: hidden; border: 2.5px solid var(--pps); background: #000; }
+  .hero video { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: var(--soft); }
+  .tag { position: absolute; left: 12px; top: 12px; z-index: 3; display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12.5px; font-weight: 700; color: #fff; padding: 5px 11px; border-radius: 999px; letter-spacing: .01em; }
+  .tag.pps { background: var(--pps); }
+  .tag.base { background: var(--base); }
+  .tag.lora { background: var(--lora); }
+  .tag .crown { font-size: 11px; }
+
+  /* baselines row */
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+  @media (max-width: 560px) { .row { grid-template-columns: 1fr; } }
+  .base-item { position: relative; border-radius: 11px; overflow: hidden; border: 2px solid var(--line); background: #000; }
+  .base-item.b-base { border-color: color-mix(in srgb, var(--base) 55%, var(--line)); }
+  .base-item.b-lora { border-color: color-mix(in srgb, var(--lora) 55%, var(--line)); }
+  .base-item video { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: var(--soft); }
+
+  .missing { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center;
+    font-family: var(--mono); font-size: 11px; color: var(--sub); background: var(--soft); padding: 12px; }
+
+  .dots { display: flex; gap: 8px; justify-content: center; margin-top: 16px; }
+  .dots button { width: 9px; height: 9px; border-radius: 50%; border: 0; padding: 0; cursor: pointer; background: var(--line); transition: all .18s ease; }
+  .dots button.on { background: var(--ink); transform: scale(1.2); }
+
+  .foot { margin-top: 18px; font-size: 12.5px; color: var(--sub); line-height: 1.5; text-align: center; }
+
+  html.pps-embedded, body.embed { background: transparent; }
+  body.embed .wrap { padding: 0; max-width: none; }
+  body.embed .eyebrow, body.embed h1, body.embed .lede { display: none; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="eyebrow">Proxy Policy Steering · head-to-head</p>
+    <h1>PPS versus the baselines, task by task</h1>
+    <p class="lede">The same task, run by all three methods. PPS sits on top; the base policy and LoRA fine-tuning are below. Use the arrows or dots to switch tasks.</p>
+
+    <div class="tabs" id="tabs"></div>
+
+    <div class="stage">
+      <button class="nav prev" id="prev" aria-label="Previous task"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+      <button class="nav next" id="next" aria-label="Next task"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+
+      <div class="hero">
+        <span class="tag pps"><span class="crown">★</span> PPS (Ours)</span>
+        <video id="v-pps" autoplay muted loop playsinline preload="metadata"></video>
+        <div class="missing" id="m-pps" hidden></div>
+      </div>
+
+      <div class="row">
+        <div class="base-item b-base">
+          <span class="tag base">Base (π₀.₅)</span>
+          <video id="v-base" autoplay muted loop playsinline preload="metadata"></video>
+          <div class="missing" id="m-base" hidden></div>
+        </div>
+        <div class="base-item b-lora">
+          <span class="tag lora">LoRA</span>
+          <video id="v-lora" autoplay muted loop playsinline preload="metadata"></video>
+          <div class="missing" id="m-lora" hidden></div>
+        </div>
+      </div>
+
+      <div class="dots" id="dots"></div>
+    </div>
+
+    <p class="foot" id="foot"></p>
+  </div>
+
+  <script src="pps-embed.js"></script>
+  <script src="pps-compare.js"></script>
+</body>
+</html>

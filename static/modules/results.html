@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PPS Results, Beat the Baselines</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  body {
+    --font: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    --mono: 'Roboto Mono', ui-monospace, monospace;
+    --bg: #fdfaf4; --panel: #fffdf8; --ink: #1b1b1b; --sub: #6b6453;
+    --line: #e4dcc8; --soft: #efece4; --shadow: 0 1px 2px rgba(40,32,16,0.05);
+    --pps: #4f9d5d; --base: #8a72b3; --bar: #cdbf9f; --refcol: rgba(138,114,179,0.6);
+    margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font);
+    -webkit-font-smoothing: antialiased;
+  }
+  * { box-sizing: border-box; }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 40px 30px 60px; }
+  .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--sub); margin: 0 0 10px; }
+  h1 { font-weight: 700; letter-spacing: -0.015em; font-size: clamp(26px, 3.2vw, 34px); line-height: 1.1; margin: 0 0 10px; }
+  .lede { font-size: 16px; line-height: 1.55; color: var(--sub); margin: 0 0 18px; max-width: 64ch; }
+
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; margin: 0 0 18px; font-size: 12.5px; color: var(--sub); align-items: center; }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .legend i { width: 16px; height: 11px; border-radius: 3px; display: inline-block; }
+  .legend .ln { width: 0; height: 15px; border-left: 1.5px dashed var(--refcol); }
+
+  .panels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 800px) { .panels { grid-template-columns: 1fr; max-width: 460px; } }
+
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); padding: 18px 18px 16px; }
+  .phead .ptitle { font-size: 16px; font-weight: 700; letter-spacing: -0.2px; }
+  .phead .psub { font-family: var(--mono); font-size: 10.5px; color: var(--sub); margin-top: 2px; }
+  .pdelta { margin: 12px 0 16px; display: flex; align-items: baseline; gap: 7px; }
+  .pdelta .big { font-family: var(--mono); font-size: 30px; font-weight: 600; color: var(--pps); letter-spacing: -1.5px; }
+  .pdelta .dl { font-size: 12px; color: var(--sub); }
+
+  .pchart { position: relative; display: flex; flex-direction: column; gap: 8px; }
+  .pref { position: absolute; top: -2px; bottom: -2px; width: 0; border-left: 1.5px dashed var(--refcol); z-index: 3; }
+  .prow { display: grid; grid-template-columns: 62px 1fr; align-items: center; gap: 9px; }
+  .plabel { font-size: 11.5px; font-weight: 600; text-align: right; color: var(--ink); white-space: nowrap; display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+  .ptrack { position: relative; height: 19px; }
+  .pfill { position: absolute; left: 0; top: 0; height: 100%; width: 0; background: var(--bar); border-radius: 4px; transition: width .7s cubic-bezier(.22,.61,.36,1); }
+  .pval { position: absolute; top: 0; height: 100%; display: flex; align-items: center; padding-left: 6px; font-family: var(--mono); font-size: 11px; color: var(--sub); white-space: nowrap; transition: left .7s cubic-bezier(.22,.61,.36,1), opacity .4s ease; pointer-events: none; }
+  .pna { font-family: var(--mono); font-size: 11px; color: var(--sub); opacity: .5; padding-left: 2px; line-height: 19px; }
+  .na .plabel { color: var(--sub); opacity: .55; }
+
+  .role1 .pfill { background: var(--pps); }
+  .role1 .plabel { color: var(--pps); font-weight: 800; }
+  .role1 .pval { color: var(--pps); font-weight: 700; }
+  .role2 .pfill { background: var(--base); }
+  .role2 .plabel { color: var(--base); }
+
+  .pbadge { font-size: 8.5px; font-weight: 800; letter-spacing: .3px; text-transform: uppercase; color: #fff; background: var(--pps); border-radius: 999px; padding: 1px 5px; }
+
+  .paxis { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 9.5px; color: var(--sub); margin-top: 8px; padding-left: 71px; }
+
+  .foot { margin-top: 24px; font-size: 12px; color: var(--sub); line-height: 1.5; max-width: 74ch; }
+  .foot code { font-family: var(--mono); font-size: 11px; background: var(--soft); padding: 1px 5px; border-radius: 4px; }
+
+  html.pps-embedded, body.embed { background: transparent; }
+  body.embed .wrap { padding: 0; max-width: none; }
+  body.embed .eyebrow, body.embed h1, body.embed .lede, body.embed .foot { display: none; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="eyebrow">Proxy Policy Steering · results</p>
+    <h1>PPS comes out ahead in every setting</h1>
+    <p class="lede">We compare average success rates across three evaluation settings. In all three, PPS reaches task behaviour that fine-tuning, specialists, residual policies, and earlier steering methods miss.</p>
+
+    <div class="legend">
+      <span><i style="background:#4f9d5d"></i> PPS (ours)</span>
+      <span><i style="background:#8a72b3"></i> base policy</span>
+      <span><i style="background:#cdbf9f"></i> baselines</span>
+      <span><span class="ln"></span> base reference</span>
+    </div>
+
+    <div class="panels" id="rpanels"></div>
+
+    <p class="foot">These are the averages reported in the appendix. A per-task breakdown needs a <code>method-by-task</code> table. The panels stack vertically on narrow screens.</p>
+  </div>
+  <script src="pps-embed.js"></script>
+  <script src="pps-results.js"></script>
+
+  <template id="__bundler_thumbnail" data-bg-color="#fdfaf4">
+    <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+      <rect width="1200" height="800" fill="#fdfaf4"/>
+      <rect x="300" y="250" width="600" height="40" rx="8" fill="#4f9d5d"/>
+      <rect x="300" y="320" width="430" height="40" rx="8" fill="#cdbf9f"/>
+      <rect x="300" y="390" width="250" height="40" rx="8" fill="#cdbf9f"/>
+      <rect x="300" y="460" width="180" height="40" rx="8" fill="#8a72b3"/>
+      <line x1="480" y1="230" x2="480" y2="520" stroke="#8a72b3" stroke-width="3" stroke-dasharray="6 6"/>
+    </svg>
+  </template>
+</body>
+</html>

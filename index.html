@@ -10,6 +10,17 @@
         content="Proxy Policy Steering, PPS, VLA, robotic foundation models, flow matching, policy steering">
   <link rel="icon" href="./static/images/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./static/css/style.css">
+  <style>
+    /* Interactive module embeds (added). Each module is an isolated same-origin
+       iframe under static/modules/, auto-sized to its content by the script at
+       the end of the page. Isolation avoids any CSS collision with style.css. */
+    .pps-embed-block { margin: 22px 0 4px; }
+    .pps-embed-frame { width: 100%; border: 0; display: block; overflow: hidden; background: transparent; }
+    .pps-new-flag { display: inline-block; font-family: 'Roboto Mono', ui-monospace, monospace;
+      font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: #4f9d5d;
+      border: 1px solid rgba(79,157,93,0.4); border-radius: 999px; padding: 2px 8px;
+      margin-left: 10px; vertical-align: middle; }
+  </style>
 </head>
 <body>
 
@@ -134,6 +145,19 @@
         the proxies agree it vanishes and the frozen base stays in control,
         preserving broadly useful priors.
       </p>
+
+      <!-- ADDED: interactive steering diagram -->
+      <div class="subheader">Try the steering yourself <span class="pps-new-flag">interactive</span></div>
+      <p>
+        Drag the steering strength and watch the residual carry a sampled action
+        from the base prior over to the task it was shown. The success curve is
+        traced from our sensitivity study, so you can feel why &gamma; near 0.4
+        works best.
+      </p>
+      <div class="pps-embed-block">
+        <iframe class="pps-embed-frame" data-embed src="./static/modules/method.html"
+                title="Interactive method diagram" scrolling="no" loading="lazy"></iframe>
+      </div>
     </section>
 
     <section class="section" id="results">
@@ -147,6 +171,29 @@
         steering baselines, with <strong>0-to-1 gains on tasks the base never
         solves on its own</strong>.
       </p>
+
+      <!-- ADDED: animated results chart -->
+      <div class="subheader">How the methods stack up <span class="pps-new-flag">interactive</span></div>
+      <p>
+        The same picture holds across all three settings. In each one the green
+        PPS bar sits on top, clearing the frozen base by a wide margin.
+      </p>
+      <div class="pps-embed-block">
+        <iframe class="pps-embed-frame" data-embed src="./static/modules/results.html"
+                title="Results, beat the baselines" scrolling="no" loading="lazy"></iframe>
+      </div>
+
+      <!-- ADDED: baseline comparison carousel -->
+      <div class="subheader">PPS against the baselines, task by task <span class="pps-new-flag">interactive</span></div>
+      <p>
+        The same task, run by all three methods. PPS plays large on top; the
+        base policy and LoRA fine-tuning are below. Step through the tasks with
+        the arrows or dots.
+      </p>
+      <div class="pps-embed-block">
+        <iframe class="pps-embed-frame" data-embed src="./static/modules/compare.html"
+                title="Baseline comparison carousel" scrolling="no" loading="lazy"></iframe>
+      </div>
 
       <div class="subheader">Real-World Tasks</div>
       <p class="stat-line">
@@ -275,6 +322,18 @@
           <span class="recovery-badge">2X</span>
         </div>
       </div>
+
+      <!-- ADDED: recovery storyboard -->
+      <div class="subheader">What recovery looks like, frame by frame <span class="pps-new-flag">interactive</span></div>
+      <p>
+        Reading each row from left to right shows the moment things go wrong and
+        what the policy does next. PPS tries again after a slip; LoRA carries
+        the mistake forward.
+      </p>
+      <div class="pps-embed-block">
+        <iframe class="pps-embed-frame" data-embed src="./static/modules/recovery.html"
+                title="Recovery storyboard" scrolling="no" loading="lazy"></iframe>
+      </div>
     </section>
 
     <section class="section" id="analysis">
@@ -389,8 +448,6 @@
     });
 
     // Cross-modality: speaker icon toggles audio on the audio_mod video.
-    // Browsers block autoplay-with-sound, so the video starts muted and
-    // the user clicks to enable sound.
     document.querySelectorAll('.crossmod-audio-toggle').forEach(function (btn) {
       var video = document.getElementById(btn.dataset.target);
       if (!video) return;
@@ -406,6 +463,33 @@
         btn.setAttribute('title', willUnmute ? 'Mute sound' : 'Play sound');
       });
     });
+
+    // ADDED: auto-size the interactive-module iframes to their content.
+    // Modules post their height (pps-embed.js); we also poll the same-origin
+    // document directly as a robust fallback.
+    window.addEventListener('message', function (e) {
+      var d = e.data;
+      if (!d || typeof d.ppsEmbedHeight !== 'number') return;
+      document.querySelectorAll('iframe[data-embed]').forEach(function (f) {
+        if (f.contentWindow === e.source) f.style.height = (d.ppsEmbedHeight + 2) + 'px';
+      });
+    });
+    (function () {
+      function sizeFromDoc() {
+        document.querySelectorAll('iframe[data-embed]').forEach(function (f) {
+          try {
+            var doc = f.contentDocument;
+            if (!doc || !doc.body) return;
+            var h = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight);
+            if (h > 40) f.style.height = (h + 2) + 'px';
+          } catch (err) {}
+        });
+      }
+      document.querySelectorAll('iframe[data-embed]').forEach(function (f) { f.style.height = '640px'; });
+      var n = 0, poll = setInterval(function () { sizeFromDoc(); if (++n > 40) clearInterval(poll); }, 400);
+      window.addEventListener('resize', sizeFromDoc);
+      window.addEventListener('load', function () { setTimeout(sizeFromDoc, 200); });
+    })();
   </script>
 
 </body>

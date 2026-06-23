@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PPS Recovery Storyboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  body {
+    --font: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    --mono: 'Roboto Mono', ui-monospace, monospace;
+    --bg: #fdfaf4; --panel: #fffdf8; --ink: #1b1b1b; --sub: #6b6453;
+    --line: #e4dcc8; --soft: #efece4; --shadow: 0 1px 2px rgba(40,32,16,0.05);
+    --pps: #4f9d5d; --fail: #c0563f; --perturb: #8a72b3;
+    margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font);
+    -webkit-font-smoothing: antialiased;
+  }
+  * { box-sizing: border-box; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 40px 30px 60px; }
+  .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--sub); margin: 0 0 10px; }
+  h1 { font-weight: 700; letter-spacing: -0.015em; font-size: clamp(26px, 3.2vw, 34px); line-height: 1.1; margin: 0 0 10px; }
+  .lede { font-size: 16px; line-height: 1.55; color: var(--sub); margin: 0 0 22px; max-width: 74ch; }
+  .lede b { color: var(--ink); font-weight: 600; }
+
+  .controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+  .controls .lab { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--sub); }
+  .seg { display: inline-flex; padding: 3px; background: var(--soft); border: 1px solid var(--line); border-radius: 9px; gap: 2px; }
+  .seg button { font-family: var(--font); font-size: 12.5px; font-weight: 600; color: var(--sub); background: transparent; border: 0; cursor: pointer; padding: 7px 14px; border-radius: 7px; transition: all .18s ease; }
+  .seg button.on { background: var(--panel); color: var(--ink); box-shadow: var(--shadow); }
+
+  /* task tabs */
+  .rtabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .rtabs button { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font); font-size: 14px; font-weight: 600;
+    color: var(--sub); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 9px 15px 9px 11px; cursor: pointer; box-shadow: var(--shadow); transition: all .18s ease; }
+  .rtabs button:hover { background: var(--soft); }
+  .rtabs button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .rtabs .tn { font-family: var(--mono); font-size: 11px; font-weight: 600; width: 20px; height: 20px; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: var(--soft); color: var(--ink); }
+  .rtabs button.on .tn { background: rgba(255,255,255,0.22); color: #fff; }
+
+  /* one task: large 2x2 grid (rows PPS/LoRA, cols failure/response) */
+  .grid2 { display: grid; grid-template-columns: 70px 1fr 1fr; column-gap: 16px; row-gap: 6px; align-items: center;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 16px 20px 20px; }
+  .colhead { font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--sub); padding-bottom: 4px; }
+
+  .rowlab { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; align-self: start; padding-top: 4px; }
+  .rowlab .tag { font-size: 16px; font-weight: 800; letter-spacing: -0.3px; }
+  .rowlab.pps .tag { color: var(--pps); }
+  .rowlab.lora .tag { color: var(--fail); }
+  .rowlab .ours { font-size: 8.5px; font-weight: 800; letter-spacing: .3px; text-transform: uppercase; color: #fff; background: var(--pps); border-radius: 999px; padding: 1px 6px; }
+
+  .cell { }
+  .frame { position: relative; border-radius: 9px; overflow: hidden; border: 2.5px solid var(--line); background: var(--soft); }
+  .frame img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+  .frame.kind-recover { border-color: var(--pps); }
+  .frame.kind-fail { border-color: var(--fail); }
+  /* caption below the frame, never covering the scene */
+  .band { display: flex; align-items: center; gap: 7px; margin: 8px 0 6px; font-size: 13.5px; font-weight: 600; line-height: 1.3; }
+  .bdot { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 auto; }
+  .band.kind-recover { color: var(--pps); }
+  .band.kind-recover .bdot { background: var(--pps); }
+  .band.kind-fail { color: var(--fail); }
+  .band.kind-fail .bdot { background: var(--fail); }
+  @media (max-width: 560px) { .grid2 { grid-template-columns: 52px 1fr 1fr; column-gap: 10px; } }
+
+  .takeaway { margin-top: 22px; display: flex; gap: 12px; align-items: flex-start; background: var(--soft); border-left: 3px solid var(--pps); border-radius: 8px; padding: 15px 16px; }
+  .takeaway p { margin: 0; font-size: 14px; line-height: 1.55; color: var(--ink); }
+  .takeaway b { color: var(--pps); }
+  .foot { margin-top: 20px; font-size: 12px; color: var(--sub); line-height: 1.5; max-width: 78ch; }
+
+  html.pps-embedded, body.embed { background: transparent; }
+  body.embed .wrap { padding: 0; max-width: none; }
+  body.embed .eyebrow, body.embed h1, body.embed .lede, body.embed .foot { display: none; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="eyebrow">Proxy Policy Steering · qualitative result</p>
+    <h1>PPS recovers when a rollout goes wrong</h1>
+    <p class="lede">Sometimes a rollout goes off track. The policy fumbles a grasp, misses a lid, or a person nudges the object mid-task. When that happens, <b>PPS</b> simply tries again, even though the demonstrations never show a single recovery. <b>LoRA</b> learned the demonstrations too literally, so it keeps going and the task fails. Read each row from left to right: first the failure, then what the policy did about it.</p>
+
+    <div class="rtabs" id="rtabs"></div>
+    <div class="grid2" id="rgrid"></div>
+
+    <div class="takeaway">
+      <p>Across all three tasks, PPS notices the failure and corrects course, while LoRA pushes ahead. That instinct to retry never appears in the training demos. It is inherited from the base model and kept alive by steering.</p>
+    </div>
+
+    <p class="foot">Frames and captions from Figure 3. The shoe and coffee tasks show the policy catching its own mistakes; the jeans task shows it bouncing back from a human nudge.</p>
+  </div>
+
+  <script src="pps-embed.js"></script>
+  <script src="pps-recovery.js"></script>
+
+  <template id="__bundler_thumbnail" data-bg-color="#fdfaf4">
+    <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+      <rect width="1200" height="800" fill="#fdfaf4"/>
+      <rect x="360" y="250" width="220" height="130" rx="10" fill="#fff" stroke="#4f9d5d" stroke-width="6"/>
+      <rect x="620" y="250" width="220" height="130" rx="10" fill="#fff" stroke="#4f9d5d" stroke-width="6"/>
+      <rect x="360" y="430" width="220" height="130" rx="10" fill="#fff" stroke="#c0563f" stroke-width="6"/>
+      <rect x="620" y="430" width="220" height="130" rx="10" fill="#fff" stroke="#c0563f" stroke-width="6"/>
+      <circle cx="820" cy="280" r="22" fill="#4f9d5d"/>
+      <circle cx="820" cy="460" r="22" fill="#c0563f"/>
+    </svg>
+  </template>
+</body>
+</html>
