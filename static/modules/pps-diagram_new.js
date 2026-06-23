@@ -212,6 +212,112 @@
       ctx.restore();
     }
   };
+
+  // True density-band renderer for a sum of 2D Gaussian kernels. Mirrors
+  // plot_flow_matching.py: contourf of an additive PDF. Where two kernels
+  // overlap, their summed density falls into the same band and the bands
+  // wrap around both peaks — *merging* — instead of one ellipse stack
+  // overpainting the other.
+  //
+  // Implementation: sample the summed PDF on a small offscreen grid,
+  // quantize into bands by density relative to the per-frame peak, and
+  // blit the result. Cached per-γ so static frames are free.
+  Diagram.prototype.drawDensityField = function (ctx, kernels, col, peak) {
+    var W = 220, H = 165;
+    var df = this._df;
+    if (!df || df.W !== W) {
+      var off = document.createElement('canvas');
+      off.width = W; off.height = H;
+      df = this._df = {
+        off: off, octx: off.getContext('2d'),
+        W: W, H: H,
+        img: null, dens: new Float32Array(W * H),
+        cacheKey: null
+      };
+      df.img = df.octx.createImageData(W, H);
+    }
+
+    // Cache key: kernel parameters + color (alpha bake). Skip the
+    // per-pixel work when nothing changed since the last frame.
+    var key = col + '|' + peak;
+    for (var ki = 0; ki < kernels.length; ki++) {
+      var kk = kernels[ki];
+      key += '|' + kk.mu.x.toFixed(4) + ',' + kk.mu.y.toFixed(4) +
+             ',' + kk.cov[0].toFixed(5) + ',' + kk.cov[1].toFixed(5) +
+             ',' + kk.cov[2].toFixed(5);
+    }
+    if (key !== df.cacheKey) {
+      df.cacheKey = key;
+
+      // Per-kernel constants.
+      var KP = [];
+      for (var k = 0; k < kernels.length; k++) {
+        var c = kernels[k].cov;
+        var det = Math.max(1e-12, c[0] * c[2] - c[1] * c[1]);
+        KP.push({
+          mx: kernels[k].mu.x, my: kernels[k].mu.y,
+          a: c[0], b: c[1], cc: c[2], invDet: 1 / det,
+          norm: 1 / (2 * Math.PI * Math.sqrt(det))
+        });
+      }
+
+      var dx = (WORLD.x1 - WORLD.x0) / W;
+      var dy = (WORLD.y1 - WORLD.y0) / H;
+      var dens = df.dens, maxD = 0;
+
+      for (var j = 0; j < H; j++) {
+        var wy = WORLD.y0 + (j + 0.5) * dy;
+        for (var i = 0; i < W; i++) {
+          var wx = WORLD.x0 + (i + 0.5) * dx;
+          var d = 0;
+          for (var p = 0; p < KP.length; p++) {
+            var kp = KP[p];
+            var ex = wx - kp.mx, ey = wy - kp.my;
+            var q = (kp.cc * ex * ex - 2 * kp.b * ex * ey + kp.a * ey * ey) * kp.invDet;
+            d += kp.norm * Math.exp(-0.5 * q);
+          }
+          dens[j * W + i] = d;
+          if (d > maxD) maxD = d;
+        }
+      }
+
+      // Threshold-and-alpha schedule mirrors densityBlob's banding so
+      // the merged renderer slots into the existing visual vocabulary.
+      var THRESH = [0.04, 0.16, 0.34, 0.55, 0.78];
+      var ALPHA  = [0.28, 0.43, 0.57, 0.72, 1.00];
+      var rgb = parse(col);
+      var aB = new Uint8Array(ALPHA.length);
+      for (var s = 0; s < ALPHA.length; s++) aB[s] = Math.round(ALPHA[s] * peak * 255);
+
+      var data = df.img.data, N = W * H;
+      if (maxD <= 0) {
+        for (var z = 0; z < N; z++) data[z * 4 + 3] = 0;
+      } else {
+        var invMax = 1 / maxD;
+        for (var pp = 0; pp < N; pp++) {
+          var dN = dens[pp] * invMax;
+          var bi = -1;
+          for (var t = THRESH.length - 1; t >= 0; t--) {
+            if (dN >= THRESH[t]) { bi = t; break; }
+          }
+          var idx = pp * 4;
+          if (bi < 0) {
+            data[idx + 3] = 0;
+          } else {
+            data[idx]     = rgb[0];
+            data[idx + 1] = rgb[1];
+            data[idx + 2] = rgb[2];
+            data[idx + 3] = aB[bi];
+          }
+        }
+      }
+      df.octx.putImageData(df.img, 0, 0);
+    }
+
+    var tl = this.W2S({ x: WORLD.x0, y: WORLD.y0 });
+    var br = this.W2S({ x: WORLD.x1, y: WORLD.y1 });
+    ctx.drawImage(df.off, tl.x, tl.y, br.x - tl.x, br.y - tl.y);
+  };
   // denoising trajectory coloured along k (noise -> action) with step dots
   Diagram.prototype.denoisePath = function (ctx, path, c0, c1, width, dots) {
     ctx.lineCap = 'round';
@@ -469,46 +575,43 @@
     var g = this.gamma, self = this;
     var ppsCol = ppsColorAt(g, p);
 
-    // (1) PPS distribution as two Gaussian kernels. Means *and* covariances
-    // interpolate from the base config (γ=0) to the PPS config (γ=1) —
-    // the kernels move because plot_flow_matching.py's base and pps modes
-    // sit at different positions. The values here come from that file's
-    // _right_pdf_base / _right_pdf_pps modes, mapped through its 90° CW
-    // image rotation, a y-flip (canvas y points down), and a per-axis
-    // scale (canvas-x ← plot-y, canvas-y ← plot-x). Relative to the noise
-    // distribution at N, the kernel offsets are preserved.
+    // (1) PPS distribution as two Gaussian kernels. The pairing here
+    // mirrors plot_flow_matching.py: pps preserves one base mode (the
+    // [1.1, 1.3] lobe) and shifts the other up-right. So we pair:
+    //   kernel A : base.1  →  pps.2   (preserved — barely moves)
+    //   kernel B : base.2  →  pps.1   (the migrating mode)
+    // Mean + cov values come from that file's PDFs mapped through its
+    // 90°CW image rotation, a y-flip, and a per-axis scale so the offsets
+    // relative to the noise distribution N are preserved.
     var muA0 = { x:  0.34, y: 0.09 };   // ← plot.base mode 1  [1.1, 1.3]
+    var muA1 = { x:  0.34, y: 0.09 };   // ← plot.pps  mode 2  [1.1, 1.3]  (preserved)
     var muB0 = { x: -0.48, y: 0.40 };   // ← plot.base mode 2  [2.6,-1.5]
-    var muA1 = { x:  0.55, y: 0.44 };   // ← plot.pps  mode 1  [2.8, 2.0]
-    var muB1 = { x:  0.34, y: 0.09 };   // ← plot.pps  mode 2  [1.1, 1.3]
+    var muB1 = { x:  0.55, y: 0.44 };   // ← plot.pps  mode 1  [2.8, 2.0]  (migrates)
     var covA0 = [0.0858, -0.0238, 0.0247];   // ← T·Σ_base1·T^T
+    var covA1 = [0.0815, -0.0113, 0.0124];   // ← T·Σ_pps2·T^T   (preserved)
     var covB0 = [0.0472,  0.0000, 0.0330];   // ← T·Σ_base2·T^T
-    var covA1 = [0.0721, -0.0125, 0.0148];   // ← T·Σ_pps1·T^T
-    var covB1 = [0.0815, -0.0113, 0.0124];   // ← T·Σ_pps2·T^T
+    var covB1 = [0.0721, -0.0125, 0.0148];   // ← T·Σ_pps1·T^T   (migrating)
 
     var gC = Math.min(1, Math.max(0, g));
     var muA = lerpMu(muA0, muA1, gC);
     var muB = lerpMu(muB0, muB1, gC);
     var covA = lerpCov(covA0, covA1, gC);
     var covB = lerpCov(covB0, covB1, gC);
-    var eA = covEig(covA), eB = covEig(covB);
 
-    // Covariances are already in canvas coords (post-rotation, y-down,
-    // pre-scaled). Outer contour band = 2σ in canvas units. A slight
-    // overall down-scale (0.9) leaves a bit of margin around the kernels.
-    var KS = 0.90;
-    var rxA = KS * Math.sqrt(eA.lmax) * 2, ryA = KS * Math.sqrt(eA.lmin) * 2;
-    var rxB = KS * Math.sqrt(eB.lmax) * 2, ryB = KS * Math.sqrt(eB.lmin) * 2;
-    // No -theta negation: the cov has already been carried into canvas
-    // coords, so atan2 gives the angle in canvas-clockwise sense, which is
-    // exactly what ctx.rotate expects.
-    this.ellipseBands(ctx, muA, rxA, ryA, eA.theta, ppsCol, 0.22);
-    this.ellipseBands(ctx, muB, rxB, ryB, eB.theta, ppsCol, 0.22);
+    // Single density-field render of the SUM of both kernels — produces
+    // proper band-merging in the overlap region (like contourf in
+    // plot_flow_matching.py), instead of two ellipse stacks overpainting
+    // each other.
+    this.drawDensityField(ctx,
+      [{ mu: muA, cov: covA }, { mu: muB, cov: covB }],
+      ppsCol, 0.22);
 
     // Caption: just below the bottom-most extent of either mode (world y
-    // increases downward on canvas, so larger y = lower on screen).
-    var bottomY = Math.max(muA.y + Math.max(rxA, ryA),
-                           muB.y + Math.max(rxB, ryB));
+    // increases downward on canvas, so larger y = lower on screen). Use
+    // the 2σ_max of each kernel as a rough vertical reach.
+    var eA = covEig(covA), eB = covEig(covB);
+    var reachA = 2 * Math.sqrt(eA.lmax), reachB = 2 * Math.sqrt(eB.lmax);
+    var bottomY = Math.max(muA.y + reachA, muB.y + reachB);
     var labelAnchor = { x: (muA.x + muB.x) / 2, y: bottomY };
     ctx.font = '600 15px ' + fontStack(); ctx.textAlign = 'center';
     ctx.fillStyle = ppsCol;
@@ -516,9 +619,7 @@
                  this.W2S(labelAnchor).y + 14);
 
     // Steer the lead-particle rollout toward the kernel centroid so the
-    // path always lands inside the displayed distribution. Without this
-    // the path keeps targeting the original B/T endpoints and drifts away
-    // from the kernels.
+    // path always lands inside the displayed distribution.
     var baseCentroid = { x: (muA0.x + muB0.x) / 2, y: (muA0.y + muB0.y) / 2 };
     var ppsCentroid  = { x: (muA1.x + muB1.x) / 2, y: (muA1.y + muB1.y) / 2 };
     this.particles[0].bi = baseCentroid;
