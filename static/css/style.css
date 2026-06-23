@@ -281,6 +281,140 @@ header {
   }
 }
 
+/* ---------- Hero video custom controls (no native panel) ---------- */
+
+.hero-video {
+  position: relative;
+  display: block;
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.hero-video > video {
+  width: 100%;
+  display: block;
+}
+
+.hero-controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 14px 12px 14px;
+  /* No background panel — buttons + bar carry their own contrast. */
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.hero-video:hover .hero-controls,
+.hero-video:focus-within .hero-controls,
+.hero-controls.is-active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.hero-btn {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(27, 27, 27, 0.78);
+  color: #fdfaf4;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.hero-btn:hover {
+  background: rgba(27, 27, 27, 0.95);
+}
+
+.hero-btn:active {
+  transform: scale(0.94);
+}
+
+.hero-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+  stroke: currentColor;
+  stroke-width: 0;
+}
+
+/* Play/pause icon swap — driven by .is-playing on the parent control bar. */
+.hero-play .icon-pause { display: none; }
+.hero-play .icon-play  { display: block; }
+.hero-controls.is-playing .hero-play .icon-pause { display: block; }
+.hero-controls.is-playing .hero-play .icon-play  { display: none; }
+
+/* Mute icon mirrors the cross-modality speaker toggle — slash when muted,
+   sound-waves when on. */
+.hero-mute .speaker-waves { display: none; }
+.hero-mute .speaker-slash { display: block; }
+.hero-mute.is-on .speaker-waves { display: block; }
+.hero-mute.is-on .speaker-slash { display: none; }
+
+.hero-progress {
+  flex: 1 1 auto;
+  position: relative;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(253, 250, 244, 0.32);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.hero-progress:focus-visible {
+  outline: 2px solid #fdfaf4;
+  outline-offset: 2px;
+}
+
+.hero-progress-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0%;
+  background: #fdfaf4;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.hero-time {
+  flex: 0 0 auto;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  color: #fdfaf4;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  .hero-controls {
+    padding: 0 10px 10px 10px;
+    gap: 9px;
+  }
+  .hero-btn {
+    width: 32px;
+    height: 32px;
+  }
+  .hero-time {
+    font-size: 11px;
+  }
+}
+
 /* ---------- Recovery behaviors 2x2 video grid ---------- */
 
 .recovery-grid {

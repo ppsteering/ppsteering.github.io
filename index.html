@@ -46,11 +46,47 @@
     </header>
 
     <figure class="figure">
-      <video controls autoplay muted loop playsinline preload="auto"
-             style="width: 100%; display: block;">
-        <source src="./static/images/introduction.mp4" type="video/mp4">
-        Your browser does not support the HTML5 video tag.
-      </video>
+      <div class="hero-video">
+        <video id="heroVideo" autoplay muted loop playsinline preload="auto">
+          <source src="./static/images/introduction.mp4" type="video/mp4">
+          Your browser does not support the HTML5 video tag.
+        </video>
+
+        <div class="hero-controls" aria-label="Video controls">
+          <button type="button" class="hero-btn hero-play"
+                  aria-label="Pause" title="Pause">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path class="icon-play" d="M8 5v14l11-7z"></path>
+              <g class="icon-pause">
+                <rect x="6" y="5" width="4" height="14"></rect>
+                <rect x="14" y="5" width="4" height="14"></rect>
+              </g>
+            </svg>
+          </button>
+
+          <div class="hero-progress" role="slider" tabindex="0"
+               aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="hero-progress-fill"></div>
+          </div>
+
+          <span class="hero-time" aria-hidden="true">0:00 / 0:00</span>
+
+          <button type="button" class="hero-btn hero-mute"
+                  aria-label="Unmute" title="Unmute">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M3 9v6h4l5 5V4l-5 5H3z"></path>
+              <g class="speaker-waves">
+                <path d="M15.5 8a4.5 4.5 0 010 8" fill="none"
+                      stroke-width="2" stroke-linecap="round"></path>
+                <path d="M18 5a8 8 0 010 14" fill="none"
+                      stroke-width="2" stroke-linecap="round"></path>
+              </g>
+              <line class="speaker-slash" x1="4" y1="20" x2="20" y2="4"
+                    stroke-width="2.5" stroke-linecap="round"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
       <figcaption class="teaser-caption">
         We propose <strong>Proxy Policy Steering (PPS)</strong>, which adapts a
         frozen base policy
@@ -594,6 +630,107 @@
       window.addEventListener('resize', sizeFromDoc);
       window.addEventListener('load', sizeFromDoc);
     })();
+  </script>
+
+  <!-- Custom controls for the hero introduction video: play/pause toggle,
+       a thin seek bar, time readout, and a mute toggle. The <video> element
+       has no `controls` attribute, so the browser's native (dark gradient)
+       control bar is suppressed entirely. -->
+  <script>
+  (function () {
+    var video = document.getElementById('heroVideo');
+    if (!video) return;
+    var controls = video.parentElement.querySelector('.hero-controls');
+    var playBtn = controls.querySelector('.hero-play');
+    var muteBtn = controls.querySelector('.hero-mute');
+    var bar     = controls.querySelector('.hero-progress');
+    var fill    = controls.querySelector('.hero-progress-fill');
+    var timeEl  = controls.querySelector('.hero-time');
+
+    function fmt(t) {
+      if (!isFinite(t) || t < 0) t = 0;
+      var m = Math.floor(t / 60);
+      var s = Math.floor(t % 60);
+      return m + ':' + (s < 10 ? '0' + s : s);
+    }
+
+    function syncPlayState() {
+      controls.classList.toggle('is-playing', !video.paused);
+      var label = video.paused ? 'Play' : 'Pause';
+      playBtn.setAttribute('aria-label', label);
+      playBtn.setAttribute('title', label);
+    }
+
+    function syncMuteState() {
+      muteBtn.classList.toggle('is-on', !video.muted);
+      var label = video.muted ? 'Unmute' : 'Mute';
+      muteBtn.setAttribute('aria-label', label);
+      muteBtn.setAttribute('title', label);
+    }
+
+    function syncProgress() {
+      var d = video.duration;
+      var t = video.currentTime;
+      var pct = (isFinite(d) && d > 0) ? (t / d) * 100 : 0;
+      fill.style.width = pct + '%';
+      bar.setAttribute('aria-valuenow', Math.round(pct));
+      timeEl.textContent = fmt(t) + ' / ' + fmt(d);
+    }
+
+    playBtn.addEventListener('click', function () {
+      if (video.paused) {
+        var p = video.play();
+        if (p && p.catch) p.catch(function () {});
+      } else {
+        video.pause();
+      }
+    });
+
+    muteBtn.addEventListener('click', function () {
+      video.muted = !video.muted;
+      if (!video.muted) {
+        var p = video.play();
+        if (p && p.catch) p.catch(function () {});
+      }
+    });
+
+    function seekFromEvent(ev) {
+      var rect = bar.getBoundingClientRect();
+      var x = (ev.clientX != null ? ev.clientX : ev.touches[0].clientX) - rect.left;
+      var ratio = Math.max(0, Math.min(1, x / rect.width));
+      if (isFinite(video.duration)) video.currentTime = ratio * video.duration;
+    }
+
+    var dragging = false;
+    bar.addEventListener('pointerdown', function (ev) {
+      dragging = true;
+      bar.setPointerCapture(ev.pointerId);
+      seekFromEvent(ev);
+    });
+    bar.addEventListener('pointermove', function (ev) {
+      if (dragging) seekFromEvent(ev);
+    });
+    bar.addEventListener('pointerup', function (ev) {
+      dragging = false;
+      try { bar.releasePointerCapture(ev.pointerId); } catch (_) {}
+    });
+
+    bar.addEventListener('keydown', function (ev) {
+      if (!isFinite(video.duration)) return;
+      var step = video.duration * 0.05; // 5% per arrow press
+      if (ev.key === 'ArrowLeft')  { video.currentTime = Math.max(0, video.currentTime - step); ev.preventDefault(); }
+      if (ev.key === 'ArrowRight') { video.currentTime = Math.min(video.duration, video.currentTime + step); ev.preventDefault(); }
+    });
+
+    ['play', 'pause', 'ended'].forEach(function (e) { video.addEventListener(e, syncPlayState); });
+    video.addEventListener('volumechange', syncMuteState);
+    video.addEventListener('loadedmetadata', syncProgress);
+    video.addEventListener('timeupdate', syncProgress);
+
+    syncPlayState();
+    syncMuteState();
+    syncProgress();
+  })();
   </script>
 
   <!-- Play only the videos currently on screen; pause the rest. A page with
