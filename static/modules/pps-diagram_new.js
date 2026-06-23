@@ -235,25 +235,26 @@
     }
   };
 
-  // shared scaffold: rail, modes, noise distribution, labels
+  // Scaffold for the simplified ("new") variant. The base-prior and task-mode
+  // density blobs (and their text captions) are intentionally NOT drawn here;
+  // a single PPS distribution blob is drawn in drawCombined instead.
   Diagram.prototype.scaffold = function (ctx, p, opts) {
-    var Bs = this.W2S(B), Ts = this.W2S(T), Ns = this.W2S(N);
-    // faint interpolation rail B—T
-    ctx.strokeStyle = rgbaStr(p.sub, 0.14); ctx.lineWidth = 1.2; ctx.setLineDash([]);
-    ctx.beginPath(); ctx.moveTo(Bs.x, Bs.y); ctx.lineTo(Ts.x, Ts.y); ctx.stroke();
-    // probability-density modes (smooth contour bands)
-    this.densityBlob(ctx, B, MS * 2.0, p.base, 0.20);
-    this.densityBlob(ctx, T, MS * 2.0, p.task, 0.20);
+    var Ns = this.W2S(N);
     if (opts.noise !== false) this.densityBlob(ctx, N, NS * 2.1, p.noise, 0.15);
-    // mode-centre ticks
-    var mc = this.W2S(B); ctx.beginPath(); ctx.arc(mc.x, mc.y, 3, 0, Math.PI * 2); ctx.fillStyle = p.base; ctx.fill();
-    mc = this.W2S(T); ctx.beginPath(); ctx.arc(mc.x, mc.y, 3, 0, Math.PI * 2); ctx.fillStyle = p.task; ctx.fill();
-    // labels
     ctx.font = '600 15px ' + fontStack(); ctx.textAlign = 'center';
-    ctx.fillStyle = p.noise; ctx.fillText('init noise  x₁ ~ N(0, I)', Ns.x, this.W2S({ x: N.x, y: N.y + NS * 2.1 }).y + 17);
-    ctx.fillStyle = p.base; ctx.fillText('base prior', Bs.x, this.W2S({ x: B.x, y: B.y + MS * 2.0 }).y + 18);
-    ctx.fillStyle = p.task; ctx.fillText('task mode (demos)', Ts.x, this.W2S({ x: T.x, y: T.y + MS * 2.0 }).y + 18);
+    ctx.fillStyle = p.noise;
+    ctx.fillText('init noise  x₁ ~ N(0, I)', Ns.x, this.W2S({ x: N.x, y: N.y + NS * 2.1 }).y + 17);
   };
+
+  // Three-stop color interpolation that mirrors plot_flow_matching.py's
+  // base → pps → task progression: purple (γ=0) → green (γ=0.5) → blue (γ=1).
+  // For γ outside [0,1] we clamp to the endpoint colour.
+  function ppsColorAt(g, p) {
+    if (g <= 0) return p.base;
+    if (g >= 1) return p.task;
+    if (g <= 0.5) return mix(p.base, p.pps, g * 2);
+    return mix(p.pps, p.task, (g - 0.5) * 2);
+  }
 
   Diagram.prototype.legend = function (ctx, p, rows) {
     // legacy line legend (kept for compatibility; variants use legendCard)
@@ -378,21 +379,33 @@
     ]);
   };
 
-  // VARIANT 0 (NEW-variant override) — single rollout noise → action
-  // plus the velocity-decomposition inset. No quiver field, no action
-  // cloud, no additional faint rollouts.
+  // Simplified single-path variant. Draws the noise distribution, a single
+  // PPS distribution blob that interpolates between base and task as γ
+  // changes (purple → green → blue), one denoising rollout noise → action,
+  // and the velocity-decomposition inset at the rollout's head.
   Diagram.prototype.drawCombined = function (ctx, p, ts) {
     this.scaffold(ctx, p, {});
     var g = this.gamma, self = this;
+    var ppsCol = ppsColorAt(g, p);
 
-    // Use the lead particle as the only rollout, so the bold path is
-    // stable as gamma changes (no re-pick from the cloud).
+    // (1) The PPS distribution: a single density blob that slides from B
+    // (base) toward T (task) and overshoots beyond. Color follows γ.
+    var L = meanAttractor(g), Ls = this.W2S(L);
+    this.densityBlob(ctx, L, MS * 2.0, ppsCol, 0.22);
+    ctx.beginPath(); ctx.arc(Ls.x, Ls.y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = ppsCol; ctx.fill();
+    ctx.font = '600 15px ' + fontStack(); ctx.textAlign = 'center';
+    ctx.fillStyle = ppsCol;
+    ctx.fillText('PPS distribution', Ls.x, this.W2S({ x: L.x, y: L.y + MS * 2.0 }).y + 18);
+
+    // (2) Single denoising rollout noise → action; end-of-path colour
+    // matches the PPS-distribution colour so the path lands inside its mode.
     var lead = this.particles[0];
     var sLead = Math.max(0.10, Math.min(0.96, this.phase + lead.off));
     var pp = this.integrate(lead, g, sLead);
-    this.denoisePath(ctx, pp, p.noise, p.pps, 2.6, true);
+    this.denoisePath(ctx, pp, p.noise, ppsCol, 2.6, true);
 
-    // Velocity-decomposition inset at the current head of the path.
+    // (3) Velocity-decomposition inset at the current head of the path.
     var probe = pp[pp.length - 1], ps = this.W2S(probe), SC = 0.30;
     function tip(vx, vy) { return self.W2S({ x: probe.x + vx * SC, y: probe.y + vy * SC }); }
     var vBx = (lead.bi.x - probe.x) * GAIN, vBy = (lead.bi.y - probe.y) * GAIN;
@@ -400,15 +413,14 @@
     var baseTip = tip(vBx, vBy), ppsTip = tip(vBx + vRx, vBy + vRy);
     arrow(ctx, ps, baseTip, p.base, 2.4, 8.5);
     if (g > 0.001) arrow(ctx, baseTip, ppsTip, p.resid, 2.4, 8.5);
-    arrow(ctx, ps, ppsTip, p.pps, 3.0, 10.5);
-    ctx.beginPath(); ctx.arc(ps.x, ps.y, 3.5, 0, Math.PI * 2); ctx.fillStyle = p.pps; ctx.fill();
+    arrow(ctx, ps, ppsTip, ppsCol, 3.0, 10.5);
+    ctx.beginPath(); ctx.arc(ps.x, ps.y, 3.5, 0, Math.PI * 2); ctx.fillStyle = ppsCol; ctx.fill();
 
-    this.attractorMark(ctx, p, ts);
     this.legendCard(ctx, p, [
-      { type: 'grad', color: p.noise, color2: p.pps, label: 'single rollout  noise → action' },
+      { type: 'grad', color: p.noise, color2: ppsCol, label: 'single rollout  noise → action' },
       { type: 'arrow', color: p.base, label: 'v_base' },
       { type: 'arrow', color: p.resid, label: 'γ · (v_task − v_ref)  residual' },
-      { type: 'arrow', color: p.pps, label: 'v_PPS  (steered velocity)' }
+      { type: 'arrow', color: ppsCol, label: 'v_PPS  (steered velocity)' }
     ]);
   };
 
