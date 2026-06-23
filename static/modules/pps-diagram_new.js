@@ -192,6 +192,26 @@
       ctx.fill();
     }
   };
+
+  // Anisotropic version of densityBlob: stacks tilted ellipse bands. Used to
+  // mirror the elongated / tilted multivariate-normal contours from
+  // plot_flow_matching.py (its `Greens`/`Purples`/`Blues` contourf bands).
+  Diagram.prototype.ellipseBands = function (ctx, c, rxW, ryW, theta, col, peak) {
+    var cs = this.W2S(c);
+    var Rx = this.blobRadius(rxW, c), Ry = this.blobRadius(ryW, c);
+    var bands = 6;
+    for (var i = bands; i >= 1; i--) {
+      var sx = Rx * (i / bands), sy = Ry * (i / bands);
+      ctx.save();
+      ctx.translate(cs.x, cs.y);
+      ctx.rotate(theta);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, sx, sy, 0, 0, Math.PI * 2);
+      ctx.fillStyle = rgbaStr(col, peak * (1 - 0.72 * (i - 1) / (bands - 1)));
+      ctx.fill();
+      ctx.restore();
+    }
+  };
   // denoising trajectory coloured along k (noise -> action) with step dots
   Diagram.prototype.denoisePath = function (ctx, path, c0, c1, width, dots) {
     ctx.lineCap = 'round';
@@ -388,15 +408,28 @@
     var g = this.gamma, self = this;
     var ppsCol = ppsColorAt(g, p);
 
-    // (1) The PPS distribution: a single density blob that slides from B
-    // (base) toward T (task) and overshoots beyond. Color follows γ.
-    var L = meanAttractor(g), Ls = this.W2S(L);
-    this.densityBlob(ctx, L, MS * 2.0, ppsCol, 0.22);
-    ctx.beginPath(); ctx.arc(Ls.x, Ls.y, 3, 0, Math.PI * 2);
-    ctx.fillStyle = ppsCol; ctx.fill();
+    // (1) PPS distribution. Shape mirrors plot_flow_matching.py:
+    //   γ = 0  → bimodal "peanut" (two tilted Gaussians, like _right_pdf_base)
+    //   γ = 1  → a single tilted, vertically elongated mode (like _right_pdf_task)
+    //   in between → the two modes drift together while staying tilted.
+    var L = meanAttractor(g);
+    var gC = Math.min(1, Math.max(0, g));          // clamp to [0, 1] for shape
+    var sep = (1 - gC) * MS * 1.20;                 // vertical mode separation
+    var jit = (1 - gC) * MS * 0.32;                 // small horizontal stagger
+    var theta = lerp(-Math.PI / 5.5, -Math.PI / 8, gC);
+    var rxA = MS * 0.62, ryA = MS * lerp(1.05, 1.40, gC);
+    var rxB = MS * 0.58, ryB = MS * lerp(0.95, 1.30, gC);
+    var modeTop = { x: L.x + jit,  y: L.y + sep };
+    var modeBot = { x: L.x - jit,  y: L.y - sep * 0.92 };
+    this.ellipseBands(ctx, modeTop, rxA, ryA, theta, ppsCol, 0.22);
+    this.ellipseBands(ctx, modeBot, rxB, ryB, theta, ppsCol, 0.22);
+
+    // Caption sits just below the visually-bottom mode (canvas-bottom = larger world y).
+    var labelAnchor = { x: L.x, y: L.y + sep + ryA * 1.05 };
     ctx.font = '600 15px ' + fontStack(); ctx.textAlign = 'center';
     ctx.fillStyle = ppsCol;
-    ctx.fillText('PPS distribution', Ls.x, this.W2S({ x: L.x, y: L.y + MS * 2.0 }).y + 18);
+    ctx.fillText('PPS distribution', this.W2S(labelAnchor).x,
+                 this.W2S(labelAnchor).y + 18);
 
     // (2) Single denoising rollout noise → action; end-of-path colour
     // matches the PPS-distribution colour so the path lands inside its mode.
