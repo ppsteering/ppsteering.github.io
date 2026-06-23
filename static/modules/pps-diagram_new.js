@@ -634,9 +634,18 @@
     // proper band-merging in the overlap region (like contourf in
     // plot_flow_matching.py), instead of two ellipse stacks overpainting
     // each other.
+    //
+    // Peak alpha ramps with γ:
+    //   γ=0 (purple) → 0.20, matching scaffold's densityBlob(p.base, 0.20)
+    //                so the base tone is identical to the original "Try
+    //                the steering yourself" diagram.
+    //   γ=1 (green)  → 0.40, ~32% more cumulative center-pixel saturation,
+    //                so the green reads as vivid as the solid green
+    //                markers (attractor, v_PPS arrow) elsewhere on the page.
+    var ppsPeak = 0.20 + 0.20 * gC;
     this.drawDensityField(ctx,
       [{ mu: muA, cov: covA }, { mu: muB, cov: covB }],
-      ppsCol, 0.22);
+      ppsCol, ppsPeak);
 
     // Caption: just below the bottom-most extent of either mode (world y
     // increases downward on canvas, so larger y = lower on screen). Use
