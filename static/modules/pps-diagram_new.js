@@ -231,11 +231,53 @@
     var hp = this.W2S(path[path.length - 1]);
     ctx.beginPath(); ctx.arc(hp.x, hp.y, width + 1.6, 0, Math.PI * 2); ctx.fillStyle = c1; ctx.fill();
   };
+  // Math font stack — used for italic single-letter variables in legend
+  // labels (e.g. the italic v in v_PPS). Inherits from --font-math when
+  // the host page defines it; falls back to a serif math face otherwise.
+  function mathFontStack() {
+    var v = getComputedStyle(document.body).getPropertyValue('--font-math');
+    return (v && v.trim()) || '"Cambria Math", "Latin Modern Math", Georgia, "Times New Roman", serif';
+  }
+
+  // Per-part font for legend labels expressed as parts:
+  //   { t: 'v', i: true }   → italic math letter
+  //   { t: 'base', sub: true } → smaller upright subscript
+  //   { t: 'plain text' }   → regular sans body text
+  function partFont(part) {
+    if (part.sub) return '500 9.5px ' + fontStack();
+    if (part.i)   return 'italic 600 14px ' + mathFontStack();
+    return '500 12.5px ' + fontStack();
+  }
+  function measureParts(ctx, parts) {
+    var w = 0;
+    for (var i = 0; i < parts.length; i++) {
+      ctx.font = partFont(parts[i]);
+      w += ctx.measureText(parts[i].t).width + (parts[i].gap || 0);
+    }
+    return w;
+  }
+  function drawParts(ctx, x, y, parts) {
+    var cur = x;
+    for (var i = 0; i < parts.length; i++) {
+      ctx.font = partFont(parts[i]);
+      var dy = parts[i].sub ? 3 : 0; // drop subscripts slightly below baseline
+      ctx.fillText(parts[i].t, cur, y + dy);
+      cur += ctx.measureText(parts[i].t).width + (parts[i].gap || 0);
+    }
+  }
+
   // glyph legend card (arrow / gradient / dots / quiver swatches)
+  // Each item may carry either:
+  //   label: 'plain string'        — back-compat, single-font line
+  //   parts: [{t,i?,sub?,gap?}]    — multi-segment label with math typesetting
   Diagram.prototype.legendCard = function (ctx, p, items) {
     var pad = 11, gw = 28, rowH = 20, tw = 0;
-    ctx.font = '500 12.5px ' + fontStack();
-    for (var i = 0; i < items.length; i++) tw = Math.max(tw, ctx.measureText(items[i].label).width);
+    for (var i = 0; i < items.length; i++) {
+      var w;
+      if (items[i].parts) w = measureParts(ctx, items[i].parts);
+      else { ctx.font = '500 12.5px ' + fontStack(); w = ctx.measureText(items[i].label).width; }
+      tw = Math.max(tw, w);
+    }
     var W = pad * 2 + gw + 7 + tw, H = pad * 2 + items.length * rowH - (rowH - 13), x0 = 14, y0 = 14;
     ctx.fillStyle = rgbaStr(p.bg, 0.85); roundRect(ctx, x0, y0, W, H, 9); ctx.fill();
     ctx.strokeStyle = rgbaStr(p.sub, 0.28); ctx.lineWidth = 1; roundRect(ctx, x0, y0, W, H, 9); ctx.stroke();
@@ -251,7 +293,9 @@
       } else if (it.type === 'quiver') {
         ctx.globalAlpha = 0.6; for (var q = 0; q < 3; q++) { var qx = gx + q * 9; arrow(ctx, { x: qx, y: cy + 2 }, { x: qx + 7, y: cy - 2 }, it.color, 1.2, 3.5); } ctx.globalAlpha = 1;
       }
-      ctx.fillStyle = p.ink; ctx.textAlign = 'left'; ctx.fillText(it.label, gx2 + 7, cy + 4);
+      ctx.fillStyle = p.ink; ctx.textAlign = 'left';
+      if (it.parts) drawParts(ctx, gx2 + 7, cy + 4, it.parts);
+      else { ctx.font = '500 12.5px ' + fontStack(); ctx.fillText(it.label, gx2 + 7, cy + 4); }
     }
   };
 
@@ -274,6 +318,25 @@
     if (g >= 1) return p.task;
     if (g <= 0.5) return mix(p.base, p.pps, g * 2);
     return mix(p.pps, p.task, (g - 0.5) * 2);
+  }
+
+  // Linear interpolation of two Gaussian kernels (mean + covariance).
+  // Covariance is stored compactly as [σxx, σxy, σyy].
+  function lerpMu(a, b, t) { return { x: lerp(a.x, b.x, t), y: lerp(a.y, b.y, t) }; }
+  function lerpCov(a, b, t) {
+    return [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
+  }
+  // Closed-form 2×2 covariance eigendecomposition. Returns the eigenvalues
+  // (λ_max, λ_min) and the angle of the major-axis eigenvector measured in
+  // standard math convention (counter-clockwise from +x with y pointing up).
+  function covEig(c) {
+    var a = c[0], b = c[1], d = c[2];
+    var s = Math.sqrt(Math.max(0, (a - d) * (a - d) / 4 + b * b));
+    var lmax = (a + d) / 2 + s, lmin = (a + d) / 2 - s;
+    var theta;
+    if (Math.abs(b) > 1e-9) theta = Math.atan2(lmax - a, b);
+    else theta = a >= d ? 0 : Math.PI / 2;
+    return { lmax: Math.max(1e-9, lmax), lmin: Math.max(1e-9, lmin), theta: theta };
   }
 
   Diagram.prototype.legend = function (ctx, p, rows) {
@@ -408,24 +471,39 @@
     var g = this.gamma, self = this;
     var ppsCol = ppsColorAt(g, p);
 
-    // (1) PPS distribution. Shape mirrors plot_flow_matching.py:
-    //   γ = 0  → bimodal "peanut" (two tilted Gaussians, like _right_pdf_base)
-    //   γ = 1  → a single tilted, vertically elongated mode (like _right_pdf_task)
-    //   in between → the two modes drift together while staying tilted.
-    var L = meanAttractor(g);
-    var gC = Math.min(1, Math.max(0, g));          // clamp to [0, 1] for shape
-    var sep = (1 - gC) * MS * 1.20;                 // vertical mode separation
-    var jit = (1 - gC) * MS * 0.32;                 // small horizontal stagger
-    var theta = lerp(-Math.PI / 5.5, -Math.PI / 8, gC);
-    var rxA = MS * 0.62, ryA = MS * lerp(1.05, 1.40, gC);
-    var rxB = MS * 0.58, ryB = MS * lerp(0.95, 1.30, gC);
-    var modeTop = { x: L.x + jit,  y: L.y + sep };
-    var modeBot = { x: L.x - jit,  y: L.y - sep * 0.92 };
-    this.ellipseBands(ctx, modeTop, rxA, ryA, theta, ppsCol, 0.22);
-    this.ellipseBands(ctx, modeBot, rxB, ryB, theta, ppsCol, 0.22);
+    // (1) PPS distribution as two Gaussian kernels, each interpolated in
+    // mean *and* covariance between a base config (γ=0) and a task config
+    // (γ=1). At γ=1 both kernels collapse onto the task mode, so the pair
+    // visually reads as the single tilted ellipse from _right_pdf_task.
+    // Covariances are taken from plot_flow_matching.py's PDFs; means are
+    // placed around B and T to fit the canvas.
+    var muA0 = { x: B.x - 0.08, y: B.y - 0.18 };
+    var muB0 = { x: B.x + 0.07, y: B.y + 0.16 };
+    var muA1 = { x: T.x,        y: T.y        };
+    var muB1 = { x: T.x,        y: T.y        };
+    var covA0 = [0.60, -0.40, 1.00];   // plot.base[0]
+    var covB0 = [0.80,  0.00, 0.55];   // plot.base[1]
+    var covA1 = [0.43, -0.10, 0.98];   // plot.task
+    var covB1 = [0.43, -0.10, 0.98];   // plot.task
 
-    // Caption sits just below the visually-bottom mode (canvas-bottom = larger world y).
-    var labelAnchor = { x: L.x, y: L.y + sep + ryA * 1.05 };
+    var gC = Math.min(1, Math.max(0, g));
+    var muA = lerpMu(muA0, muA1, gC), muB = lerpMu(muB0, muB1, gC);
+    var covA = lerpCov(covA0, covA1, gC), covB = lerpCov(covB0, covB1, gC);
+    var eA = covEig(covA), eB = covEig(covB);
+
+    // visScale: world units per source-σ. Tuned so the outer 2-σ band of
+    // the largest plot covariance still fits the canvas.
+    var KS = MS * 0.95;
+    var rxA = KS * Math.sqrt(eA.lmax) * 2, ryA = KS * Math.sqrt(eA.lmin) * 2;
+    var rxB = KS * Math.sqrt(eB.lmax) * 2, ryB = KS * Math.sqrt(eB.lmin) * 2;
+    // Canvas y points down (world y is flipped on screen) → negate angle.
+    this.ellipseBands(ctx, muA, rxA, ryA, -eA.theta, ppsCol, 0.22);
+    this.ellipseBands(ctx, muB, rxB, ryB, -eB.theta, ppsCol, 0.22);
+
+    // Caption: place under the visually-bottom edge of either mode
+    // (largest world-y after adding the outer radius).
+    var botA = muA.y + rxA, botB = muB.y + rxB;
+    var labelAnchor = { x: (muA.x + muB.x) / 2, y: Math.max(botA, botB) };
     ctx.font = '600 15px ' + fontStack(); ctx.textAlign = 'center';
     ctx.fillStyle = ppsCol;
     ctx.fillText('PPS distribution', this.W2S(labelAnchor).x,
@@ -450,10 +528,20 @@
     ctx.beginPath(); ctx.arc(ps.x, ps.y, 3.5, 0, Math.PI * 2); ctx.fillStyle = ppsCol; ctx.fill();
 
     this.legendCard(ctx, p, [
-      { type: 'grad', color: p.noise, color2: ppsCol, label: 'single rollout  noise → action' },
-      { type: 'arrow', color: p.base, label: 'v_base' },
-      { type: 'arrow', color: p.resid, label: 'γ · (v_task − v_ref)  residual' },
-      { type: 'arrow', color: ppsCol, label: 'v_PPS  (steered velocity)' }
+      { type: 'grad', color: p.noise, color2: ppsCol,
+        parts: [{ t: 'flow-matching path' }] },
+      { type: 'arrow', color: p.base,
+        parts: [{ t: 'v', i: true }, { t: 'base', sub: true }] },
+      { type: 'arrow', color: p.resid,
+        parts: [
+          { t: 'γ · (' },
+          { t: 'v', i: true }, { t: 'task', sub: true },
+          { t: ' − ' },
+          { t: 'v', i: true }, { t: 'ref', sub: true },
+          { t: ')' }
+        ] },
+      { type: 'arrow', color: ppsCol,
+        parts: [{ t: 'v', i: true }, { t: 'PPS', sub: true }] }
     ]);
   };
 
