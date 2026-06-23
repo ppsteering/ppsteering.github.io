@@ -640,7 +640,7 @@
     var baseTip = tip(vBx, vBy), ppsTip = tip(vBx + vRx, vBy + vRy);
     arrow(ctx, ps, baseTip, p.base, 2.4, 8.5);
     if (g > 0.001) arrow(ctx, baseTip, ppsTip, p.resid, 2.4, 8.5);
-    arrow(ctx, ps, ppsTip, ppsCol, 3.0, 10.5);
+    arrow(ctx, ps, ppsTip, p.pps, 3.0, 10.5);
     ctx.beginPath(); ctx.arc(ps.x, ps.y, 3.5, 0, Math.PI * 2); ctx.fillStyle = ppsCol; ctx.fill();
 
     this.legendCard(ctx, p, [
@@ -656,7 +656,7 @@
           { t: 'v', i: true }, { t: 'ref', sub: true },
           { t: ')' }
         ] },
-      { type: 'arrow', color: ppsCol,
+      { type: 'arrow', color: p.pps,
         parts: [{ t: 'v', i: true }, { t: 'PPS', sub: true }] }
     ]);
   };
