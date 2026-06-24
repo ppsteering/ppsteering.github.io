@@ -58,11 +58,11 @@
 
   .module { margin-top: 14px; background: var(--panel); border: 1px solid var(--line);
     border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; }
-  .grid { display: grid; grid-template-columns: 1.55fr 1fr; }
+  .grid { display: grid; grid-template-columns: 1.4fr 1fr; }
   @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
 
-  .fieldwrap { position: relative; border-right: 1px solid var(--line); }
-  @media (max-width: 860px) { .fieldwrap { border-right: 0; border-bottom: 1px solid var(--line); } }
+  .fieldwrap { position: relative; }
+  @media (max-width: 860px) { .fieldwrap { border-bottom: 1px solid var(--line); } }
   #field { display: block; width: 100%; height: 460px; }
   @media (max-width: 860px) { #field { height: 380px; } }
 
