@@ -129,7 +129,9 @@
       var s = i / STEPS;
       var vx = (Lx - x) * GAIN, vy = (Ly - y) * GAIN;
       var env = Math.sin(Math.min(1, s) * Math.PI) * 0.9;
-      vx += -(Ly - y) * 0.22 * env; vy += (Lx - x) * 0.22 * env;
+      // Stronger perpendicular swirl (0.22 → 0.85) so the rollout reads
+      // as a curved flow-matching path rather than a near-straight line.
+      vx += -(Ly - y) * 0.85 * env; vy += (Lx - x) * 0.85 * env;
       x += vx * dt; y += vy * dt;
       path.push({ x: x, y: y });
     }
