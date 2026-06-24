@@ -450,7 +450,9 @@
     if (opts.noise !== false) this.densityBlob(ctx, N, NS * 2.1, p.noise, 0.15);
     ctx.font = '600 15px ' + fontStack(); ctx.textAlign = 'center';
     ctx.fillStyle = p.noise;
-    ctx.fillText('init noise  x₁ ~ N(0, I)', Ns.x, this.W2S({ x: N.x, y: N.y + NS * 2.1 }).y + 17);
+    // Label sits ABOVE the noise blob (world y decreases upward on canvas).
+    var noiseTop = this.W2S({ x: N.x, y: N.y - NS * 2.1 });
+    ctx.fillText('initial noise', Ns.x, noiseTop.y - 8);
   };
 
   // Two-stop color interpolation aligned with the shape morph base → pps:
@@ -652,28 +654,48 @@
       [{ mu: muA, cov: covA }, { mu: muB, cov: covB }],
       ppsCol, ppsPeak);
 
-    // Caption: just below the bottom-most extent of either mode (world y
-    // increases downward on canvas, so larger y = lower on screen). Use
-    // the 2σ_max of each kernel as a rough vertical reach.
-    var eA = covEig(covA), eB = covEig(covB);
-    var reachA = 2 * Math.sqrt(eA.lmax), reachB = 2 * Math.sqrt(eB.lmax);
-    var bottomY = Math.max(muA.y + reachA, muB.y + reachB);
-    var labelAnchor = { x: (muA.x + muB.x) / 2, y: bottomY };
+    // "action distribution" label + γ-dependent subtitles, all anchored
+    // to fixed SCREEN positions near the bottom of the canvas (independent
+    // of how the kernels move with γ).
+    var labelX = this.field._w / 2;
+    var labelY = this.field._h - 36;
+    var subY   = this.field._h - 16;
     ctx.font = '600 15px ' + fontStack(); ctx.textAlign = 'center';
     ctx.fillStyle = ppsCol;
-    ctx.fillText('PPS distribution', this.W2S(labelAnchor).x,
-                 this.W2S(labelAnchor).y + 14);
+    ctx.fillText('action distribution', labelX, labelY);
 
-    // Lead-particle rollout: FIXED start at the noise-distribution centre,
-    // FIXED-per-γ end at the bottom-left kernel (kernel B) — the centre
-    // is muB0 = (-0.48, 0.40) at γ=0 and tracks the kernel as γ→1 by
-    // sliding through lerp(muB0, muB1, γ). So the launch point stays put
-    // while the landing point migrates with the kernel.
+    // Helper for the two-tone "Close to <X distribution>" subtitle.
+    var self2 = this;
+    function drawHint(prefix, colored, color, opacity) {
+      if (opacity <= 0) return;
+      ctx.globalAlpha = opacity;
+      ctx.font = '500 12.5px ' + fontStack();
+      ctx.textAlign = 'left';
+      var pw = ctx.measureText(prefix).width;
+      var cw = ctx.measureText(colored).width;
+      var sx = labelX - (pw + cw) / 2;
+      ctx.fillStyle = p.sub;
+      ctx.fillText(prefix, sx, subY);
+      ctx.fillStyle = color;
+      ctx.fillText(colored, sx + pw, subY);
+      ctx.globalAlpha = 1;
+    }
+    // γ < 0.10 → fades in "Close to base distribution" (base in purple)
+    drawHint('Close to ', 'base distribution', p.base,
+             Math.max(0, Math.min(1, (0.10 - g) / 0.10)));
+    // γ > 0.75 → fades in "Close to task distribution" (task in blue)
+    drawHint('Close to ', 'task distribution', p.task,
+             Math.max(0, Math.min(1, (g - 0.75) / 0.25)));
+
+    // Lead-particle rollout: start near (not exactly at) the noise centre;
+    // end follows the kernel-B centre with small offsets so the landing
+    // point moves vertically (up at γ=0, down at γ=1) instead of strictly
+    // horizontally along the muB0→muB1 line.
     var lead = this.particles[0];
-    lead.ex = N.x;
-    lead.ey = N.y;
-    lead.bi = { x: muB0.x, y: muB0.y };
-    lead.ti = { x: muB1.x, y: muB1.y };
+    lead.ex = N.x + 0.06;            // small rightward offset from noise centre
+    lead.ey = N.y + 0.07;            // small downward offset
+    lead.bi = { x: muB0.x,        y: muB0.y - 0.10 };  // upper-left of kernel B at γ=0
+    lead.ti = { x: muB1.x + 0.02, y: muB1.y + 0.12 };  // lower-right of kernel B at γ=1
 
     // (2) Path drawn complete (s=1, no animation). When γ changes the
     // path snaps to its new endpoint; when γ is fixed the path is static.
@@ -687,9 +709,10 @@
     ctx.fill();
     // (End dot is already drawn by denoisePath in c1 = ppsCol.)
 
-    // (3) Velocity-decomposition inset anchored at the MIDDLE of the path
-    // (not the head — the path is complete now, so "head" has no meaning).
-    var probe = pp[Math.floor(pp.length / 2)], ps = this.W2S(probe), SC = 0.30;
+    // (3) Velocity-decomposition inset anchored slightly above the path
+    // midpoint (probe at 0.42 along the path) — sits higher on canvas
+    // since the path runs top → bottom.
+    var probe = pp[Math.floor(pp.length * 0.42)], ps = this.W2S(probe), SC = 0.30;
     function tip(vx, vy) { return self.W2S({ x: probe.x + vx * SC, y: probe.y + vy * SC }); }
     var vBx = (lead.bi.x - probe.x) * GAIN, vBy = (lead.bi.y - probe.y) * GAIN;
     var vRx = (lead.ti.x - lead.bi.x) * GAIN * g, vRy = (lead.ti.y - lead.bi.y) * GAIN * g;
