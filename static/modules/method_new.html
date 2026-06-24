@@ -197,18 +197,17 @@
        Anchor points in NORMALISED image coordinates [0,1]. The image
        gets responsively sized via CSS; the canvas tracks it via the
        same mapping. Edit any of these to retune. */
-    var T_START      = { x: 0.575, y: 0.230 };
-    var T_END_PURPLE = { x: 0.580, y: 0.640 };
-    var T_END_BLUE   = { x: 0.715, y: 0.510 };
-    var T_CP_PURPLE  = { x: 0.585, y: 0.460 };
+    // Coords match the cropped image (1280×855: left 10%, right 10%, bottom 5%
+    // trimmed from the original 1600×900).
+    var T_START      = { x: 0.594, y: 0.242 };
+    var T_END_PURPLE = { x: 0.600, y: 0.674 };
+    var T_END_BLUE   = { x: 0.769, y: 0.537 };
+    var T_CP_PURPLE  = { x: 0.606, y: 0.484 };
     // CP at γ=1: placed so the bezier's tangent at T_END_BLUE makes a
-    // 20° angle with the rightward direction (going up-and-to-the-right
-    // in canvas coords). r controls the bow magnitude.
-    var T_R = 0.18;
-    var T_CP_BLUE = {
-      x: T_END_BLUE.x - T_R *  0.9397,    // cos(-20°)
-      y: T_END_BLUE.y - T_R * -0.3420     // sin(-20°)
-    };
+    // 20° angle with the rightward direction (going up-and-to-the-right)
+    // in PIXEL space. The aspect-correction divisor (W/H = 1280/855 = 1.497)
+    // accounts for the cropped image's non-square aspect.
+    var T_CP_BLUE = { x: 0.564, y: 0.648 };
 
     var teaserBg  = document.getElementById('teaserBg');
     var teaserCv  = document.getElementById('teaserOverlay');
