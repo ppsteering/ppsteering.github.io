@@ -113,10 +113,13 @@
     cv._dpr = dpr; cv._w = r.width; cv._h = r.height;
   };
   Diagram.prototype.W2S = function (p) {
-    var pad = 30, w = this.field._w, h = this.field._h;
+    // Asymmetric padding so the kernels can sit closer to the canvas's
+    // right edge without changing the left/top/bottom breathing room.
+    var padL = 30, padR = 8, padT = 30, padB = 30;
+    var w = this.field._w, h = this.field._h;
     return {
-      x: pad + (p.x - WORLD.x0) / (WORLD.x1 - WORLD.x0) * (w - 2 * pad),
-      y: pad + (p.y - WORLD.y0) / (WORLD.y1 - WORLD.y0) * (h - 2 * pad)
+      x: padL + (p.x - WORLD.x0) / (WORLD.x1 - WORLD.x0) * (w - padL - padR),
+      y: padT + (p.y - WORLD.y0) / (WORLD.y1 - WORLD.y0) * (h - padT - padB)
     };
   };
 
