@@ -659,12 +659,15 @@
     ctx.fillText('PPS distribution', this.W2S(labelAnchor).x,
                  this.W2S(labelAnchor).y + 14);
 
-    // Steer the lead-particle rollout toward the kernel centroid so the
-    // path always lands inside the displayed distribution.
-    var baseCentroid = { x: (muA0.x + muB0.x) / 2, y: (muA0.y + muB0.y) / 2 };
-    var ppsCentroid  = { x: (muA1.x + muB1.x) / 2, y: (muA1.y + muB1.y) / 2 };
-    this.particles[0].bi = baseCentroid;
-    this.particles[0].ti = ppsCentroid;
+    // Lead-particle rollout: FIXED start at the noise-distribution centre,
+    // FIXED-per-γ end at the bottom-left kernel (kernel B) — the centre
+    // is muB0 = (-0.48, 0.40) at γ=0 and tracks the kernel as γ→1 by
+    // sliding through lerp(muB0, muB1, γ). So the launch point stays put
+    // while the landing point migrates with the kernel.
+    this.particles[0].ex = N.x;
+    this.particles[0].ey = N.y;
+    this.particles[0].bi = { x: muB0.x, y: muB0.y };
+    this.particles[0].ti = { x: muB1.x, y: muB1.y };
 
     // (2) Single denoising rollout noise → action; end-of-path colour
     // matches the PPS-distribution colour so the path lands inside its mode.
