@@ -278,7 +278,12 @@
         .ppsc-hero .ppsc-overlay { border-radius:12px; }
         .ppsc-item .ppsc-overlay { border-radius:11px; }
         .ppsc-overlay-text { font:700 32px/1.18 inherit; text-align:center;
-          padding:0 14px; letter-spacing:-0.5px; text-shadow:0 1px 0 rgba(255,255,255,0.9); }
+          padding:0 14px; letter-spacing:-0.5px; text-shadow:0 1px 0 rgba(255,255,255,0.9);
+          /* Force the inline text span to fill the overlay width so long
+             captions wrap to multiple lines instead of overflowing on a
+             single line. */
+          display:block; width:100%; max-width:100%; box-sizing:border-box;
+          word-wrap:break-word; overflow-wrap:break-word; }
         .ppsc-overlay-text.base { color:var(--ppsc-base); }
         .ppsc-overlay-text.lora { color:var(--ppsc-lora); }
         .ppsc-overlay-text.pps  { color:var(--ppsc-pps); }
