@@ -268,23 +268,27 @@
         .ppsc-item video { display:block; width:100%; aspect-ratio:16/9; object-fit:cover;
           background:#000; border-radius:11px; border:2px solid var(--ppsc-line); }
         .ppsc-foot { margin-top:16px; font-size:12.5px; color:var(--ppsc-sub); text-align:center; }
-        /* End-of-playback overlay: fades a semi-transparent white veil over the
+        /* End-of-playback overlay: fades a (nearly opaque) white veil over the
            video with a coloured outcome caption, shown for 3 s before the
            video restarts. */
         .ppsc-overlay { position:absolute; inset:0; display:flex; align-items:center;
-          justify-content:center; background:rgba(255,255,255,0.72);
+          justify-content:center; background:rgba(255,255,255,0.90);
           opacity:0; pointer-events:none; transition:opacity .25s ease; }
         .ppsc-overlay.show { opacity:1; }
         .ppsc-hero .ppsc-overlay { border-radius:12px; }
         .ppsc-item .ppsc-overlay { border-radius:11px; }
-        .ppsc-overlay-text { font:700 40px/1.18 inherit; text-align:center;
-          padding:0 18px; letter-spacing:-0.4px; text-shadow:0 1px 0 rgba(255,255,255,0.9); }
-        .ppsc-overlay-text.pps  { color:var(--ppsc-pps);  font-size:56px; }
-        .ppsc-overlay-text.base { color:var(--ppsc-base); }
-        .ppsc-overlay-text.lora { color:var(--ppsc-lora); }
+        .ppsc-overlay-text { font:700 48px/1.16 inherit; text-align:center;
+          padding:0 14px; letter-spacing:-0.5px; text-shadow:0 1px 0 rgba(255,255,255,0.9); }
+        /* Match the larger size on .base and .lora explicitly so the captions
+           grow regardless of selector specificity from other rules. */
+        .ppsc-overlay-text.base { color:var(--ppsc-base); font-size:48px; }
+        .ppsc-overlay-text.lora { color:var(--ppsc-lora); font-size:48px; }
+        .ppsc-overlay-text.pps  { color:var(--ppsc-pps);  font-size:60px; }
         @media (max-width:560px) {
-          .ppsc-overlay-text { font-size:26px; padding:0 12px; }
-          .ppsc-overlay-text.pps { font-size:34px; }
+          .ppsc-overlay-text,
+          .ppsc-overlay-text.base,
+          .ppsc-overlay-text.lora { font-size:30px; padding:0 10px; }
+          .ppsc-overlay-text.pps  { font-size:38px; }
         }
         /* Speed badge — same look as the recovery section's "2X" pill. */
         .ppsc-speed-badge { position:absolute; top:10px; right:10px;
