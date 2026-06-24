@@ -676,18 +676,18 @@
     // to fixed SCREEN positions near the bottom of the canvas (independent
     // of how the kernels move with γ).
     var labelX = this.field._w / 2;
-    var labelY = this.field._h - 36;
-    var subY   = this.field._h - 16;
+    var labelY = this.field._h - 42;
+    var subY   = this.field._h - 18;
     ctx.font = '600 15px ' + fontStack(); ctx.textAlign = 'center';
     ctx.fillStyle = ppsCol;
     ctx.fillText('action distribution', labelX, labelY);
 
-    // Helper for the two-tone "Close to <X distribution>" subtitle.
-    var self2 = this;
+    // Helper for the two-tone "close to <X distribution>" subtitle, sized
+    // to match the "action distribution" label above.
     function drawHint(prefix, colored, color, opacity) {
       if (opacity <= 0) return;
       ctx.globalAlpha = opacity;
-      ctx.font = '500 12.5px ' + fontStack();
+      ctx.font = '500 15px ' + fontStack();
       ctx.textAlign = 'left';
       var pw = ctx.measureText(prefix).width;
       var cw = ctx.measureText(colored).width;
@@ -698,11 +698,11 @@
       ctx.fillText(colored, sx + pw, subY);
       ctx.globalAlpha = 1;
     }
-    // γ < 0.10 → fades in "Close to base distribution" (base in purple)
-    drawHint('Close to ', 'base distribution', p.base,
+    // γ < 0.10 → fades in "close to base distribution" (base in purple)
+    drawHint('close to ', 'base distribution', p.base,
              Math.max(0, Math.min(1, (0.10 - g) / 0.10)));
-    // γ > 0.75 → fades in "Close to task distribution" (task in blue)
-    drawHint('Close to ', 'task distribution', p.task,
+    // γ > 0.75 → fades in "close to task distribution" (task in blue)
+    drawHint('close to ', 'task distribution', p.task,
              Math.max(0, Math.min(1, (g - 0.75) / 0.25)));
 
     // Lead-particle rollout: start near (not exactly at) the noise centre;
