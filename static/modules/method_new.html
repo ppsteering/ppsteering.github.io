@@ -58,7 +58,7 @@
 
   .module { margin-top: 14px; background: var(--panel); border: 1px solid var(--line);
     border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; }
-  .grid { display: grid; grid-template-columns: 1fr 1fr; }
+  .grid { display: grid; grid-template-columns: 1.55fr 1fr; }
   @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
 
   .fieldwrap { position: relative; border-right: 1px solid var(--line); }
@@ -66,39 +66,7 @@
   #field { display: block; width: 100%; height: 460px; }
   @media (max-width: 860px) { #field { height: 380px; } }
 
-  /* Teaser image + animated green-trajectory overlay (right pane). */
-  .teaserwrap {
-    position: relative;
-    line-height: 0;
-    align-self: stretch;
-    background: var(--soft);
-  }
-  .teaserwrap img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .teaserwrap canvas.teaser-overlay {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-  }
-
-  /* Below-the-box bar holding the equation and the slider. */
-  .below {
-    margin-top: 14px;
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    box-shadow: var(--shadow);
-    padding: 22px 24px 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-  }
+  .side { padding: 22px 22px 24px; display: flex; flex-direction: column; gap: 18px; }
   .eq { font-family: var(--font-math); font-size: 17px; line-height: 1.6; text-align: center;
     white-space: nowrap; letter-spacing: -0.2px;
     background: var(--soft); border-left: 3px solid var(--eqborder); border-radius: 4px;
@@ -120,6 +88,29 @@
     background: var(--resid); border: 3px solid var(--panel); cursor: pointer; }
   .ticks { display: flex; justify-content: space-between; font-family: var(--font-mono);
     font-size: 10px; color: var(--sub); margin-top: 4px; }
+
+  /* Teaser image + animated green-trajectory overlay (replaces the
+     success-rate-vs-γ plot in the right column). */
+  .teaserwrap {
+    position: relative;
+    line-height: 0;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .teaserwrap img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .teaserwrap canvas.teaser-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
 
   .foot { margin-top: 30px; font-size: 12px; color: var(--sub); line-height: 1.5; max-width: 70ch; }
   .foot code { font-family: var(--font-mono); font-size: 11px; background: var(--soft); padding: 1px 5px; border-radius: 4px; }
@@ -151,22 +142,21 @@
         <div class="fieldwrap">
           <canvas id="field"></canvas>
         </div>
-        <div class="teaserwrap">
-          <img id="teaserBg" src="../images/teaser_1_3.png" alt="Robot demonstrating jeans-folding with three rollouts; a green PPS rollout is overlaid">
-          <canvas class="teaser-overlay" id="teaserOverlay"></canvas>
+        <div class="side">
+          <div class="eq">
+            <span class="pps"><i>v</i><sub>PPS</sub></span> = <span class="b"><i>v</i><sub>base</sub></span> +
+            <span class="g" id="eqg">0.50</span> · [ <span class="t"><i>v</i><sub>task</sub></span> − <span class="r"><i>v</i><sub>ref</sub></span> ]
+          </div>
+          <div>
+            <div class="ctl-label"><span class="k">Steering strength γ</span><span class="v" id="gval">0.50</span></div>
+            <input id="gamma" type="range" min="0" max="1.0" step="0.01" value="0.5" />
+            <div class="ticks"><span>0 · base</span><span>0.5 · PPS</span><span>1 · task</span></div>
+          </div>
+          <div class="teaserwrap">
+            <img id="teaserBg" src="../images/teaser_1_3.png" alt="Robot demonstrating jeans-folding with three rollouts; a green PPS rollout is overlaid">
+            <canvas class="teaser-overlay" id="teaserOverlay"></canvas>
+          </div>
         </div>
-      </div>
-    </div>
-
-    <div class="below">
-      <div class="eq">
-        <span class="pps"><i>v</i><sub>PPS</sub></span> = <span class="b"><i>v</i><sub>base</sub></span> +
-        <span class="g" id="eqg">0.50</span> · [ <span class="t"><i>v</i><sub>task</sub></span> − <span class="r"><i>v</i><sub>ref</sub></span> ]
-      </div>
-      <div>
-        <div class="ctl-label"><span class="k">Steering strength γ</span><span class="v" id="gval">0.50</span></div>
-        <input id="gamma" type="range" min="0" max="1.0" step="0.01" value="0.5" />
-        <div class="ticks"><span>0 · base</span><span>0.5 · PPS</span><span>1 · task</span></div>
       </div>
     </div>
 
@@ -176,9 +166,9 @@
   <script src="pps-embed.js"></script>
   <script src="pps-diagram_new.js"></script>
   <script>
-    // The diagram class still draws onto a "curve" canvas; we pass a
-    // throwaway 1×1 offscreen canvas so the success-rate plot renders
-    // somewhere harmless without touching the upstream class.
+    // The diagram class draws a "success vs γ" curve onto a curve canvas
+    // we no longer display. Hand it a throwaway 1×1 offscreen canvas to
+    // satisfy the constructor without touching the upstream class.
     var sinkCurve = document.createElement('canvas');
     sinkCurve.width = 1; sinkCurve.height = 1;
 
@@ -189,7 +179,7 @@
     var gammaEl = document.getElementById('gamma');
     function fmt(g){ return g.toFixed(2); }
 
-    /* ----- Teaser overlay (right pane) -------------------------------
+    /* ----- Teaser overlay --------------------------------------------
        Anchor points in NORMALISED image coordinates [0,1]. The image
        gets responsively sized via CSS; the canvas tracks it via the
        same mapping. Edit any of these to retune. */
@@ -237,7 +227,7 @@
       teaserCtx.beginPath();
       teaserCtx.moveTo(sx, sy);
       teaserCtx.quadraticCurveTo(cx, cy, ex, ey);
-      teaserCtx.lineWidth = 22 * dpr;
+      teaserCtx.lineWidth = 16 * dpr;
       teaserCtx.strokeStyle = 'rgba(20, 20, 20, 0.55)';
       teaserCtx.stroke();
 
@@ -245,16 +235,16 @@
       teaserCtx.beginPath();
       teaserCtx.moveTo(sx, sy);
       teaserCtx.quadraticCurveTo(cx, cy, ex, ey);
-      teaserCtx.lineWidth = 16 * dpr;
+      teaserCtx.lineWidth = 11 * dpr;
       teaserCtx.strokeStyle = '#4f9d5d';
       teaserCtx.stroke();
 
       // End dot.
       teaserCtx.beginPath();
-      teaserCtx.arc(ex, ey, 11 * dpr, 0, Math.PI * 2);
+      teaserCtx.arc(ex, ey, 8 * dpr, 0, Math.PI * 2);
       teaserCtx.fillStyle = '#4f9d5d';
       teaserCtx.fill();
-      teaserCtx.lineWidth = 2.5 * dpr;
+      teaserCtx.lineWidth = 2 * dpr;
       teaserCtx.strokeStyle = 'rgba(20, 20, 20, 0.55)';
       teaserCtx.stroke();
     }
