@@ -664,20 +664,27 @@
     // is muB0 = (-0.48, 0.40) at γ=0 and tracks the kernel as γ→1 by
     // sliding through lerp(muB0, muB1, γ). So the launch point stays put
     // while the landing point migrates with the kernel.
-    this.particles[0].ex = N.x;
-    this.particles[0].ey = N.y;
-    this.particles[0].bi = { x: muB0.x, y: muB0.y };
-    this.particles[0].ti = { x: muB1.x, y: muB1.y };
-
-    // (2) Single denoising rollout noise → action; end-of-path colour
-    // matches the PPS-distribution colour so the path lands inside its mode.
     var lead = this.particles[0];
-    var sLead = Math.max(0.10, Math.min(0.96, this.phase + lead.off));
-    var pp = this.integrate(lead, g, sLead);
-    this.denoisePath(ctx, pp, p.noise, ppsCol, 2.6, true);
+    lead.ex = N.x;
+    lead.ey = N.y;
+    lead.bi = { x: muB0.x, y: muB0.y };
+    lead.ti = { x: muB1.x, y: muB1.y };
 
-    // (3) Velocity-decomposition inset at the current head of the path.
-    var probe = pp[pp.length - 1], ps = this.W2S(probe), SC = 0.30;
+    // (2) Path drawn complete (s=1, no animation). When γ changes the
+    // path snaps to its new endpoint; when γ is fixed the path is static.
+    var pp = this.integrate(lead, g, 1.0);
+    this.denoisePath(ctx, pp, p.noise, ppsCol, 2.6, false);  // no in-path dots
+    // Start dot at the noise-distribution colour.
+    var startS = this.W2S(pp[0]);
+    ctx.beginPath();
+    ctx.arc(startS.x, startS.y, 4.2, 0, Math.PI * 2);
+    ctx.fillStyle = p.noise;
+    ctx.fill();
+    // (End dot is already drawn by denoisePath in c1 = ppsCol.)
+
+    // (3) Velocity-decomposition inset anchored at the MIDDLE of the path
+    // (not the head — the path is complete now, so "head" has no meaning).
+    var probe = pp[Math.floor(pp.length / 2)], ps = this.W2S(probe), SC = 0.30;
     function tip(vx, vy) { return self.W2S({ x: probe.x + vx * SC, y: probe.y + vy * SC }); }
     var vBx = (lead.bi.x - probe.x) * GAIN, vBy = (lead.bi.y - probe.y) * GAIN;
     var vRx = (lead.ti.x - lead.bi.x) * GAIN * g, vRy = (lead.ti.y - lead.bi.y) * GAIN * g;
@@ -685,7 +692,6 @@
     arrow(ctx, ps, baseTip, p.base, 2.4, 8.5);
     if (g > 0.001) arrow(ctx, baseTip, ppsTip, p.resid, 2.4, 8.5);
     arrow(ctx, ps, ppsTip, p.pps, 3.0, 10.5);
-    ctx.beginPath(); ctx.arc(ps.x, ps.y, 3.5, 0, Math.PI * 2); ctx.fillStyle = ppsCol; ctx.fill();
 
     this.legendCard(ctx, p, [
       { type: 'grad', color: p.noise, color2: ppsCol,
