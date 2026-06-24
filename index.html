@@ -268,6 +268,24 @@
         .ppsc-item video { display:block; width:100%; aspect-ratio:16/9; object-fit:cover;
           background:#000; border-radius:11px; border:2px solid var(--ppsc-line); }
         .ppsc-foot { margin-top:16px; font-size:12.5px; color:var(--ppsc-sub); text-align:center; }
+        /* End-of-playback overlay: fades a semi-transparent white veil over the
+           video with a coloured outcome caption, shown for 3 s before the
+           video restarts. */
+        .ppsc-overlay { position:absolute; inset:0; display:flex; align-items:center;
+          justify-content:center; background:rgba(255,255,255,0.72);
+          opacity:0; pointer-events:none; transition:opacity .25s ease; }
+        .ppsc-overlay.show { opacity:1; }
+        .ppsc-hero .ppsc-overlay { border-radius:12px; }
+        .ppsc-item .ppsc-overlay { border-radius:11px; }
+        .ppsc-overlay-text { font:700 24px/1.25 inherit; text-align:center;
+          padding:0 22px; letter-spacing:-0.3px; text-shadow:0 1px 0 rgba(255,255,255,0.9); }
+        .ppsc-overlay-text.pps  { color:var(--ppsc-pps);  font-size:34px; }
+        .ppsc-overlay-text.base { color:var(--ppsc-base); }
+        .ppsc-overlay-text.lora { color:var(--ppsc-lora); }
+        @media (max-width:560px) {
+          .ppsc-overlay-text { font-size:16px; padding:0 14px; }
+          .ppsc-overlay-text.pps { font-size:22px; }
+        }
       </style>
       <div class="ppsc">
         <div class="ppsc-tabs" id="ppsc-tabs">
@@ -279,42 +297,54 @@
         <div class="ppsc-stage">
           <div class="ppsc-panel on" data-i="0">
             <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
-              <video src="./static/videos/compare/coffee_pps.mp4" autoplay muted loop playsinline preload="metadata"></video></div>
+              <video src="./static/videos/compare/coffee_pps.mp4" autoplay muted playsinline preload="metadata"></video>
+              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
             <div class="ppsc-row">
               <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
-                <video src="./static/videos/compare/coffee_base.mp4" autoplay muted loop playsinline preload="metadata"></video></div>
+                <video src="./static/videos/compare/coffee_base.mp4" autoplay muted playsinline preload="metadata"></video>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text base">Doesn't know how to open the lid</span></div></div>
               <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
-                <video src="./static/videos/compare/coffee_lora.mp4" autoplay muted loop playsinline preload="metadata"></video></div>
+                <video src="./static/videos/compare/coffee_lora.mp4" autoplay muted playsinline preload="metadata"></video>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text lora">Loses the lid after a near miss</span></div></div>
             </div>
           </div>
           <div class="ppsc-panel" data-i="1">
             <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
-              <video src="./static/videos/compare/flower_pps.mp4" autoplay muted loop playsinline preload="metadata"></video></div>
+              <video src="./static/videos/compare/flower_pps.mp4" autoplay muted playsinline preload="metadata"></video>
+              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
             <div class="ppsc-row">
               <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
-                <video src="./static/videos/compare/flower_base.mp4" autoplay muted loop playsinline preload="metadata"></video></div>
+                <video src="./static/videos/compare/flower_base.mp4" autoplay muted playsinline preload="metadata"></video>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text base">Picks and places the bud instead of inserting</span></div></div>
               <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
-                <video src="./static/videos/compare/flower_lora.mp4" autoplay muted loop playsinline preload="metadata"></video></div>
+                <video src="./static/videos/compare/flower_lora.mp4" autoplay muted playsinline preload="metadata"></video>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text lora">Pushes through a missed insertion</span></div></div>
             </div>
           </div>
           <div class="ppsc-panel" data-i="2">
             <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
-              <video src="./static/videos/compare/jeans_pps.mp4" autoplay muted loop playsinline preload="metadata"></video></div>
+              <video src="./static/videos/compare/jeans_pps.mp4" autoplay muted playsinline preload="metadata"></video>
+              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
             <div class="ppsc-row">
               <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
-                <video src="./static/videos/compare/jeans_base.mp4" autoplay muted loop playsinline preload="metadata"></video></div>
+                <video src="./static/videos/compare/jeans_base.mp4" autoplay muted playsinline preload="metadata"></video>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text base">Doesn't know how to fold</span></div></div>
               <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
-                <video src="./static/videos/compare/jeans_lora.mp4" autoplay muted loop playsinline preload="metadata"></video></div>
+                <video src="./static/videos/compare/jeans_lora.mp4" autoplay muted playsinline preload="metadata"></video>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text lora">Tosses the jeans away — overfit</span></div></div>
             </div>
           </div>
           <div class="ppsc-panel" data-i="3">
             <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
-              <video src="./static/videos/compare/tissue_pps.mp4" autoplay muted loop playsinline preload="metadata"></video></div>
+              <video src="./static/videos/compare/tissue_pps.mp4" autoplay muted playsinline preload="metadata"></video>
+              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
             <div class="ppsc-row">
               <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
-                <video src="./static/videos/compare/tissue_base.mp4" autoplay muted loop playsinline preload="metadata"></video></div>
+                <video src="./static/videos/compare/tissue_base.mp4" autoplay muted playsinline preload="metadata"></video>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text base">Confused about the target</span></div></div>
               <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
-                <video src="./static/videos/compare/tissue_lora.mp4" autoplay muted loop playsinline preload="metadata"></video></div>
+                <video src="./static/videos/compare/tissue_lora.mp4" autoplay muted playsinline preload="metadata"></video>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text lora">Can't recover from a slipped grasp</span></div></div>
             </div>
           </div>
         </div>
@@ -335,6 +365,27 @@
           });
         }
         tabs.forEach(function (b) { b.onclick = function () { show(+b.dataset.i); }; });
+
+        // End-of-playback effect: at the final frame, fade in a translucent
+        // white veil with the per-video outcome caption, hold for 3 s, then
+        // rewind and resume. The previous `loop` attribute has been removed
+        // so the `ended` event actually fires.
+        document.querySelectorAll('.ppsc video').forEach(function (v) {
+          v.loop = false; // belt-and-suspenders in case the attribute is restored elsewhere
+          var overlay = v.parentNode.querySelector('.ppsc-overlay');
+          if (!overlay) return;
+          v.addEventListener('ended', function () {
+            overlay.classList.add('show');
+            setTimeout(function () {
+              overlay.classList.remove('show');
+              try { v.currentTime = 0; } catch (e) {}
+              var panel = v.closest('.ppsc-panel');
+              if (panel && panel.classList.contains('on')) {
+                var pr = v.play(); if (pr && pr.catch) pr.catch(function () {});
+              }
+            }, 3000);
+          });
+        });
       })();
       </script>
 
