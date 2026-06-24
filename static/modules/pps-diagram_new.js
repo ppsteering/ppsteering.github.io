@@ -455,12 +455,16 @@
     ctx.fillText('initial noise', Ns.x, noiseTop.y - 8);
   };
 
-  // Two-stop color interpolation aligned with the shape morph base → pps:
-  // purple (γ=0) → green (γ=1). Clamped outside [0,1].
+  // Color schedule for the action distribution:
+  //   γ ∈ [0,    0.15] : purple → green   (lerp)
+  //   γ ∈ [0.15, 0.75] : green             (constant — PPS hold)
+  //   γ ∈ [0.75, 1.0 ] : green → blue     (lerp)
   function ppsColorAt(g, p) {
     if (g <= 0) return p.base;
-    if (g >= 1) return p.pps;
-    return mix(p.base, p.pps, g);
+    if (g >= 1) return p.task;
+    if (g <= 0.15) return mix(p.base, p.pps, g / 0.15);
+    if (g <= 0.75) return p.pps;
+    return mix(p.pps, p.task, (g - 0.75) / 0.25);
   }
 
   // Linear interpolation of two Gaussian kernels (mean + covariance).
@@ -622,34 +626,48 @@
     // Mean + cov values come from that file's PDFs mapped through its
     // 90°CW image rotation, a y-flip, and a per-axis scale so the offsets
     // relative to the noise distribution N are preserved.
-    var muA0 = { x:  0.34, y: 0.09 };   // ← plot.base mode 1  [1.1, 1.3]
-    var muA1 = { x:  0.34, y: 0.09 };   // ← plot.pps  mode 2  [1.1, 1.3]  (preserved)
-    var muB0 = { x: -0.48, y: 0.40 };   // ← plot.base mode 2  [2.6,-1.5]
-    var muB1 = { x:  0.55, y: 0.44 };   // ← plot.pps  mode 1  [2.8, 2.0]  (migrates)
-    var covA0 = [0.0858, -0.0238, 0.0247];   // ← T·Σ_base1·T^T
-    var covA1 = [0.0815, -0.0113, 0.0124];   // ← T·Σ_pps2·T^T   (preserved)
-    var covB0 = [0.0472,  0.0000, 0.0330];   // ← T·Σ_base2·T^T
-    var covB1 = [0.0721, -0.0125, 0.0148];   // ← T·Σ_pps1·T^T   (migrating)
+    var muA0   = { x:  0.34, y: 0.09 };   // ← plot.base mode 1  [1.1, 1.3]
+    var muAPPS = { x:  0.34, y: 0.09 };   // ← plot.pps  mode 2  [1.1, 1.3]  (preserved)
+    var muB0   = { x: -0.48, y: 0.40 };   // ← plot.base mode 2  [2.6,-1.5]
+    var muBPPS = { x:  0.55, y: 0.44 };   // ← plot.pps  mode 1  [2.8, 2.0]  (migrates)
+    // Merge target for kernel A at γ=1: lands almost on top of kernel B's
+    // PPS position but offset just enough that the summed-density bands
+    // read as one mode with a slightly different (skewed) shape than B alone.
+    var muAMerge = { x: 0.48, y: 0.36 };
+    var covA0   = [0.0858, -0.0238, 0.0247];   // ← T·Σ_base1·T^T
+    var covAPPS = [0.0815, -0.0113, 0.0124];   // ← T·Σ_pps2·T^T   (preserved)
+    var covB0   = [0.0472,  0.0000, 0.0330];   // ← T·Σ_base2·T^T
+    var covBPPS = [0.0721, -0.0125, 0.0148];   // ← T·Σ_pps1·T^T   (migrating)
 
-    var gC = Math.min(1, Math.max(0, g));
-    var muA = lerpMu(muA0, muA1, gC);
-    var muB = lerpMu(muB0, muB1, gC);
-    var covA = lerpCov(covA0, covA1, gC);
-    var covB = lerpCov(covB0, covB1, gC);
+    // Decoupled γ schedule:
+    //   γ ∈ [0,    0.75] → shape morphs base → PPS (gShape = γ/0.75)
+    //   γ ∈ [0.75, 1.0 ] → kernel A drifts into kernel B's mode
+    //                       (gMerge = (γ-0.75)/0.25), B holds at PPS
+    var gC      = Math.min(1, Math.max(0, g));
+    var gShape  = Math.min(1, gC / 0.75);
+    var gMerge  = Math.max(0, (gC - 0.75) / 0.25);
 
-    // Single density-field render of the SUM of both kernels — produces
-    // proper band-merging in the overlap region (like contourf in
-    // plot_flow_matching.py), instead of two ellipse stacks overpainting
-    // each other.
+    var muA, muB, covA, covB;
+    if (gMerge <= 0) {
+      muA = lerpMu(muA0, muAPPS, gShape);
+      muB = lerpMu(muB0, muBPPS, gShape);
+      covA = lerpCov(covA0, covAPPS, gShape);
+      covB = lerpCov(covB0, covBPPS, gShape);
+    } else {
+      // Shape stays at PPS; only kernel A migrates toward the merge target.
+      muA = lerpMu(muAPPS, muAMerge, gMerge);
+      muB = muBPPS;
+      covA = covAPPS;
+      covB = covBPPS;
+    }
+
+    // Density-field render of the SUM of both kernels — proper band-merging
+    // in the overlap region (like contourf in plot_flow_matching.py).
     //
-    // Peak alpha ramps with γ:
-    //   γ=0 (purple) → 0.20, matching scaffold's densityBlob(p.base, 0.20)
-    //                so the base tone is identical to the original "Try
-    //                the steering yourself" diagram.
-    //   γ=1 (green)  → 0.40, ~32% more cumulative center-pixel saturation,
-    //                so the green reads as vivid as the solid green
-    //                markers (attractor, v_PPS arrow) elsewhere on the page.
-    var ppsPeak = 0.20 + 0.20 * gC;
+    // Peak alpha follows the color schedule:
+    //   γ ∈ [0,    0.15] → 0.20 → 0.40 (ramps with purple→green)
+    //   γ ∈ [0.15, 1.0 ] → 0.40         (saturated for green + green→blue)
+    var ppsPeak = gC <= 0.15 ? (0.20 + 0.20 * (gC / 0.15)) : 0.40;
     this.drawDensityField(ctx,
       [{ mu: muA, cov: covA }, { mu: muB, cov: covB }],
       ppsCol, ppsPeak);
@@ -690,12 +708,12 @@
     // Lead-particle rollout: start near (not exactly at) the noise centre;
     // end follows the kernel-B centre with small offsets so the landing
     // point moves vertically (up at γ=0, down at γ=1) instead of strictly
-    // horizontally along the muB0→muB1 line.
+    // horizontally along the muB0→muBPPS line.
     var lead = this.particles[0];
     lead.ex = N.x + 0.06;            // small rightward offset from noise centre
     lead.ey = N.y + 0.07;            // small downward offset
-    lead.bi = { x: muB0.x,        y: muB0.y - 0.10 };  // upper-left of kernel B at γ=0
-    lead.ti = { x: muB1.x + 0.02, y: muB1.y + 0.12 };  // lower-right of kernel B at γ=1
+    lead.bi = { x: muB0.x,          y: muB0.y   - 0.10 };  // upper-left of kernel B at γ=0
+    lead.ti = { x: muBPPS.x + 0.02, y: muBPPS.y + 0.12 };  // lower-right of kernel B at γ=1
 
     // (2) Path drawn complete (s=1, no animation). When γ changes the
     // path snaps to its new endpoint; when γ is fixed the path is static.
