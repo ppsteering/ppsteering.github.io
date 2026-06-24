@@ -286,6 +286,12 @@
           .ppsc-overlay-text { font-size:16px; padding:0 14px; }
           .ppsc-overlay-text.pps { font-size:22px; }
         }
+        /* Speed badge — same look as the recovery section's "2X" pill. */
+        .ppsc-speed-badge { position:absolute; top:10px; right:10px;
+          font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+          font-size:13px; font-weight:600; line-height:1; color:#fdfaf4;
+          background:rgba(27,27,27,0.72); padding:4px 8px; border-radius:6px;
+          letter-spacing:0.5px; pointer-events:none; z-index:2; }
       </style>
       <div class="ppsc">
         <div class="ppsc-tabs" id="ppsc-tabs">
@@ -297,53 +303,65 @@
         <div class="ppsc-stage">
           <div class="ppsc-panel on" data-i="0">
             <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
-              <video src="./static/videos/compare/coffee_pps.mp4" autoplay muted playsinline preload="metadata"></video>
+              <video src="./static/videos/compare/coffee_pps.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <span class="ppsc-speed-badge">2X</span>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
             <div class="ppsc-row">
               <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
-                <video src="./static/videos/compare/coffee_base.mp4" autoplay muted playsinline preload="metadata"></video>
+                <video src="./static/videos/compare/coffee_base.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <span class="ppsc-speed-badge">2X</span>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text base">Doesn't know how to open the lid</span></div></div>
               <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
-                <video src="./static/videos/compare/coffee_lora.mp4" autoplay muted playsinline preload="metadata"></video>
+                <video src="./static/videos/compare/coffee_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <span class="ppsc-speed-badge">2X</span>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text lora">Loses the lid after a near miss</span></div></div>
             </div>
           </div>
           <div class="ppsc-panel" data-i="1">
             <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
-              <video src="./static/videos/compare/flower_pps.mp4" autoplay muted playsinline preload="metadata"></video>
+              <video src="./static/videos/compare/flower_pps.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <span class="ppsc-speed-badge">2X</span>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
             <div class="ppsc-row">
               <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
-                <video src="./static/videos/compare/flower_base.mp4" autoplay muted playsinline preload="metadata"></video>
+                <video src="./static/videos/compare/flower_base.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <span class="ppsc-speed-badge">2X</span>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text base">Picks and places the bud instead of inserting</span></div></div>
               <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
-                <video src="./static/videos/compare/flower_lora.mp4" autoplay muted playsinline preload="metadata"></video>
+                <video src="./static/videos/compare/flower_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <span class="ppsc-speed-badge">2X</span>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text lora">Pushes through a missed insertion</span></div></div>
             </div>
           </div>
           <div class="ppsc-panel" data-i="2">
             <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
-              <video src="./static/videos/compare/jeans_pps.mp4" autoplay muted playsinline preload="metadata"></video>
+              <video src="./static/videos/compare/jeans_pps.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <span class="ppsc-speed-badge">2X</span>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
             <div class="ppsc-row">
               <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
-                <video src="./static/videos/compare/jeans_base.mp4" autoplay muted playsinline preload="metadata"></video>
+                <video src="./static/videos/compare/jeans_base.mp4" autoplay muted playsinline preload="metadata" data-speed="4"></video>
+                <span class="ppsc-speed-badge">4X</span>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text base">Doesn't know how to fold</span></div></div>
               <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
-                <video src="./static/videos/compare/jeans_lora.mp4" autoplay muted playsinline preload="metadata"></video>
+                <video src="./static/videos/compare/jeans_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <span class="ppsc-speed-badge">2X</span>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text lora">Tosses the jeans away — overfit</span></div></div>
             </div>
           </div>
           <div class="ppsc-panel" data-i="3">
             <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
-              <video src="./static/videos/compare/tissue_pps.mp4" autoplay muted playsinline preload="metadata"></video>
+              <video src="./static/videos/compare/tissue_pps.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <span class="ppsc-speed-badge">2X</span>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
             <div class="ppsc-row">
               <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
-                <video src="./static/videos/compare/tissue_base.mp4" autoplay muted playsinline preload="metadata"></video>
+                <video src="./static/videos/compare/tissue_base.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <span class="ppsc-speed-badge">2X</span>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text base">Confused about the target</span></div></div>
               <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
-                <video src="./static/videos/compare/tissue_lora.mp4" autoplay muted playsinline preload="metadata"></video>
+                <video src="./static/videos/compare/tissue_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <span class="ppsc-speed-badge">2X</span>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text lora">Can't recover from a slipped grasp</span></div></div>
             </div>
           </div>
@@ -370,8 +388,19 @@
         // white veil with the per-video outcome caption, hold for 3 s, then
         // rewind and resume. The previous `loop` attribute has been removed
         // so the `ended` event actually fires.
+        //
+        // Per-video playback rate is read from the `data-speed` attribute
+        // (default 2.0). Browsers reset playbackRate on (re)load and on
+        // seek/play in some cases, so we re-apply on every relevant event.
         document.querySelectorAll('.ppsc video').forEach(function (v) {
           v.loop = false; // belt-and-suspenders in case the attribute is restored elsewhere
+          var rate = parseFloat(v.dataset.speed) || 2.0;
+          var setRate = function () { v.playbackRate = rate; };
+          setRate();
+          ['loadedmetadata', 'loadeddata', 'canplay', 'play', 'seeked'].forEach(function (ev) {
+            v.addEventListener(ev, setRate);
+          });
+
           var overlay = v.parentNode.querySelector('.ppsc-overlay');
           if (!overlay) return;
           v.addEventListener('ended', function () {
@@ -379,6 +408,7 @@
             setTimeout(function () {
               overlay.classList.remove('show');
               try { v.currentTime = 0; } catch (e) {}
+              v.playbackRate = rate;
               var panel = v.closest('.ppsc-panel');
               if (panel && panel.classList.contains('on')) {
                 var pr = v.play(); if (pr && pr.catch) pr.catch(function () {});
