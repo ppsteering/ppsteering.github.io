@@ -62,13 +62,13 @@
   @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
 
   .fieldwrap { position: relative; }
-  /* Vertical divider — visible but inset from top/bottom so it doesn't
-     run the full height of the pane ("shrunk" relative to a full-edge border). */
+  /* Vertical divider — runs full height of the pane, flush against the
+     module frame at both top and bottom (no gap). */
   .fieldwrap::after {
     content: '';
     position: absolute;
-    top: 30px;
-    bottom: 30px;
+    top: 0;
+    bottom: 0;
     right: 0;
     width: 1px;
     background: var(--line);
