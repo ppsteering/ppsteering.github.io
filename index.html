@@ -189,7 +189,7 @@
           pointer-events: none;
           overflow: visible;     /* let stroke caps + arrow head extend a hair beyond bounds */
         }
-        .tih-dist-arrow path { fill: none; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+        .tih-dist-arrow path { fill: none; stroke-width: 10; stroke-linecap: round; stroke-linejoin: round; }
         .tih-dist-arrow.base path { stroke: #AF56BF; }
         .tih-dist-arrow.ref  path { stroke: #F58A45; }
         .tih-dist-arrow.task path { stroke: #407CB6; }
@@ -537,13 +537,14 @@
           //   outside_perp = -sign(offset) · ( uy, −ux )
           var s = d.offset >= 0 ? -1 : 1;
           var nx = s *  uy, ny = s * -ux;
-          // Rotate the tangent 20° toward the outside, so the arrow visibly
-          // peels off the path direction (readers can distinguish arrow from
-          // path). arrow_dir = cos(20°)·tangent + sin(20°)·outside_perp.
+          // Rotate the tangent 20° toward the *inside* of the curve (flipped
+          // sign on the perp component vs the previous outside rotation), so
+          // the arrow peels off the path direction the other way.
+          // arrow_dir = cos(20°)·tangent − sin(20°)·outside_perp.
           var ROT = 20 * Math.PI / 180;
           var cR = Math.cos(ROT), sR = Math.sin(ROT);
-          var ax = cR * ux + sR * nx;
-          var ay = cR * uy + sR * ny;
+          var ax = cR * ux - sR * nx;
+          var ay = cR * uy - sR * ny;
           // start = ((my + 4.28)/9.0, 0.4) in normalised image coords
           var sx = ((my + 4.28) / 9.0) * IMG_W;
           var sy = 0.4 * IMG_H;
