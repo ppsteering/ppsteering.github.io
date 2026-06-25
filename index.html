@@ -194,7 +194,13 @@
         }
         /* Frame wraps the image + SVG arrow overlay so the velocity-prediction
            arrow lands on the image, not the caption underneath. */
-        .tih-dist-frame { position: relative; line-height: 0; }
+        .tih-dist-frame {
+          position: relative;
+          line-height: 0;
+          isolation: isolate;    /* make the frame its own stacking context so the
+                                    z-indexed ::after mask + .tih-dist-arrow don't
+                                    leak ordering to siblings outside this frame */
+        }
         .tih-dist-arrow {
           position: absolute;
           inset: 0;
@@ -202,7 +208,23 @@
           height: 100%;
           pointer-events: none;
           overflow: visible;     /* let stroke caps + arrow head extend a hair beyond bounds */
+          z-index: 2;            /* always above the focus-state white mask */
         }
+        /* Focus-state white veil over each dist plot (same 70 % white as the
+           action row's mask). Sits between the image (z-index auto = 0) and
+           the SVG arrow (z-index 2) so the arrows stay crisp on top while the
+           plot fades back. */
+        .tih-dist-frame::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: rgba(255, 255, 255, 0.70);
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.22s ease;
+          z-index: 1;
+        }
+        .tih.focused .tih-dist-frame::after { opacity: 1; }
         .tih-dist-arrow path { fill: none; stroke-width: 10; stroke-linecap: round; stroke-linejoin: round; }
         .tih-dist-arrow.base path { stroke: #AF56BF; }
         .tih-dist-arrow.ref  path { stroke: #F58A45; }
@@ -390,6 +412,13 @@
         .tih.hovering .tih-act.active {
           transform: translateY(-7px);
           box-shadow: 0 16px 30px rgba(40, 32, 16, 0.22);
+        }
+        /* Focus state (cursor on the dist row): the equation strip lifts a
+           further 6 px so the whole first row visibly floats together with
+           the arrow-pop happening in the second row. */
+        .tih.focused .tih-eq {
+          transform: translateY(-12px);
+          box-shadow: 0 18px 32px rgba(40, 32, 16, 0.22);
         }
 
         /* 70%-opacity white mask over OTHER action images while in the
