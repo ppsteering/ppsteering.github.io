@@ -164,7 +164,9 @@
         .tih-dist {
           background: #efece4;
           border-radius: 12px;
-          padding: 8px;
+          /* Padding bumped so the plot content (noise + path + distribution)
+             occupies ~85% of the container width — more grey breathing room. */
+          padding: 7.5%;
           line-height: 0;
           position: relative;
           box-shadow: 0 6px 14px rgba(40, 32, 16, 0.10);
@@ -516,7 +518,12 @@
         var HEAD_ANGLE = 0.42;            // ~24°, opens the chevron
         function computeArrow(kind, variantIdx) {
           var d = PATH_DATA[kind][variantIdx - 1];
-          var t = 2.68 / (d.end_x + 2.5);                       // mx = -2.5 + t(end_x+2.5) = 0.18
+          // Start point picked so image_y_norm = 0.4 (10 % above the image
+          // centre, "up" in screen). image_y_norm = (mx+5)/10.36 = 0.4
+          // ⇒ mx_target = 0.4·10.36 − 5 = −0.856. Parametric t at that mx:
+          //   t = (mx_target − PATH_STARTS_x) / (end_x − PATH_STARTS_x)
+          //     = (−0.856 + 2.5) / (end_x + 2.5) = 1.644 / (end_x + 2.5).
+          var t = 1.644 / (d.end_x + 2.5);
           var my = (1 - t) * 0.15 + t * d.end_y + d.offset * Math.sin(Math.PI * t);
           var dmx = d.end_x + 2.5;                              // ∂x/∂t
           var dmy = (d.end_y - 0.15) + d.offset * Math.PI * Math.cos(Math.PI * t); // ∂y/∂t
@@ -524,17 +531,30 @@
           var pdx = dmy, pdy = dmx;
           var mag = Math.sqrt(pdx * pdx + pdy * pdy) || 1;
           var ux = pdx / mag, uy = pdy / mag;
-          // start = ((my + 4.28)/9.0, 0.5) in normalised image coords
+          // Outside-of-curve unit perpendicular (depends on sign(offset),
+          // which controls which side of the linear interp the path bows
+          // toward). In image coords, sign rule derived from the y-flip:
+          //   outside_perp = -sign(offset) · ( uy, −ux )
+          var s = d.offset >= 0 ? -1 : 1;
+          var nx = s *  uy, ny = s * -ux;
+          // Rotate the tangent 20° toward the outside, so the arrow visibly
+          // peels off the path direction (readers can distinguish arrow from
+          // path). arrow_dir = cos(20°)·tangent + sin(20°)·outside_perp.
+          var ROT = 20 * Math.PI / 180;
+          var cR = Math.cos(ROT), sR = Math.sin(ROT);
+          var ax = cR * ux + sR * nx;
+          var ay = cR * uy + sR * ny;
+          // start = ((my + 4.28)/9.0, 0.4) in normalised image coords
           var sx = ((my + 4.28) / 9.0) * IMG_W;
-          var sy = 0.5 * IMG_H;
-          var tx = sx + ARROW_LEN * ux;
-          var ty = sy + ARROW_LEN * uy;
-          var c = Math.cos(HEAD_ANGLE), s = Math.sin(HEAD_ANGLE);
+          var sy = 0.4 * IMG_H;
+          var tx = sx + ARROW_LEN * ax;
+          var ty = sy + ARROW_LEN * ay;
+          var c = Math.cos(HEAD_ANGLE), si = Math.sin(HEAD_ANGLE);
           // arrowhead vertices: tip - HEAD_SIZE · (direction rotated ±HEAD_ANGLE)
-          var v1x = tx - HEAD_SIZE * (ux * c - uy * s);
-          var v1y = ty - HEAD_SIZE * (ux * s + uy * c);
-          var v2x = tx - HEAD_SIZE * (ux * c + uy * s);
-          var v2y = ty - HEAD_SIZE * (-ux * s + uy * c);
+          var v1x = tx - HEAD_SIZE * (ax * c - ay * si);
+          var v1y = ty - HEAD_SIZE * (ax * si + ay * c);
+          var v2x = tx - HEAD_SIZE * (ax * c + ay * si);
+          var v2y = ty - HEAD_SIZE * (-ax * si + ay * c);
           return 'M' + sx.toFixed(1) + ' ' + sy.toFixed(1) +
                  ' L' + tx.toFixed(1) + ' ' + ty.toFixed(1) +
                  ' M' + v1x.toFixed(1) + ' ' + v1y.toFixed(1) +
