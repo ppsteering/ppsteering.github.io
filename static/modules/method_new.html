@@ -202,20 +202,30 @@
     function fmt(g){ return g.toFixed(2); }
 
     /* ----- Teaser overlay --------------------------------------------
-       Anchor points in NORMALISED image coordinates [0,1]. The image
-       gets responsively sized via CSS; the canvas tracks it via the
-       same mapping. Edit any of these to retune. */
-    // Coords match the cropped image (1280×855: left 10%, right 10%, bottom 5%
-    // trimmed from the original 1600×900).
-    var T_START      = { x: 0.594, y: 0.242 };
-    var T_END_PURPLE = { x: 0.600, y: 0.674 };
-    var T_END_BLUE   = { x: 0.769, y: 0.537 };
-    var T_CP_PURPLE  = { x: 0.606, y: 0.484 };
-    // CP at γ=1: placed so the bezier's tangent at T_END_BLUE makes a
-    // 20° angle with the rightward direction (going up-and-to-the-right)
-    // in PIXEL space. The aspect-correction divisor (W/H = 1280/855 = 1.497)
-    // accounts for the cropped image's non-square aspect.
-    var T_CP_BLUE = { x: 0.564, y: 0.648 };
+       Trajectory anchors expressed in the underlying image's pixel space
+       (1280×855, cropped from the original 1600×900). Normalised to [0,1]
+       on the fly so the canvas tracks the responsively-sized image.
+
+       Start is fixed. Endpoint is specified at THREE values of γ
+       (0, 0.3, 1) and quadratic-interpolated for any γ in between. */
+    var TW = 1280, TH = 855;
+    var T_START = { x: 650 / TW, y: 275 / TH };          // (row 275, col 650)
+    var T_END_AT_0   = { x:  720 / TW, y: 616 / TH };    // γ = 0
+    var T_END_AT_0_3 = { x: 1080 / TW, y: 538 / TH };    // γ = 0.3
+    var T_END_AT_1   = { x: 1175 / TW, y: 500 / TH };    // γ = 1
+    // Quadratic f(γ) = a γ² + b γ + c through (0, p0), (0.3, p1), (1, p2).
+    function quadCoef(p0, p1, p2) {
+      var c = p0;
+      var a = (0.3 * (p2 - p0) - (p1 - p0)) / 0.21;
+      var b = (p2 - p0) - a;
+      return [a, b, c];
+    }
+    var EX = quadCoef(T_END_AT_0.x, T_END_AT_0_3.x, T_END_AT_1.x);
+    var EY = quadCoef(T_END_AT_0.y, T_END_AT_0_3.y, T_END_AT_1.y);
+    function endAt(g) {
+      return { x: EX[0]*g*g + EX[1]*g + EX[2],
+               y: EY[0]*g*g + EY[1]*g + EY[2] };
+    }
 
     var teaserBg  = document.getElementById('teaserBg');
     var teaserCv  = document.getElementById('teaserOverlay');
@@ -236,36 +246,35 @@
       teaserCtx.clearRect(0, 0, w, h);
 
       var sx = T_START.x * w, sy = T_START.y * h;
-      var ex = lerp(T_END_PURPLE.x, T_END_BLUE.x, g) * w;
-      var ey = lerp(T_END_PURPLE.y, T_END_BLUE.y, g) * h;
-      var cx = lerp(T_CP_PURPLE.x,  T_CP_BLUE.x,  g) * w;
-      var cy = lerp(T_CP_PURPLE.y,  T_CP_BLUE.y,  g) * h;
+      var end = endAt(g);
+      var ex = end.x * w, ey = end.y * h;
 
       teaserCtx.lineCap = 'round';
       teaserCtx.lineJoin = 'round';
 
-      // Soft dark outline (mirrors the outline-look of the existing purple/blue/orange paths).
+      // Straight trajectory now (no bezier — the endpoint follows a
+      // pre-specified curve as γ varies, but each individual trajectory
+      // is a direct line from start to current end). All thicknesses
+      // and the end-dot radius scaled to 20% of their previous values.
       teaserCtx.beginPath();
       teaserCtx.moveTo(sx, sy);
-      teaserCtx.quadraticCurveTo(cx, cy, ex, ey);
-      teaserCtx.lineWidth = 16 * dpr;
+      teaserCtx.lineTo(ex, ey);
+      teaserCtx.lineWidth = 3.2 * dpr;
       teaserCtx.strokeStyle = 'rgba(20, 20, 20, 0.55)';
       teaserCtx.stroke();
 
-      // Green stroke on top.
       teaserCtx.beginPath();
       teaserCtx.moveTo(sx, sy);
-      teaserCtx.quadraticCurveTo(cx, cy, ex, ey);
-      teaserCtx.lineWidth = 11 * dpr;
+      teaserCtx.lineTo(ex, ey);
+      teaserCtx.lineWidth = 2.2 * dpr;
       teaserCtx.strokeStyle = '#4f9d5d';
       teaserCtx.stroke();
 
-      // End dot.
       teaserCtx.beginPath();
-      teaserCtx.arc(ex, ey, 8 * dpr, 0, Math.PI * 2);
+      teaserCtx.arc(ex, ey, 1.6 * dpr, 0, Math.PI * 2);
       teaserCtx.fillStyle = '#4f9d5d';
       teaserCtx.fill();
-      teaserCtx.lineWidth = 2 * dpr;
+      teaserCtx.lineWidth = 0.4 * dpr;
       teaserCtx.strokeStyle = 'rgba(20, 20, 20, 0.55)';
       teaserCtx.stroke();
     }
