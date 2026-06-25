@@ -146,26 +146,49 @@
         .tih *, .tih *::before, .tih *::after { box-sizing: border-box; }
         .tih-row { display: grid; gap: 14px; margin-bottom: 14px; }
 
-        /* Row 1: ONE big grey rounded container holds all four distributions.
-           Baseline soft float; lifts higher when the user is hovering any
-           action image below. */
+        /* Row 1: FOUR individual grey rounded containers, evenly spaced,
+           with arrows in the gaps between (1↔2 "Distill") and (2↔3
+           "Finetune"). 7-column grid (4 containers @ 1fr + 3 arrow slots
+           @ 50px) — the slot between containers 3 and 4 holds an empty
+           placeholder so all four containers stay evenly spaced. */
         .tih-row.dist {
-          grid-template-columns: repeat(4, 1fr);
+          grid-template-columns: 1fr 50px 1fr 50px 1fr 50px 1fr;
           gap: 14px;
-          background: #efece4;
-          border-radius: 14px;
-          padding: 14px;
+          align-items: center;
           transform: translateY(-2px);
-          box-shadow: 0 6px 14px rgba(40, 32, 16, 0.10);
-          transition: transform 0.25s ease, box-shadow 0.25s ease;
+          transition: transform 0.25s ease;
         }
-        .tih-dist { line-height: 0; position: relative; }
+        .tih-dist {
+          background: #efece4;
+          border-radius: 12px;
+          padding: 10px;
+          line-height: 0;
+          position: relative;
+          box-shadow: 0 6px 14px rgba(40, 32, 16, 0.10);
+          transition: box-shadow 0.25s ease;
+        }
         .tih-dist img {
           display: block;
           width: 100%;
           height: auto;
           background: transparent;
         }
+        .tih-arrow {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 4px;
+          color: #6b6453;
+        }
+        .tih-arrow .lbl {
+          font-size: 11px;
+          font-weight: 600;
+          letter-spacing: 0.2px;
+          white-space: nowrap;
+        }
+        .tih-arrow svg { display: block; width: 40px; height: 12px; }
+        .tih-arrow-empty { visibility: hidden; }
 
         /* Row 2: each action gets its OWN grey rounded container.
            Active container floats; while hovering, BOTH the active container
@@ -199,11 +222,13 @@
         }
         .tih-act.active img { filter: none; }
 
-        /* On hover, the active action container and the dist container
-           lift higher TOGETHER (they're visually linked via the shared
-           rise + matching shadow). */
+        /* On hover, all 4 dist containers (riding the row's transform) lift
+           together with the active action container, and the dist shadows
+           deepen for the "rise" feel. */
         .tih.hovering .tih-row.dist {
           transform: translateY(-6px);
+        }
+        .tih.hovering .tih-dist {
           box-shadow: 0 16px 28px rgba(40, 32, 16, 0.18);
         }
         .tih.hovering .tih-act.active {
@@ -228,13 +253,23 @@
 
         @media (max-width: 700px) {
           .tih-row.dist { grid-template-columns: repeat(2, 1fr); }
+          .tih-arrow { display: none; }
         }
       </style>
       <div class="tih" id="tih">
         <div class="tih-row dist">
           <div class="tih-dist"><img data-kind="base" src="./static/teaser_web/fm_base_1.png" alt="base distribution"></div>
+          <div class="tih-arrow">
+            <span class="lbl">Distill</span>
+            <svg viewBox="0 0 40 12" xmlns="http://www.w3.org/2000/svg"><path d="M0 6 L34 6 M28 1 L34 6 L28 11" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
           <div class="tih-dist"><img data-kind="ref"  src="./static/teaser_web/fm_ref_1.png"  alt="ref distribution"></div>
+          <div class="tih-arrow">
+            <span class="lbl">Finetune</span>
+            <svg viewBox="0 0 40 12" xmlns="http://www.w3.org/2000/svg"><path d="M0 6 L34 6 M28 1 L34 6 L28 11" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
           <div class="tih-dist"><img data-kind="task" src="./static/teaser_web/fm_task_1.png" alt="task distribution"></div>
+          <div class="tih-arrow tih-arrow-empty" aria-hidden="true"></div>
           <div class="tih-dist"><img data-kind="pps"  src="./static/teaser_web/fm_pps_1.png"  alt="pps distribution"></div>
         </div>
         <div class="tih-row act">
