@@ -248,22 +248,28 @@
       teaserCtx.lineCap = 'round';
       teaserCtx.lineJoin = 'round';
 
-      // Straight trajectory now (no bezier — the endpoint follows a
-      // pre-specified curve as γ varies, but each individual trajectory
-      // is a direct line from start to current end). All thicknesses
-      // and the end-dot radius scaled to 20% of their previous values.
+      // Straight trajectory: gradient white (20 % transparent) at start →
+      // solid green at end. The dark outline fades in along the same axis
+      // so the white tail isn't muddied by a dark line showing through.
+      var outlineGrad = teaserCtx.createLinearGradient(sx, sy, ex, ey);
+      outlineGrad.addColorStop(0, 'rgba(20, 20, 20, 0)');
+      outlineGrad.addColorStop(1, 'rgba(20, 20, 20, 0.55)');
+      var strokeGrad = teaserCtx.createLinearGradient(sx, sy, ex, ey);
+      strokeGrad.addColorStop(0, 'rgba(255, 255, 255, 0.80)');
+      strokeGrad.addColorStop(1, 'rgba( 79, 157,  93, 1.00)');
+
       teaserCtx.beginPath();
       teaserCtx.moveTo(sx, sy);
       teaserCtx.lineTo(ex, ey);
       teaserCtx.lineWidth = 3.2 * dpr;
-      teaserCtx.strokeStyle = 'rgba(20, 20, 20, 0.55)';
+      teaserCtx.strokeStyle = outlineGrad;
       teaserCtx.stroke();
 
       teaserCtx.beginPath();
       teaserCtx.moveTo(sx, sy);
       teaserCtx.lineTo(ex, ey);
       teaserCtx.lineWidth = 2.2 * dpr;
-      teaserCtx.strokeStyle = '#4f9d5d';
+      teaserCtx.strokeStyle = strokeGrad;
       teaserCtx.stroke();
 
       teaserCtx.beginPath();
