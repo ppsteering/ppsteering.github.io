@@ -537,11 +537,11 @@
           //   outside_perp = -sign(offset) · ( uy, −ux )
           var s = d.offset >= 0 ? -1 : 1;
           var nx = s *  uy, ny = s * -ux;
-          // Rotate the tangent 20° toward the *inside* of the curve (flipped
+          // Rotate the tangent 10° toward the *inside* of the curve (flipped
           // sign on the perp component vs the previous outside rotation), so
           // the arrow peels off the path direction the other way.
-          // arrow_dir = cos(20°)·tangent − sin(20°)·outside_perp.
-          var ROT = 20 * Math.PI / 180;
+          // arrow_dir = cos(10°)·tangent − sin(10°)·outside_perp.
+          var ROT = 10 * Math.PI / 180;
           var cR = Math.cos(ROT), sR = Math.sin(ROT);
           var ax = cR * ux - sR * nx;
           var ay = cR * uy - sR * ny;
