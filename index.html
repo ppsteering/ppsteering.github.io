@@ -181,18 +181,14 @@
           transition: opacity 0.22s ease;
           z-index: 5;
         }
-        .tih-arrow::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: rgba(255, 255, 255, 0.70);
-          opacity: 0;
-          pointer-events: none;
-          transition: opacity 0.22s ease;
-          z-index: 5;
-        }
-        .tih.focused .tih-dist::after,
-        .tih.focused .tih-arrow::after { opacity: 1; }
+        .tih.focused .tih-dist::after { opacity: 1; }
+        /* Distill/Finetune cells: instead of a rectangular white veil, fade
+           the actual label text + small arrow svg via opacity so only the
+           ink reads as masked — the cell box stays empty/clear. */
+        .tih-arrow .lbl,
+        .tih-arrow svg { transition: opacity 0.22s ease; }
+        .tih.focused .tih-arrow .lbl,
+        .tih.focused .tih-arrow svg { opacity: 0.30; }
         .tih-dist {
           background: #efece4;
           border-radius: 12px;
@@ -272,7 +268,6 @@
           justify-content: center;
           gap: 4px;
           color: #6b6453;
-          position: relative;            /* containing block for the focus mask ::after */
         }
         .tih-arrow .lbl {
           font-size: 14px;   /* +27% over the previous 11px */
