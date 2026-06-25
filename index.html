@@ -169,40 +169,18 @@
           padding: 7.5%;
           line-height: 0;
           position: relative;
-          z-index: 0;          /* establish a stacking context for the focus mask + arrow z-index */
           box-shadow: 0 6px 14px rgba(40, 32, 16, 0.10);
           transition: box-shadow 0.25s ease;
         }
-        /* Focus-state mask: hovering a distribution or its top equation cell
-           drops a semi-transparent white veil over EVERY distribution
-           container's plot + π_* caption. The SVG arrows ride above the
-           mask (z-index 2), so they stay visible while the rest fades. */
-        .tih-dist::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: rgba(255, 255, 255, 0.65);
-          border-radius: 12px;
-          opacity: 0;
-          pointer-events: none;
-          transition: opacity 0.22s ease;
-          z-index: 1;
-        }
-        .tih.focused .tih-dist::before { opacity: 1; }
-        /* Float-up styling on the focused arrows: thicker stroke + drop
-           shadow so they pop above the mask. Transitions on path attrs are
-           expensive in some browsers — only animate the filter. */
-        .tih-dist-arrow { z-index: 2; }
+        /* Focus state: cursor anywhere on the distribution row makes EVERY
+           arrow (single ones on base/ref/task, all three on PPS) float up
+           noticeably — much thicker stroke + a deeper drop shadow. The
+           previous semi-transparent veil is gone; the float alone carries
+           the focus. */
         .tih-dist-arrow path { transition: stroke-width 0.22s ease, filter 0.22s ease; }
-        .tih.focus-base .tih-dist.k-base .tih-dist-arrow path,
-        .tih.focus-base .tih-dist-arrow.pps .pps-base,
-        .tih.focus-ref  .tih-dist.k-ref  .tih-dist-arrow path,
-        .tih.focus-ref  .tih-dist-arrow.pps .pps-ref,
-        .tih.focus-task .tih-dist.k-task .tih-dist-arrow path,
-        .tih.focus-task .tih-dist-arrow.pps .pps-task,
-        .tih.focus-pps  .tih-dist-arrow.pps path {
-          stroke-width: 14;
-          filter: drop-shadow(0 4px 6px rgba(20, 16, 8, 0.30));
+        .tih.focused .tih-dist-arrow path {
+          stroke-width: 18;
+          filter: drop-shadow(0 9px 14px rgba(20, 16, 8, 0.48));
         }
         .tih-dist img {
           display: block;
@@ -559,6 +537,16 @@
         var HEAD_ANGLE = 0.42;            // ~24°, opens the chevron
         // Returns { sx, sy, ax, ay } — the start point (pixel coords in the
         // 675×777 viewBox) and the unit direction (after the 10°-inside tilt).
+        // Optional per-(kind, variantIdx) override (in degrees) of the
+        // inside-rotation tilt applied to the tangent. In variant 2 the
+        // ref/task arrows would otherwise spread ~27° apart; zeroing the
+        // tilt brings them within ~7° so they read as nearly-parallel
+        // velocities.
+        var DEFAULT_ROT_DEG = 10;
+        var ROT_OVERRIDE_DEG = {
+          ref:  [null, 0, null],
+          task: [null, 0, null]
+        };
         function computeArrowParams(kind, variantIdx) {
           var d = PATH_DATA[kind][variantIdx - 1];
           // Start point picked so image_y_norm = 0.4 (10 % above the image
@@ -572,7 +560,10 @@
           var ux = pdx / mag, uy = pdy / mag;
           var s = d.offset >= 0 ? -1 : 1;
           var nx = s *  uy, ny = s * -ux;
-          var ROT = 10 * Math.PI / 180;
+          var rotArr = ROT_OVERRIDE_DEG[kind];
+          var rotOv = rotArr ? rotArr[variantIdx - 1] : null;
+          var rotDeg = (rotOv === null || rotOv === undefined) ? DEFAULT_ROT_DEG : rotOv;
+          var ROT = rotDeg * Math.PI / 180;
           var cR = Math.cos(ROT), sR = Math.sin(ROT);
           var ax = cR * ux - sR * nx;
           var ay = cR * uy - sR * ny;
@@ -621,29 +612,14 @@
         // panel is active; there is no non-floating state.
         root.classList.add('hovering');
 
-        // Focus state: hovering a single distribution container OR its
-        // π_* equation cell at top drops the mask over EVERY container's
-        // plot+caption and floats the matching arrow (plus the same-coloured
-        // sub-arrow on the PPS panel) above the veil.
-        var FOCUS_KINDS = ['base', 'ref', 'task', 'pps'];
-        function setFocus(kind) {
-          FOCUS_KINDS.forEach(function (k) { root.classList.remove('focus-' + k); });
-          if (kind) {
-            root.classList.add('focused');
-            root.classList.add('focus-' + kind);
-          } else {
-            root.classList.remove('focused');
-          }
+        // Focus state: cursor on the distribution row (row 2) floats EVERY
+        // arrow up; leaving the row recovers the resting style. The top
+        // equation row and the action row do NOT trigger the focus.
+        var distRow = root.querySelector('.tih-row.dist');
+        if (distRow) {
+          distRow.addEventListener('mouseenter', function () { root.classList.add('focused'); });
+          distRow.addEventListener('mouseleave', function () { root.classList.remove('focused'); });
         }
-        FOCUS_KINDS.forEach(function (kind) {
-          var dist = root.querySelector('.tih-dist.k-' + kind);
-          if (dist) dist.addEventListener('mouseenter', function () { setFocus(kind); });
-          var eq = root.querySelector('.tih-eq-cell.' + kind);
-          if (eq) eq.addEventListener('mouseenter', function () { setFocus(kind); });
-        });
-        // Clear focus only on leaving the whole block — sliding between two
-        // distributions keeps the mask up so the transition is seamless.
-        root.addEventListener('mouseleave', function () { setFocus(null); });
 
         // Default state shown on load: variant 1 + action 1 active.
         activate(1);
