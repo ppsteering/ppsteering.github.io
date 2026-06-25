@@ -818,6 +818,10 @@
           border:1px solid var(--ppsc-line); border-radius:10px; padding:9px 16px; cursor:pointer; transition:all .18s ease; }
         .ppsc-tabs button:hover { background:var(--ppsc-soft); }
         .ppsc-tabs button.on { background:var(--ppsc-ink); color:#fff; border-color:var(--ppsc-ink); }
+        /* Full-width zero-height spacer that forces a flex line break. Used to
+           push the additional-task tabs onto a dedicated second row beneath
+           the baseline-comparison tabs. */
+        .ppsc-tab-break { flex-basis:100%; height:0; pointer-events:none; }
         .ppsc-stage { background:var(--ppsc-panel); border:1px solid var(--ppsc-line); border-radius:16px; padding:18px; }
         .ppsc-panel { display:none; }
         .ppsc-panel.on { display:block; }
@@ -879,6 +883,13 @@
           <button data-i="3">Shoe Retrieval</button>
           <button data-i="4">Tissue Wiping</button>
           <button data-i="5">Drawer Stowing</button>
+          <div class="ppsc-tab-break" aria-hidden="true"></div>
+          <button data-i="6">Lever Pressing</button>
+          <button data-i="7">Utensil Insertion</button>
+          <button data-i="8">Fruit Weighing</button>
+          <button data-i="9">Egg Cooking</button>
+          <button data-i="10">Tea Pouring</button>
+          <button data-i="11">Capsule Loading</button>
         </div>
         <div class="ppsc-stage">
           <div class="ppsc-panel on" data-i="0">
@@ -977,6 +988,45 @@
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text lora">Proceed to stowing before open the drawer</span></div></div>
             </div>
           </div>
+          <!-- Additional-task panels (no baseline comparison row — just the
+               PPS rollout + Success caption). Sourced from the formerly-
+               separate Real-World Tasks / Simulated Tasks grids. -->
+          <div class="ppsc-panel" data-i="6">
+            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+              <video src="./static/videos/lever.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <span class="ppsc-speed-badge">2X</span>
+              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
+          </div>
+          <div class="ppsc-panel" data-i="7">
+            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+              <video src="./static/videos/utensile.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <span class="ppsc-speed-badge">2X</span>
+              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
+          </div>
+          <div class="ppsc-panel" data-i="8">
+            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+              <video src="./static/videos/sim_fruit.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <span class="ppsc-speed-badge">2X</span>
+              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
+          </div>
+          <div class="ppsc-panel" data-i="9">
+            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+              <video src="./static/videos/sim_egg.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <span class="ppsc-speed-badge">2X</span>
+              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
+          </div>
+          <div class="ppsc-panel" data-i="10">
+            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+              <video src="./static/videos/sim_tea.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <span class="ppsc-speed-badge">2X</span>
+              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
+          </div>
+          <div class="ppsc-panel" data-i="11">
+            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+              <video src="./static/videos/sim_capsule.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <span class="ppsc-speed-badge">2X</span>
+              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
+          </div>
         </div>
       </div>
       <script>
@@ -1030,6 +1080,11 @@
         });
       })();
       </script>
+
+      <!-- Real-World Tasks and Simulated Tasks sections commented out — the
+           per-task rollout videos now live in the clickable gallery above
+           (data-i 6..11), and the merged-success bar-chart figures are
+           hidden along with the section headers/stat lines.
 
       <div class="subheader">Real-World Tasks</div>
       <p class="stat-line">
@@ -1119,6 +1174,8 @@
         <img src="./static/images/sim_results_merged_web.png"
              alt="Simulation per-task success rate across models, with the average column at the right">
       </figure>
+      -->
+
     </section>
 
     <section class="section" id="robustness">
