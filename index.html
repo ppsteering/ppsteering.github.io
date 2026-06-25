@@ -135,9 +135,12 @@
         Our key insight is that effective adaptation should neither steer only within the base's existing distribution nor replace the base with a narrowly trained specialist. Instead of changing the base or biasing it toward its own modes, PPS estimates the direction in which task supervision would shift the base's action distribution, leaving its weights and broad priors untouched.
       </p>
 
+      <!-- OLD teaser figure — superseded by the interactive hover block below.
       <figure class="figure">
         <img src="./static/images/teaser_web.png" alt="PPS method overview">
       </figure>
+      -->
+
 
       <!-- Interactive hover block: the four distribution panels (top) update
            to match whichever action panel (bottom) the cursor is over. -->
@@ -715,7 +718,8 @@
         preserving broadly useful priors.
       </p>
 
-      <!-- ADDED: interactive steering diagram -->
+      <!-- OLD "Try the steering yourself" widget — superseded by the
+           (new) single-path variant below.
       <div class="subheader">Try the steering yourself <span class="pps-new-flag">interactive</span></div>
       <p>
         Drag the steering strength and watch the residual carry a sampled action
@@ -727,6 +731,7 @@
         <iframe class="pps-embed-frame" data-embed src="./static/modules/method.html"
                 title="Interactive method diagram" scrolling="no" loading="lazy"></iframe>
       </div>
+      -->
 
       <!-- ADDED: simplified single-path variant of the steering diagram. -->
       <div class="subheader">Try the steering yourself (new) <span class="pps-new-flag">interactive</span></div>
