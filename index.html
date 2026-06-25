@@ -199,9 +199,13 @@
         }
         .tih-act.active img { filter: none; }
 
-        /* On hover, only the active action container lifts higher — the
-           dist container stays at its baseline float (the two are not
-           linked on hover). */
+        /* On hover, the active action container and the dist container
+           lift higher TOGETHER (they're visually linked via the shared
+           rise + matching shadow). */
+        .tih.hovering .tih-row.dist {
+          transform: translateY(-6px);
+          box-shadow: 0 16px 28px rgba(40, 32, 16, 0.18);
+        }
         .tih.hovering .tih-act.active {
           transform: translateY(-7px);
           box-shadow: 0 16px 30px rgba(40, 32, 16, 0.22);
