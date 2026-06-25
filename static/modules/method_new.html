@@ -163,11 +163,11 @@
         <div class="side">
           <div class="eq">
             <span class="pps"><i>v</i><sub>PPS</sub></span> = <span class="b"><i>v</i><sub>base</sub></span> +
-            <span class="g" id="eqg">0.50</span> · [ <span class="t"><i>v</i><sub>task</sub></span> − <span class="r"><i>v</i><sub>ref</sub></span> ]
+            <span class="g" id="eqg">0.70</span> · [ <span class="t"><i>v</i><sub>task</sub></span> − <span class="r"><i>v</i><sub>ref</sub></span> ]
           </div>
           <div>
-            <div class="ctl-label"><span class="k">Steering strength γ</span><span class="v" id="gval">0.50</span></div>
-            <input id="gamma" type="range" min="0" max="1.0" step="0.01" value="0.5" />
+            <div class="ctl-label"><span class="k">Steering strength γ</span><span class="v" id="gval">0.70</span></div>
+            <input id="gamma" type="range" min="0" max="1.0" step="0.01" value="0.7" />
             <div class="ticks"><span>0 · base</span><span>0.5 · PPS</span><span>1 · task</span></div>
           </div>
           <div class="teaserwrap">
@@ -195,6 +195,10 @@
       curve: sinkCurve
     });
     var gammaEl = document.getElementById('gamma');
+    // Seed the diagram's γ from the slider's initial value so the first
+    // render matches the displayed default (0.70) instead of the engine's
+    // hard-coded fallback (0.50).
+    diag.gamma = parseFloat(gammaEl.value);
     function fmt(g){ return g.toFixed(2); }
 
     /* ----- Teaser overlay --------------------------------------------
