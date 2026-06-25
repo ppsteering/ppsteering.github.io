@@ -193,7 +193,12 @@
         .tih-dist-arrow.base path { stroke: #AF56BF; }
         .tih-dist-arrow.ref  path { stroke: #F58A45; }
         .tih-dist-arrow.task path { stroke: #407CB6; }
-        .tih-dist-arrow.pps  path { stroke: #55A86E; }
+        /* PPS distribution carries THREE arrows (base/ref/task colours), all
+           sharing the PPS start point, so the viewer can see the velocity
+           field that produced the PPS-shaped action distribution. */
+        .tih-dist-arrow.pps .pps-base { stroke: #AF56BF; }
+        .tih-dist-arrow.pps .pps-ref  { stroke: #F58A45; }
+        .tih-dist-arrow.pps .pps-task { stroke: #407CB6; }
         /* Caption below each distribution (π_base, π_ref, π_task, π_PPS)
            — same colour as the corresponding equation term up top. */
         .tih-dist-caption {
@@ -424,7 +429,11 @@
           <div class="tih-dist">
             <div class="tih-dist-frame">
               <img data-kind="pps" src="./static/teaser_web/fm_pps_1.png" alt="pps distribution">
-              <svg class="tih-dist-arrow pps" viewBox="0 0 675 777" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path d=""/></svg>
+              <svg class="tih-dist-arrow pps" viewBox="0 0 675 777" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+                <path class="pps-base" d=""/>
+                <path class="pps-ref"  d=""/>
+                <path class="pps-task" d=""/>
+              </svg>
             </div>
             <div class="tih-dist-caption pps"><i>&pi;</i><sub>PPS</sub></div>
           </div>
@@ -516,42 +525,33 @@
         var ARROW_LEN = 176;              // shaft length in viewBox units (+60% from 110)
         var HEAD_SIZE = 32;               // arrowhead size in viewBox units
         var HEAD_ANGLE = 0.42;            // ~24°, opens the chevron
-        function computeArrow(kind, variantIdx) {
+        // Returns { sx, sy, ax, ay } — the start point (pixel coords in the
+        // 675×777 viewBox) and the unit direction (after the 10°-inside tilt).
+        function computeArrowParams(kind, variantIdx) {
           var d = PATH_DATA[kind][variantIdx - 1];
           // Start point picked so image_y_norm = 0.4 (10 % above the image
-          // centre, "up" in screen). image_y_norm = (mx+5)/10.36 = 0.4
-          // ⇒ mx_target = 0.4·10.36 − 5 = −0.856. Parametric t at that mx:
-          //   t = (mx_target − PATH_STARTS_x) / (end_x − PATH_STARTS_x)
-          //     = (−0.856 + 2.5) / (end_x + 2.5) = 1.644 / (end_x + 2.5).
+          // centre, "up" in screen).
           var t = 1.644 / (d.end_x + 2.5);
           var my = (1 - t) * 0.15 + t * d.end_y + d.offset * Math.sin(Math.PI * t);
           var dmx = d.end_x + 2.5;                              // ∂x/∂t
           var dmy = (d.end_y - 0.15) + d.offset * Math.PI * Math.cos(Math.PI * t); // ∂y/∂t
-          // 90°-CW image rotation: (dmx, dmy) in mat → (dmy, dmx) in image with uniform pixel scaling.
           var pdx = dmy, pdy = dmx;
           var mag = Math.sqrt(pdx * pdx + pdy * pdy) || 1;
           var ux = pdx / mag, uy = pdy / mag;
-          // Outside-of-curve unit perpendicular (depends on sign(offset),
-          // which controls which side of the linear interp the path bows
-          // toward). In image coords, sign rule derived from the y-flip:
-          //   outside_perp = -sign(offset) · ( uy, −ux )
           var s = d.offset >= 0 ? -1 : 1;
           var nx = s *  uy, ny = s * -ux;
-          // Rotate the tangent 10° toward the *inside* of the curve (flipped
-          // sign on the perp component vs the previous outside rotation), so
-          // the arrow peels off the path direction the other way.
-          // arrow_dir = cos(10°)·tangent − sin(10°)·outside_perp.
           var ROT = 10 * Math.PI / 180;
           var cR = Math.cos(ROT), sR = Math.sin(ROT);
           var ax = cR * ux - sR * nx;
           var ay = cR * uy - sR * ny;
-          // start = ((my + 4.28)/9.0, 0.4) in normalised image coords
           var sx = ((my + 4.28) / 9.0) * IMG_W;
           var sy = 0.4 * IMG_H;
+          return { sx: sx, sy: sy, ax: ax, ay: ay };
+        }
+        function arrowPathFrom(sx, sy, ax, ay) {
           var tx = sx + ARROW_LEN * ax;
           var ty = sy + ARROW_LEN * ay;
           var c = Math.cos(HEAD_ANGLE), si = Math.sin(HEAD_ANGLE);
-          // arrowhead vertices: tip - HEAD_SIZE · (direction rotated ±HEAD_ANGLE)
           var v1x = tx - HEAD_SIZE * (ax * c - ay * si);
           var v1y = ty - HEAD_SIZE * (ax * si + ay * c);
           var v2x = tx - HEAD_SIZE * (ax * c + ay * si);
@@ -562,10 +562,25 @@
                  ' L' + tx.toFixed(1) + ' ' + ty.toFixed(1) +
                  ' L' + v2x.toFixed(1) + ' ' + v2y.toFixed(1);
         }
+        function computeArrow(kind, variantIdx) {
+          var p = computeArrowParams(kind, variantIdx);
+          return arrowPathFrom(p.sx, p.sy, p.ax, p.ay);
+        }
         function updateArrows(i) {
-          ['base', 'ref', 'task', 'pps'].forEach(function (kind) {
+          // base / ref / task: their own arrows (single path each)
+          ['base', 'ref', 'task'].forEach(function (kind) {
             var p = root.querySelector('.tih-dist-arrow.' + kind + ' path');
             if (p) p.setAttribute('d', computeArrow(kind, i));
+          });
+          // PPS distribution: three arrows that share the PPS start point but
+          // borrow each of the base / ref / task directions — visualises the
+          // velocity-field decomposition that produces the PPS distribution.
+          var ppsParams = computeArrowParams('pps', i);
+          ['base', 'ref', 'task'].forEach(function (kind) {
+            var src = computeArrowParams(kind, i);
+            var path = root.querySelector('.tih-dist-arrow.pps .pps-' + kind);
+            if (path) path.setAttribute('d',
+              arrowPathFrom(ppsParams.sx, ppsParams.sy, src.ax, src.ay));
           });
         }
 
