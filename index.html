@@ -145,34 +145,51 @@
         .tih { margin: 22px 0 4px; }
         .tih *, .tih *::before, .tih *::after { box-sizing: border-box; }
         .tih-row { display: grid; gap: 14px; margin-bottom: 14px; }
+
+        /* Row 1: each distribution gets its OWN grey rounded container. */
         .tih-row.dist { grid-template-columns: repeat(4, 1fr); }
-        .tih-row.act  { grid-template-columns: repeat(3, 1fr); margin-bottom: 0; }
-        .tih-dist, .tih-act { line-height: 0; position: relative; }
-        .tih-dist img, .tih-act img {
+        .tih-dist {
+          background: #efece4;
+          border-radius: 12px;
+          padding: 12px;
+          line-height: 0;
+          position: relative;
+          box-shadow: 0 6px 14px rgba(40, 32, 16, 0.10);
+        }
+        .tih-dist img {
           display: block;
           width: 100%;
           height: auto;
-          border-radius: 8px;
-          background: #fdfaf4;
+          background: transparent;
+        }
+
+        /* Row 2: ONE big grey rounded container holds all three actions. */
+        .tih-row.act {
+          grid-template-columns: repeat(3, 1fr);
+          gap: 14px;
+          margin-bottom: 0;
+          background: #efece4;
+          border-radius: 14px;
+          padding: 14px;
+        }
+        .tih-act { line-height: 0; position: relative; }
+        .tih-act img {
+          display: block;
+          width: 100%;
+          height: auto;
+          border-radius: 10px;
+          cursor: pointer;
+          filter: saturate(0.85) brightness(0.97);
           transition: transform 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease;
         }
-        /* "Floating" look — soft elevation. The distributions row stays
-           floated (always reflects the active action); the actions row
-           floats only the currently-hovered (or default) panel. */
-        .tih-dist img {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 14px rgba(40, 32, 16, 0.10);
-        }
-        .tih-act img {
-          transform: translateY(0);
-          box-shadow: 0 1px 2px rgba(40, 32, 16, 0.05);
-          filter: saturate(0.85) brightness(0.97);
-          cursor: pointer;
-        }
         .tih-act.active img {
-          transform: translateY(-4px);
-          box-shadow: 0 10px 22px rgba(40, 32, 16, 0.16);
+          transform: translateY(-3px);
+          box-shadow: 0 10px 22px rgba(40, 32, 16, 0.20);
           filter: none;
+        }
+
+        @media (max-width: 700px) {
+          .tih-row.dist { grid-template-columns: repeat(2, 1fr); }
         }
       </style>
       <div class="tih" id="tih">
