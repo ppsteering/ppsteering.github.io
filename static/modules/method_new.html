@@ -222,6 +222,54 @@
       return { x: p0.x + (p1.x - p0.x) * t,
                y: p0.y + (p1.y - p0.y) * t };
     }
+    // Three intermediate waypoints the trajectory should visit at γ=0:
+    //   (row, col) = (308, 700), (421, 698), (529, 717)
+    // Stored as (t, d) in the local frame of the start→end_γ0 line, where
+    // t is the fractional projection onto the line and d is the signed
+    // perpendicular offset (CW perp, in units of line length). At any γ
+    // we reconstruct absolute positions by feeding the CURRENT start→end
+    // line into the same parametrisation, so the trajectory stays curved
+    // for every γ while passing exactly through the three given pixels
+    // when γ = 0.
+    var WAYPOINTS_TD = [
+      { t: 0.1217, d: 0.1216 },
+      { t: 0.4386, d: 0.0507 },
+      { t: 0.7535, d: 0.0418 }
+    ];
+    function trajectoryPoints(sx, sy, ex, ey) {
+      var lvx = ex - sx, lvy = ey - sy;
+      var llen = Math.sqrt(lvx * lvx + lvy * lvy) || 1;
+      var perpX = lvy / llen, perpY = -lvx / llen;       // CW perpendicular
+      var pts = [{ x: sx, y: sy }];
+      for (var i = 0; i < WAYPOINTS_TD.length; i++) {
+        var wp = WAYPOINTS_TD[i];
+        pts.push({
+          x: sx + wp.t * lvx + wp.d * llen * perpX,
+          y: sy + wp.t * lvy + wp.d * llen * perpY
+        });
+      }
+      pts.push({ x: ex, y: ey });
+      return pts;
+    }
+    // Catmull-Rom-derived cubic bezier path through `pts` (interpolating
+    // spline — actually passes through every point, unlike a quadratic
+    // smoothing of a polyline).
+    function strokeCatmullRom(ctx, pts) {
+      var n = pts.length;
+      if (n < 2) return;
+      ctx.moveTo(pts[0].x, pts[0].y);
+      for (var i = 0; i < n - 1; i++) {
+        var p0 = pts[i - 1] || pts[i];
+        var p1 = pts[i];
+        var p2 = pts[i + 1];
+        var p3 = pts[i + 2] || pts[i + 1];
+        ctx.bezierCurveTo(
+          p1.x + (p2.x - p0.x) / 6, p1.y + (p2.y - p0.y) / 6,
+          p2.x - (p3.x - p1.x) / 6, p2.y - (p3.y - p1.y) / 6,
+          p2.x, p2.y
+        );
+      }
+    }
 
     var teaserBg  = document.getElementById('teaserBg');
     var teaserCv  = document.getElementById('teaserOverlay');
@@ -248,9 +296,12 @@
       teaserCtx.lineCap = 'round';
       teaserCtx.lineJoin = 'round';
 
-      // Straight trajectory: gradient white (20 % transparent) at start →
-      // solid green at end. The dark outline fades in along the same axis
-      // so the white tail isn't muddied by a dark line showing through.
+      // Curved trajectory: Catmull-Rom spline through start, three γ=0
+      // waypoints (reparametrised to the current start→end line), and end.
+      // The stroke is a white→green gradient (20 %→0 % transparency); the
+      // dark outline fades in along the same axis so the white tail reads
+      // clean instead of muddied.
+      var pts = trajectoryPoints(sx, sy, ex, ey);
       var outlineGrad = teaserCtx.createLinearGradient(sx, sy, ex, ey);
       outlineGrad.addColorStop(0, 'rgba(20, 20, 20, 0)');
       outlineGrad.addColorStop(1, 'rgba(20, 20, 20, 0.55)');
@@ -259,15 +310,13 @@
       strokeGrad.addColorStop(1, 'rgba( 79, 157,  93, 1.00)');
 
       teaserCtx.beginPath();
-      teaserCtx.moveTo(sx, sy);
-      teaserCtx.lineTo(ex, ey);
+      strokeCatmullRom(teaserCtx, pts);
       teaserCtx.lineWidth = 3.2 * dpr;
       teaserCtx.strokeStyle = outlineGrad;
       teaserCtx.stroke();
 
       teaserCtx.beginPath();
-      teaserCtx.moveTo(sx, sy);
-      teaserCtx.lineTo(ex, ey);
+      strokeCatmullRom(teaserCtx, pts);
       teaserCtx.lineWidth = 2.2 * dpr;
       teaserCtx.strokeStyle = strokeGrad;
       teaserCtx.stroke();
