@@ -389,7 +389,7 @@
   // the host page defines it; falls back to a serif math face otherwise.
   function mathFontStack() {
     var v = getComputedStyle(document.body).getPropertyValue('--font-math');
-    return (v && v.trim()) || '"Cambria Math", "Latin Modern Math", Georgia, "Times New Roman", serif';
+    return (v && v.trim()) || '"STIX Two Text", "Latin Modern Math", "Cambria Math", Georgia, "Times New Roman", serif';
   }
 
   // Per-part font for legend labels expressed as parts:

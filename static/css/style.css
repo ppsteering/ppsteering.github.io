@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&family=Inter:wght@400;500;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&family=Inter:wght@400;500;700;800&family=STIX+Two+Text:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
 /* ---------- Base ---------- */
 
@@ -197,9 +197,14 @@ header {
 
 /* Single-letter variables are italic; multi-letter subscripts
    (base, ref, task, PPS) and operators stay upright, matching
-   standard math typesetting. */
+   standard math typesetting.
+   STIX Two Text is the web-friendly serif companion of STIX Two Math —
+   visually the closest free webfont to LaTeX's Computer Modern /
+   Latin Modern Math, with proper italic Greek letters and serif Latin
+   italics. Falls back to LaTeX-installed Latin Modern → Cambria Math →
+   Georgia → Times. */
 .math {
-  font-family: 'Cambria Math', 'Latin Modern Math', Georgia, 'Times New Roman', serif;
+  font-family: 'STIX Two Text', 'Latin Modern Math', 'Cambria Math', Georgia, 'Times New Roman', serif;
 }
 
 .math .var,
@@ -213,7 +218,7 @@ header {
 }
 
 .equation {
-  font-family: 'Cambria Math', 'Latin Modern Math', Georgia, 'Times New Roman', serif;
+  font-family: 'STIX Two Text', 'Latin Modern Math', 'Cambria Math', Georgia, 'Times New Roman', serif;
   font-size: 20px;
   text-align: center;
   margin: 18px 0;
