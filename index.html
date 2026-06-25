@@ -146,13 +146,18 @@
         .tih *, .tih *::before, .tih *::after { box-sizing: border-box; }
         .tih-row { display: grid; gap: 14px; margin-bottom: 14px; }
 
-        /* Row 1: ONE big grey rounded container holds all four distributions. */
+        /* Row 1: ONE big grey rounded container holds all four distributions.
+           Baseline soft float; lifts higher when the user is hovering any
+           action image below. */
         .tih-row.dist {
           grid-template-columns: repeat(4, 1fr);
           gap: 14px;
           background: #efece4;
           border-radius: 14px;
           padding: 14px;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 14px rgba(40, 32, 16, 0.10);
+          transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
         .tih-dist { line-height: 0; position: relative; }
         .tih-dist img {
@@ -162,7 +167,10 @@
           background: transparent;
         }
 
-        /* Row 2: each action gets its OWN grey rounded container. */
+        /* Row 2: each action gets its OWN grey rounded container.
+           Active container floats; while hovering, BOTH the active container
+           and the dist container lift higher together, and the other two
+           action containers get a 30% white wash over their image. */
         .tih-row.act {
           grid-template-columns: repeat(3, 1fr);
           gap: 14px;
@@ -174,6 +182,7 @@
           padding: 12px;
           line-height: 0;
           position: relative;
+          transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
         .tih-act img {
           display: block;
@@ -182,13 +191,38 @@
           border-radius: 8px;
           cursor: pointer;
           filter: saturate(0.85) brightness(0.97);
-          transition: transform 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease;
+          transition: filter 0.25s ease;
         }
-        .tih-act.active img {
+        .tih-act.active {
           transform: translateY(-3px);
-          box-shadow: 0 10px 22px rgba(40, 32, 16, 0.20);
-          filter: none;
+          box-shadow: 0 8px 18px rgba(40, 32, 16, 0.14);
         }
+        .tih-act.active img { filter: none; }
+
+        /* On hover, the active container and the dist container lift higher. */
+        .tih.hovering .tih-row.dist {
+          transform: translateY(-6px);
+          box-shadow: 0 16px 28px rgba(40, 32, 16, 0.18);
+        }
+        .tih.hovering .tih-act.active {
+          transform: translateY(-7px);
+          box-shadow: 0 16px 30px rgba(40, 32, 16, 0.22);
+        }
+
+        /* Semi-transparent white mask (30% opacity) over OTHER action images
+           while hovering. The pseudo-element matches the image inside the
+           12 px container padding and shares the image's 8 px corner radius. */
+        .tih-act::after {
+          content: '';
+          position: absolute;
+          inset: 12px;
+          background: rgba(255, 255, 255, 0.30);
+          border-radius: 8px;
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.25s ease;
+        }
+        .tih.hovering .tih-act:not(.active)::after { opacity: 1; }
 
         @media (max-width: 700px) {
           .tih-row.dist { grid-template-columns: repeat(2, 1fr); }
@@ -227,9 +261,20 @@
           });
         }
         acts.forEach(function (a) {
-          a.addEventListener('mouseenter', function () { activate(+a.dataset.i); });
+          a.addEventListener('mouseenter', function () {
+            activate(+a.dataset.i);
+            root.classList.add('hovering');
+          });
+        });
+        // Removing the .hovering class on root's mouseleave drops the
+        // extra-lift on dist row + active container and clears the masks
+        // on the other action containers. The currently-active selection
+        // (and its dist variant) persists.
+        root.addEventListener('mouseleave', function () {
+          root.classList.remove('hovering');
         });
         // Default state shown on load: variant 1 + action 1 active.
+        activate(1);
       })();
       </script>
 
