@@ -752,29 +752,43 @@
     var vBx = (lead.bi.x - probe.x) * GAIN, vBy = (lead.bi.y - probe.y) * GAIN;
     var vRx = (lead.ti.x - lead.bi.x) * GAIN * g, vRy = (lead.ti.y - lead.bi.y) * GAIN * g;
     var baseTip = tip(vBx, vBy), ppsTip = tip(vBx + vRx, vBy + vRy);
-    // Residual arrow is rendered as an orange→blue gradient (ref → task)
-    // instead of the flat resid colour, matching the dist palette used on
-    // the method-teaser block.
-    var RESID_GRAD = ['#F58A45', '#407CB6'];
+
+    // New arrows replacing the gradient residual + green PPS arrow:
+    //   - γ · v_ref  (orange) starts from ps (same as base/task tip), direction
+    //     is the base direction rotated visually CCW by 5° at γ=0 →
+    //     visually CW by 5° at γ=1 (linear interp), and length scales with γ
+    //     so the arrow grows out of the base tail as steering ramps up.
+    //   - v_task    (blue)   replaces the green PPS arrow at ppsTip.
+    var ARROW_REF_HUE  = '#F58A45';
+    var ARROW_TASK_HUE = '#407CB6';
+    var baseSx = baseTip.x - ps.x, baseSy = baseTip.y - ps.y;
+    var baseLenS = Math.hypot(baseSx, baseSy) || 1;
+    var ubx = baseSx / baseLenS, uby = baseSy / baseLenS;
+    // rotDeg is the visual-CCW tilt in degrees; negate for screen y-down.
+    var rotDeg = 5 - 10 * g;
+    var rotRad = -rotDeg * Math.PI / 180;
+    var cR = Math.cos(rotRad), sR = Math.sin(rotRad);
+    var refUx = ubx * cR - uby * sR;
+    var refUy = ubx * sR + uby * cR;
+    var refLen = g * baseLenS;
+    var refTip = { x: ps.x + refUx * refLen, y: ps.y + refUy * refLen };
+
     arrow(ctx, ps, baseTip, p.base, 2.4, 8.5);
-    if (g > 0.001) arrow(ctx, baseTip, ppsTip, RESID_GRAD, 2.4, 8.5);
-    arrow(ctx, ps, ppsTip, p.pps, 3.0, 10.5);
+    if (g > 0.001) arrow(ctx, ps, refTip, ARROW_REF_HUE, 2.4, 8.5);
+    arrow(ctx, ps, ppsTip, ARROW_TASK_HUE, 3.0, 10.5);
 
     this.legendCard(ctx, p, [
       { type: 'grad', color: p.noise, color2: ppsCol,
         parts: [{ t: 'flow-matching path' }] },
       { type: 'arrow', color: p.base,
         parts: [{ t: 'v', i: true }, { t: 'base', sub: true }] },
-      { type: 'arrow', color: RESID_GRAD,
+      { type: 'arrow', color: ARROW_REF_HUE,
         parts: [
-          { t: 'γ · (' },
-          { t: 'v', i: true }, { t: 'task', sub: true },
-          { t: ' − ' },
-          { t: 'v', i: true }, { t: 'ref', sub: true },
-          { t: ')' }
+          { t: 'γ · ' },
+          { t: 'v', i: true }, { t: 'ref', sub: true }
         ] },
-      { type: 'arrow', color: p.pps,
-        parts: [{ t: 'v', i: true }, { t: 'PPS', sub: true }] }
+      { type: 'arrow', color: ARROW_TASK_HUE,
+        parts: [{ t: 'v', i: true }, { t: 'task', sub: true }] }
     ]);
   };
 
