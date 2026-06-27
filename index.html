@@ -795,23 +795,26 @@
           <span class="math"><span class="var">&pi;</span><sub>ref</sub></span>
           and fine-tuned on the task demonstrations. Sharing initialization and
           architecture with the reference, it differs from it through task
-          supervision alone, and the difference
-          <span class="math"><span class="var">v</span><sub>task</sub> &minus; <span class="var">v</span><sub>ref</sub></span>
-          isolates the task-induced change.
+          supervision alone, and their difference in velocity space isolates the task-induced change.
         </li>
       </ul>
 
-      <p>At inference, PPS integrates the guided velocity field:</p>
+      <p>At inference, PPS integrates the guided velocity field in each flow-matching step:</p>
 
       <div class="equation">
         <span style="color:#4f9d5d"><span class="var">v</span><sub>PPS</sub></span>
-        = <span style="color:#AF56BF"><span class="var">v</span><sub>base</sub></span>
-        + <span style="color:#6b6453"><span class="var">&gamma;</span></span> &middot;
+        <span style="margin:0 10px;">=</span>
+        <span style="color:#AF56BF"><span class="var">v</span><sub>base</sub></span>
+        <span style="margin:0 10px;">+</span>
+        <span style="color:#6b6453"><span class="var">&gamma;</span></span>
+        <span style="margin:0 8px;">&middot;</span>
         (<span style="color:#407CB6"><span class="var">v</span><sub>task</sub></span>
-        &minus; <span style="color:#F58A45"><span class="var">v</span><sub>ref</sub></span>),
-        <span style="margin-left:28px;">
+        <span style="margin:0 10px;">&minus;</span>
+        <span style="color:#F58A45"><span class="var">v</span><sub>ref</sub></span>),
+        <span style="margin-left:32px;">
           <span class="var">v</span><sub><em>i</em></sub>
-          = &nabla;<sub><em>a</em></sub> log <span class="var">&pi;</span><sub><em>i</em></sub>
+          <span style="margin:0 10px;">&triangleq;</span>
+          &nabla;<sub><em>a</em></sub> log <span class="var">&pi;</span><sub><em>i</em></sub>
         </span>
       </div>
 
