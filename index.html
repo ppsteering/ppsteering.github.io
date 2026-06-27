@@ -783,16 +783,16 @@
       <ul>
         <li>
           <strong>Reference proxy</strong>
-          <span class="math"><span class="var">v</span><sub>ref</sub></span>:
+          <span class="math"><span class="var">&pi;</span><sub>ref</sub></span>:
           distilled on-policy from the base's own denoising trajectories, so
           it reproduces base behavior on exactly the states the sampler visits
           at inference.
         </li>
         <li>
           <strong>Task proxy</strong>
-          <span class="math"><span class="var">v</span><sub>task</sub></span>:
+          <span class="math"><span class="var">&pi;</span><sub>task</sub></span>:
           initialized from
-          <span class="math"><span class="var">v</span><sub>ref</sub></span>
+          <span class="math"><span class="var">&pi;</span><sub>ref</sub></span>
           and fine-tuned on the task demonstrations. Sharing initialization and
           architecture with the reference, it differs from it through task
           supervision alone, and the difference
@@ -804,10 +804,15 @@
       <p>At inference, PPS integrates the guided velocity field:</p>
 
       <div class="equation">
-        <span class="var">v</span><sub>PPS</sub>(<span class="var">x</span>, <span class="var">k</span>, <span class="var">o</span>, <span class="var">l</span>)
-        = <span class="var">v</span><sub>base</sub>(<span class="var">x</span>, <span class="var">k</span>, <span class="var">o</span>, <span class="var">l</span>)
-        + <span class="var">&gamma;</span> &middot; [ <span class="var">v</span><sub>task</sub>(<span class="var">x</span>, <span class="var">k</span>, <span class="var">o</span>)
-        &minus; <span class="var">v</span><sub>ref</sub>(<span class="var">x</span>, <span class="var">k</span>, <span class="var">o</span>) ]
+        <span style="color:#4f9d5d"><span class="var">v</span><sub>PPS</sub></span>
+        = <span style="color:#AF56BF"><span class="var">v</span><sub>base</sub></span>
+        + <span style="color:#6b6453"><span class="var">&gamma;</span></span> &middot;
+        (<span style="color:#407CB6"><span class="var">v</span><sub>task</sub></span>
+        &minus; <span style="color:#F58A45"><span class="var">v</span><sub>ref</sub></span>),
+        <span style="margin-left:28px;">
+          <span class="var">v</span><sub><em>i</em></sub>
+          = &nabla;<sub><em>a</em></sub> log <span class="var">&pi;</span><sub><em>i</em></sub>
+        </span>
       </div>
 
       <p>
