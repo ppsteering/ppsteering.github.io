@@ -750,33 +750,44 @@
     var probe = pp[Math.floor(pp.length * 0.42)], ps = this.W2S(probe), SC = 0.30;
     function tip(vx, vy) { return self.W2S({ x: probe.x + vx * SC, y: probe.y + vy * SC }); }
     var vBx = (lead.bi.x - probe.x) * GAIN, vBy = (lead.bi.y - probe.y) * GAIN;
-    var vRx = (lead.ti.x - lead.bi.x) * GAIN * g, vRy = (lead.ti.y - lead.bi.y) * GAIN * g;
-    var baseTip = tip(vBx, vBy), ppsTip = tip(vBx + vRx, vBy + vRy);
+    var baseTipOrig = tip(vBx, vBy);
 
-    // New arrows replacing the gradient residual + green PPS arrow:
-    //   - γ · v_ref  (orange) starts from ps (same as base/task tip), direction
-    //     is the base direction rotated visually CCW by 5° at γ=0 →
-    //     visually CW by 5° at γ=1 (linear interp), and length scales with γ
-    //     so the arrow grows out of the base tail as steering ramps up.
-    //   - v_task    (blue)   replaces the green PPS arrow at ppsTip.
+    // Three arrows, all rooted at ps:
+    //   - base (purple)     : pre-rotated 15° clockwise (visually) for layout
+    //                         balance — points roughly toward the base mode.
+    //   - γ · v_ref (orange): rotates 10° CCW from the displayed base at γ=0
+    //                         to 10° CW at γ=1 (linear interp); length scales
+    //                         with γ so it grows out of ps as steering ramps up.
+    //   - γ · v_task (blue) : points toward the task mode at a CONSTANT
+    //                         direction and length, independent of γ (the
+    //                         "γ ·" in the label is conceptual notation).
     var ARROW_REF_HUE  = '#F58A45';
     var ARROW_TASK_HUE = '#407CB6';
-    var baseSx = baseTip.x - ps.x, baseSy = baseTip.y - ps.y;
+    function rotScreenCCW(ux, uy, deg) {
+      // deg is visual-CCW; negate for screen y-down.
+      var r = -deg * Math.PI / 180;
+      var c = Math.cos(r), s = Math.sin(r);
+      return { x: ux * c - uy * s, y: ux * s + uy * c };
+    }
+
+    var BASE_CW_DEG = 15;
+    var baseSx = baseTipOrig.x - ps.x, baseSy = baseTipOrig.y - ps.y;
     var baseLenS = Math.hypot(baseSx, baseSy) || 1;
-    var ubx = baseSx / baseLenS, uby = baseSy / baseLenS;
-    // rotDeg is the visual-CCW tilt in degrees; negate for screen y-down.
-    // 10° CCW at γ=0, 10° CW at γ=1, linear interp.
-    var rotDeg = 10 - 20 * g;
-    var rotRad = -rotDeg * Math.PI / 180;
-    var cR = Math.cos(rotRad), sR = Math.sin(rotRad);
-    var refUx = ubx * cR - uby * sR;
-    var refUy = ubx * sR + uby * cR;
+    var rotatedBase = rotScreenCCW(baseSx / baseLenS, baseSy / baseLenS, -BASE_CW_DEG);
+    var baseTip = { x: ps.x + rotatedBase.x * baseLenS, y: ps.y + rotatedBase.y * baseLenS };
+
+    var refRotDeg = 10 - 20 * g;
+    var refDir = rotScreenCCW(rotatedBase.x, rotatedBase.y, refRotDeg);
     var refLen = g * baseLenS;
-    var refTip = { x: ps.x + refUx * refLen, y: ps.y + refUy * refLen };
+    var refTip = { x: ps.x + refDir.x * refLen, y: ps.y + refDir.y * refLen };
+
+    var vTx = (lead.ti.x - probe.x) * GAIN;
+    var vTy = (lead.ti.y - probe.y) * GAIN;
+    var taskTip = tip(vTx, vTy);
 
     arrow(ctx, ps, baseTip, p.base, 2.4, 8.5);
     if (g > 0.001) arrow(ctx, ps, refTip, ARROW_REF_HUE, 2.4, 8.5);
-    arrow(ctx, ps, ppsTip, ARROW_TASK_HUE, 3.0, 10.5);
+    arrow(ctx, ps, taskTip, ARROW_TASK_HUE, 3.0, 10.5);
 
     this.legendCard(ctx, p, [
       { type: 'grad', color: p.noise, color2: ppsCol,
