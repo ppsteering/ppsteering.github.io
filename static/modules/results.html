@@ -54,6 +54,16 @@
   .role2 .pfill { background: var(--base); }
   .role2 .plabel { color: var(--base); }
 
+  /* Per-baseline colors — matches the palette in plots/results_merged_web.py
+     ("current" variant, no_pi0=true). PPS / base keep their site colors. */
+  .m-lora       .pfill { background: #7BC8F6; }
+  .m-specialist .pfill { background: #A4B5BD; }
+  .m-residual   .pfill { background: #4D5C68; }
+  .m-dsrl       .pfill { background: #FF7F50; }
+
+  /* Animation removed — bars paint at their final width on render. */
+  .pfill, .pval { transition: none; }
+
   .pbadge { font-size: 8.5px; font-weight: 800; letter-spacing: .3px; text-transform: uppercase; color: #fff; background: var(--pps); border-radius: 999px; padding: 1px 5px; }
 
   .paxis { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 9.5px; color: var(--sub); margin-top: 8px; padding-left: 71px; }
@@ -74,8 +84,11 @@
 
     <div class="legend">
       <span><i style="background:#4f9d5d"></i> PPS (ours)</span>
+      <span><i style="background:#7BC8F6"></i> LoRA</span>
+      <span><i style="background:#A4B5BD"></i> Specialist</span>
+      <span><i style="background:#FF7F50"></i> DSRL</span>
+      <span><i style="background:#4D5C68"></i> Residual</span>
       <span><i style="background:#8a72b3"></i> base policy</span>
-      <span><i style="background:#cdbf9f"></i> baselines</span>
       <span><span class="ln"></span> base reference</span>
     </div>
 

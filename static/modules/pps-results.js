@@ -51,6 +51,7 @@
         track.appendChild(fill); track.appendChild(v);
         row.dataset.target = val;
       }
+      row.classList.add('m-' + name.toLowerCase());   // per-method color class
       row.appendChild(lbl); row.appendChild(track); chart.appendChild(row);
     });
     card.appendChild(chart);
@@ -84,21 +85,10 @@
     var cards = PANELS.map(buildPanel);
     cards.forEach(function (c) { wrap.appendChild(c); });
 
-    if (reduce()) { cards.forEach(function (c) { setBars(c, false); }); return; }
-    cards.forEach(function (c) { setBars(c, false); }); // ensure visible immediately
-
-    if ('IntersectionObserver' in window) {
-      var io = new IntersectionObserver(function (es) {
-        es.forEach(function (e) {
-          if (e.isIntersecting) {
-            // staggered entrance, left to right
-            cards.forEach(function (c, i) { setTimeout(function () { setBars(c, true); }, i * 260); });
-            io.disconnect();
-          }
-        });
-      }, { threshold: 0.2 });
-      io.observe(wrap);
-    } else { cards.forEach(function (c) { setBars(c, true); }); }
+    // Animation removed: just paint bars to their final width immediately and
+    // never trigger the "grow from 0%" animation. (The IntersectionObserver
+    // staggered-entrance block was removed.)
+    cards.forEach(function (c) { setBars(c, false); });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
