@@ -555,6 +555,29 @@ header {
   z-index: 4;
 }
 
+/* Top-left role tags overlaid on cross-mod cells — mirror the
+   .recovery-tag / .ppsc-tag pill style. Blue for the "Additional Modality"
+   input column, green for the "Steered Policy Rollout" output column. */
+.crossmod-role-tag {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 12.5px;
+  line-height: 1;
+  font-weight: 700;
+  color: #fff;
+  padding: 5px 11px;
+  border-radius: 999px;
+  z-index: 3;
+  pointer-events: none;
+}
+.crossmod-role-tag.mod  { background: #407CB6; }
+.crossmod-role-tag.roll { background: #4f9d5d; }
+
 .crossmod-audio-toggle {
   position: absolute;
   bottom: 10px;
