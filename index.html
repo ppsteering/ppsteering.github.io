@@ -867,377 +867,7 @@
                 title="Results, beat the baselines" scrolling="no" loading="lazy"></iframe>
       </div>
 
-      <!-- ADDED: baseline comparison carousel -->
-      <!-- Comparison videos use the EXACT same display method as the Real-World
-           Tasks grid above: plain declarative <video src> tags, no JS source
-           swapping, no posters, no clipping wrapper. Tabs just show/hide whole
-           task panels; the videos themselves render identically to the ones that
-           already work on this page. -->
-      <style>
-        .ppsc { --ppsc-line:#e4dcc8; --ppsc-soft:#efece4; --ppsc-sub:#6b6453; --ppsc-ink:#1b1b1b;
-          --ppsc-panel:#fffdf8; --ppsc-pps:#4f9d5d; --ppsc-base:#8a72b3; --ppsc-lora:#c0563f;
-          --ppsc-spec:#407CB6; --ppsc-dsrl:#F58A45; margin:14px 0 4px; }
-        .ppsc *, .ppsc *::before, .ppsc *::after { box-sizing:border-box; }
-        .ppsc-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
-        .ppsc-tabs button { font:600 14px/1 inherit; color:var(--ppsc-sub); background:var(--ppsc-panel);
-          border:1px solid var(--ppsc-line); border-radius:10px; padding:9px 16px; cursor:pointer; transition:all .18s ease; }
-        .ppsc-tabs button:hover { background:var(--ppsc-soft); }
-        .ppsc-tabs button.on { background:var(--ppsc-ink); color:#fff; border-color:var(--ppsc-ink); }
-        /* Full-width zero-height spacer that forces a flex line break. Used to
-           push the additional-task tabs onto a dedicated second row beneath
-           the baseline-comparison tabs. */
-        .ppsc-tab-break { flex-basis:100%; height:0; pointer-events:none; }
-        .ppsc-stage { background:var(--ppsc-panel); border:1px solid var(--ppsc-line); border-radius:16px; padding:18px; }
-        .ppsc-panel { display:none; }
-        .ppsc-panel.on { display:block; }
-        /* rounding/border on the <video> itself, exactly like .result-video */
-        .ppsc-hero { position:relative; line-height:0; }
-        .ppsc-hero video { display:block; width:100%; aspect-ratio:16/9; object-fit:cover;
-          background:#000; border-radius:12px; }
-        .ppsc-tag { position:absolute; left:14px; top:14px; display:inline-flex; align-items:center; gap:6px;
-          font-size:12.5px; line-height:1; font-weight:700; color:#fff; padding:5px 11px; border-radius:999px; }
-        .ppsc-tag.pps { background:var(--ppsc-pps); } .ppsc-tag.base { background:var(--ppsc-base); } .ppsc-tag.lora { background:var(--ppsc-lora); } .ppsc-tag.spec { background:var(--ppsc-spec); } .ppsc-tag.dsrl { background:var(--ppsc-dsrl); }
-        .ppsc-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px; }
-        @media (max-width:560px){ .ppsc-row { grid-template-columns:1fr; } }
-        .ppsc-item { position:relative; line-height:0; }
-        .ppsc-item video { display:block; width:100%; aspect-ratio:16/9; object-fit:cover;
-          background:#000; border-radius:11px; border:2px solid var(--ppsc-line); }
-        .ppsc-foot { margin-top:16px; font-size:12.5px; color:var(--ppsc-sub); text-align:center; }
-        /* End-of-playback overlay: fades a (nearly opaque) white veil over the
-           video with a coloured outcome caption, shown for 3 s before the
-           video restarts. */
-        .ppsc-overlay { position:absolute; inset:0; display:flex; align-items:center;
-          justify-content:center; background:rgba(255,255,255,0.82);
-          opacity:0; pointer-events:none; transition:opacity .25s ease; }
-        .ppsc-overlay.show { opacity:1; }
-        .ppsc-hero .ppsc-overlay { border-radius:12px; }
-        .ppsc-item .ppsc-overlay { border-radius:11px; }
-        .ppsc-overlay-text { font:700 24px/1.32 inherit; text-align:center;
-          padding:0 14px; letter-spacing:-0.3px; text-shadow:0 1px 0 rgba(255,255,255,0.9);
-          /* Block-level so the text actually wraps inside the overlay width
-             instead of overflowing on a single line. */
-          display:block; width:100%; max-width:100%; box-sizing:border-box;
-          word-wrap:break-word; overflow-wrap:break-word; }
-        .ppsc-overlay-text.base { color:var(--ppsc-base); }
-        .ppsc-overlay-text.lora { color:var(--ppsc-lora); }
-        .ppsc-overlay-text.pps  { color:var(--ppsc-pps); }
-        .ppsc-overlay-text.spec { color:var(--ppsc-spec); }
-        .ppsc-overlay-text.dsrl { color:var(--ppsc-dsrl); }
-        /* Hero (full-width) video can carry a bigger "Success"; the two
-           half-width items below need a smaller font + roomier line-height
-           so the long Base/LoRA captions wrap to 2 lines without lines
-           visually crashing into each other. */
-        .ppsc-hero .ppsc-overlay-text { font-size:48px; line-height:1.18; }
-        .ppsc-item .ppsc-overlay-text { font-size:22px; line-height:1.34; }
-        @media (max-width:560px) {
-          .ppsc-hero .ppsc-overlay-text { font-size:30px; }
-          .ppsc-item .ppsc-overlay-text { font-size:15px; padding:0 10px; }
-        }
-        /* Speed badge — same look as the recovery section's "2X" pill. */
-        .ppsc-speed-badge { position:absolute; top:10px; right:10px;
-          font-family:'Inter','Helvetica Neue',Arial,sans-serif;
-          font-size:13px; font-weight:600; line-height:1; color:#fdfaf4;
-          background:rgba(27,27,27,0.72); padding:4px 8px; border-radius:6px;
-          letter-spacing:0.5px; pointer-events:none; z-index:2; }
-      </style>
-      <div class="ppsc">
-        <div class="ppsc-tabs" id="ppsc-tabs">
-          <button class="on" data-i="0">Coffee Brewing</button>
-          <button data-i="1">Flower Arrangement</button>
-          <button data-i="2">Jeans Folding</button>
-          <button data-i="3">Shoe Retrieval</button>
-          <button data-i="4">Tissue Wiping</button>
-          <button data-i="5">Drawer Stowing</button>
-          <div class="ppsc-tab-break" aria-hidden="true"></div>
-          <button data-i="6">Lever Pressing</button>
-          <button data-i="7">Utensil Insertion</button>
-          <button data-i="8">Fruit Weighing</button>
-          <button data-i="9">Egg Cooking</button>
-          <button data-i="10">Tea Pouring</button>
-          <button data-i="11">Capsule Loading</button>
-        </div>
-        <div class="ppsc-stage">
-          <div class="ppsc-panel on" data-i="0">
-            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
-              <video src="./static/videos/compare/coffee_pps.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-              <span class="ppsc-speed-badge">2X</span>
-              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
-            <div class="ppsc-row">
-              <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
-                <video src="./static/videos/compare/coffee_base.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <span class="ppsc-speed-badge">2X</span>
-                <div class="ppsc-overlay"><span class="ppsc-overlay-text base">Doesn't know how to open the lid</span></div></div>
-              <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
-                <video src="./static/videos/compare/coffee_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <span class="ppsc-speed-badge">2X</span>
-                <div class="ppsc-overlay"><span class="ppsc-overlay-text lora">Overfit after a near miss</span></div></div>
-            </div>
-          </div>
-          <div class="ppsc-panel" data-i="1">
-            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
-              <video src="./static/videos/compare/flower_pps.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-              <span class="ppsc-speed-badge">2X</span>
-              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
-            <div class="ppsc-row">
-              <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
-                <video src="./static/videos/compare/flower_base.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <span class="ppsc-speed-badge">2X</span>
-                <div class="ppsc-overlay"><span class="ppsc-overlay-text base">Picks and places the bud instead of inserting</span></div></div>
-              <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
-                <video src="./static/videos/compare/flower_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <span class="ppsc-speed-badge">2X</span>
-                <div class="ppsc-overlay"><span class="ppsc-overlay-text lora">Continue the incorrect insertion</span></div></div>
-            </div>
-          </div>
-          <div class="ppsc-panel" data-i="2">
-            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
-              <video src="./static/videos/compare/jeans_pps.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-              <span class="ppsc-speed-badge">2X</span>
-              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
-            <div class="ppsc-row">
-              <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
-                <video src="./static/videos/compare/jeans_base.mp4" autoplay muted playsinline preload="metadata" data-speed="4"></video>
-                <span class="ppsc-speed-badge">2X</span>
-                <div class="ppsc-overlay"><span class="ppsc-overlay-text base">Doesn't know how to fold</span></div></div>
-              <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
-                <video src="./static/videos/compare/jeans_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <span class="ppsc-speed-badge">2X</span>
-                <div class="ppsc-overlay"><span class="ppsc-overlay-text lora">Tosses the jeans away due to overfitting</span></div></div>
-            </div>
-          </div>
-          <div class="ppsc-panel" data-i="3">
-            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
-              <video src="./static/videos/shoe.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-              <span class="ppsc-speed-badge">2X</span>
-              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
-            <div class="ppsc-row">
-              <div class="ppsc-item"><span class="ppsc-tag spec">Specialist</span>
-                <video src="./static/videos/compare/shoe_specialist.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <span class="ppsc-speed-badge">2X</span>
-                <div class="ppsc-overlay"><span class="ppsc-overlay-text spec">Overfit to demonstrations</span></div></div>
-              <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
-                <video src="./static/videos/compare/shoe_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <span class="ppsc-speed-badge">2X</span>
-                <div class="ppsc-overlay"><span class="ppsc-overlay-text lora">Loses robust execution</span></div></div>
-            </div>
-          </div>
-          <div class="ppsc-panel" data-i="4">
-            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
-              <video src="./static/videos/compare/tissue_pps.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-              <span class="ppsc-speed-badge">2X</span>
-              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
-            <div class="ppsc-row">
-              <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
-                <video src="./static/videos/compare/tissue_base.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <span class="ppsc-speed-badge">2X</span>
-                <div class="ppsc-overlay"><span class="ppsc-overlay-text base">Confused about the target</span></div></div>
-              <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
-                <video src="./static/videos/compare/tissue_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <span class="ppsc-speed-badge">2X</span>
-                <div class="ppsc-overlay"><span class="ppsc-overlay-text lora">Keep dragging the tissue after an imperfect grasp</span></div></div>
-            </div>
-          </div>
-          <div class="ppsc-panel" data-i="5">
-            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
-              <video src="./static/videos/drawer.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-              <span class="ppsc-speed-badge">2X</span>
-              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
-            <div class="ppsc-row">
-              <div class="ppsc-item"><span class="ppsc-tag dsrl">DSRL</span>
-                <video src="./static/videos/compare/drawer_dsrl.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <span class="ppsc-speed-badge">2X</span>
-                <div class="ppsc-overlay"><span class="ppsc-overlay-text dsrl">Fails to steer the base model for novel behavior</span></div></div>
-              <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
-                <video src="./static/videos/compare/drawer_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <span class="ppsc-speed-badge">2X</span>
-                <div class="ppsc-overlay"><span class="ppsc-overlay-text lora">Proceed to stowing before open the drawer</span></div></div>
-            </div>
-          </div>
-          <!-- Additional-task panels (no baseline comparison row — just the
-               PPS rollout + Success caption). Sourced from the formerly-
-               separate Real-World Tasks / Simulated Tasks grids. -->
-          <div class="ppsc-panel" data-i="6">
-            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
-              <video src="./static/videos/lever.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-              <span class="ppsc-speed-badge">2X</span>
-              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
-          </div>
-          <div class="ppsc-panel" data-i="7">
-            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
-              <video src="./static/videos/utensile.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-              <span class="ppsc-speed-badge">2X</span>
-              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
-          </div>
-          <div class="ppsc-panel" data-i="8">
-            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
-              <video src="./static/videos/sim_fruit.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-              <span class="ppsc-speed-badge">2X</span>
-              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
-          </div>
-          <div class="ppsc-panel" data-i="9">
-            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
-              <video src="./static/videos/sim_egg.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-              <span class="ppsc-speed-badge">2X</span>
-              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
-          </div>
-          <div class="ppsc-panel" data-i="10">
-            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
-              <video src="./static/videos/sim_tea.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-              <span class="ppsc-speed-badge">2X</span>
-              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
-          </div>
-          <div class="ppsc-panel" data-i="11">
-            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
-              <video src="./static/videos/sim_capsule.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-              <span class="ppsc-speed-badge">2X</span>
-              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
-          </div>
-        </div>
-      </div>
-      <script>
-      (function () {
-        var tabs = document.querySelectorAll('#ppsc-tabs button');
-        var panels = document.querySelectorAll('.ppsc-panel');
-        function show(i) {
-          tabs.forEach(function (b) { b.classList.toggle('on', +b.dataset.i === i); });
-          panels.forEach(function (p) {
-            var on = +p.dataset.i === i;
-            p.classList.toggle('on', on);
-            p.querySelectorAll('video').forEach(function (v) {
-              if (on) { var pr = v.play(); if (pr && pr.catch) pr.catch(function () {}); }
-              else { v.pause(); }
-            });
-          });
-        }
-        tabs.forEach(function (b) { b.onclick = function () { show(+b.dataset.i); }; });
-
-        // End-of-playback effect: at the final frame, fade in a translucent
-        // white veil with the per-video outcome caption, hold for 3 s, then
-        // rewind and resume. The previous `loop` attribute has been removed
-        // so the `ended` event actually fires.
-        //
-        // Per-video playback rate is read from the `data-speed` attribute
-        // (default 2.0). Browsers reset playbackRate on (re)load and on
-        // seek/play in some cases, so we re-apply on every relevant event.
-        document.querySelectorAll('.ppsc video').forEach(function (v) {
-          v.loop = false; // belt-and-suspenders in case the attribute is restored elsewhere
-          var rate = parseFloat(v.dataset.speed) || 2.0;
-          var setRate = function () { v.playbackRate = rate; };
-          setRate();
-          ['loadedmetadata', 'loadeddata', 'canplay', 'play', 'seeked'].forEach(function (ev) {
-            v.addEventListener(ev, setRate);
-          });
-
-          var overlay = v.parentNode.querySelector('.ppsc-overlay');
-          if (!overlay) return;
-          v.addEventListener('ended', function () {
-            overlay.classList.add('show');
-            // Hold the end-of-playback mask + caption for a flat 5 s before
-            // rewinding and resuming, regardless of caption length.
-            var holdMs = 5000;
-            setTimeout(function () {
-              overlay.classList.remove('show');
-              try { v.currentTime = 0; } catch (e) {}
-              v.playbackRate = rate;
-              var panel = v.closest('.ppsc-panel');
-              if (panel && panel.classList.contains('on')) {
-                var pr = v.play(); if (pr && pr.catch) pr.catch(function () {});
-              }
-            }, holdMs);
-          });
-        });
-      })();
-      </script>
-
-<!-- Task navigation (added): a now-showing bar with prev/next arrows that
-           stays in sync with the task tabs. Hero-arrow and tab-flanking-arrow
-           styles are included too, so the control style can be switched by
-           changing the .ppsc data-nav value: a = arrows on the hero video,
-           b = arrows beside the tabs, c = hero arrows + swipe, d = now-showing bar. -->
-      <style>
-        .ppsc-stage { position: relative; }
-        .ppsc-hero { position: relative; }
-        .ppsc-nav-arrow { position:absolute; z-index:20; top:50%; transform:translateY(-50%);
-          width:44px; height:44px; border-radius:50%; border:0; cursor:pointer;
-          background:rgba(27,27,27,0.55); color:#fff; display:none; align-items:center; justify-content:center;
-          transition:background .15s ease; }
-        .ppsc-nav-arrow:hover { background:rgba(27,27,27,0.82); }
-        .ppsc-nav-arrow svg { width:20px; height:20px; }
-        .ppsc-nav-arrow.prev { left:12px; } .ppsc-nav-arrow.next { right:12px; }
-        .ppsc[data-nav="a"] .ppsc-panel.on .ppsc-hero .ppsc-nav-arrow,
-        .ppsc[data-nav="c"] .ppsc-panel.on .ppsc-hero .ppsc-nav-arrow { display:flex; }
-        .ppsc-tabwrap { display:flex; align-items:stretch; gap:10px; margin-bottom:16px; }
-        .ppsc-tabwrap .ppsc-tabs { flex:1 1 auto; margin-bottom:0; }
-        .ppsc-side-arrow { flex:0 0 auto; align-self:stretch; width:48px; border-radius:12px;
-          border:1px solid var(--ppsc-line); background:var(--ppsc-panel); color:var(--ppsc-sub);
-          cursor:pointer; display:none; align-items:center; justify-content:center; }
-        .ppsc-side-arrow:hover { background:var(--ppsc-soft); color:var(--ppsc-ink); }
-        .ppsc-side-arrow svg { width:22px; height:22px; }
-        .ppsc[data-nav="b"] .ppsc-side-arrow { display:flex; }
-        .ppsc-nowbar { display:none; align-items:center; justify-content:center; gap:16px; margin-bottom:14px; }
-        .ppsc[data-nav="d"] .ppsc-nowbar { display:flex; }
-        .ppsc-nowbar button { width:38px; height:38px; border-radius:50%; border:1px solid var(--ppsc-line);
-          background:var(--ppsc-panel); color:var(--ppsc-ink); cursor:pointer; display:flex; align-items:center; justify-content:center; }
-        .ppsc-nowbar button:hover { background:var(--ppsc-soft); }
-        .ppsc-nowbar button svg { width:18px; height:18px; }
-        .ppsc-nowbar .now-label { font:700 17px/1 'Inter','Helvetica Neue',Arial,sans-serif; color:var(--ppsc-ink); min-width:240px; text-align:center; }
-        .ppsc-nowbar .now-count { color:var(--ppsc-sub); font-weight:500; font-size:14px; }
-      </style>
-      <script>
-      (function () {
-        var ppsc = document.querySelector('.ppsc'); if (!ppsc) return;
-        var tabsWrap = ppsc.querySelector('#ppsc-tabs');
-        var tabBtns = Array.prototype.slice.call(tabsWrap.querySelectorAll('button'));
-        var names = tabBtns.map(function (b) { return b.textContent.trim(); });
-        var N = tabBtns.length;
-        function current(){ var on = tabsWrap.querySelector('button.on'); return on ? +on.dataset.i : 0; }
-        function goTo(i){ i = (i % N + N) % N; var b = tabsWrap.querySelector('button[data-i="'+i+'"]'); if (b) b.click(); updateNow(); }
-        function prev(){ goTo(current()-1); }
-        function next(){ goTo(current()+1); }
-        function icon(dir){ return dir==='prev'
-          ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>'
-          : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>'; }
-        function mk(cls, dir){ var b=document.createElement('button'); b.className=cls+' '+dir; b.type='button'; b.setAttribute('aria-label', dir==='prev'?'Previous task':'Next task'); b.innerHTML=icon(dir); return b; }
-        ppsc.querySelectorAll('.ppsc-hero').forEach(function (hd) {
-          var l=mk('ppsc-nav-arrow','prev'), r=mk('ppsc-nav-arrow','next');
-          l.onclick=function(e){ e.stopPropagation(); prev(); };
-          r.onclick=function(e){ e.stopPropagation(); next(); };
-          hd.appendChild(l); hd.appendChild(r);
-        });
-        var wrap=document.createElement('div'); wrap.className='ppsc-tabwrap';
-        tabsWrap.parentNode.insertBefore(wrap, tabsWrap);
-        var ls=mk('ppsc-side-arrow','prev'), rs=mk('ppsc-side-arrow','next');
-        ls.onclick=prev; rs.onclick=next;
-        wrap.appendChild(ls); wrap.appendChild(tabsWrap); wrap.appendChild(rs);
-        var stage=ppsc.querySelector('.ppsc-stage');
-        var bar=document.createElement('div'); bar.className='ppsc-nowbar';
-        var bl=mk('','prev'), br=mk('','next');
-        var lbl=document.createElement('span'); lbl.className='now-label';
-        bl.onclick=prev; br.onclick=next;
-        bar.appendChild(bl); bar.appendChild(lbl); bar.appendChild(br);
-        stage.parentNode.insertBefore(bar, stage);
-        function updateNow(){ var i=current(); lbl.innerHTML = names[i] + ' <span class="now-count">'+(i+1)+' / '+N+'</span>'; }
-        tabBtns.forEach(function (b) { b.addEventListener('click', function () { setTimeout(updateNow, 0); }); });
-        var sx=null;
-        stage.addEventListener('touchstart', function(e){ sx=e.touches[0].clientX; }, {passive:true});
-        stage.addEventListener('touchend', function(e){ if(sx==null) return; var dx=e.changedTouches[0].clientX-sx;
-          if (ppsc.getAttribute('data-nav')==='c' && Math.abs(dx)>40) { dx<0?next():prev(); } sx=null; });
-        var hovering=false;
-        ppsc.addEventListener('mouseenter', function(){ hovering=true; });
-        ppsc.addEventListener('mouseleave', function(){ hovering=false; });
-        document.addEventListener('keydown', function(e){ if(!hovering) return;
-          if(e.key==='ArrowLeft'){ e.preventDefault(); prev(); } else if(e.key==='ArrowRight'){ e.preventDefault(); next(); } });
-        ppsc.setAttribute('data-nav','d');
-        updateNow();
-      })();
-      </script>
-
-            <!-- Real-World Tasks and Simulated Tasks sections commented out — the
-           per-task rollout videos now live in the clickable gallery above
-           (data-i 6..11), and the merged-success bar-chart figures are
-           hidden along with the section headers/stat lines.
-
-      <div class="subheader">Real-World Tasks</div>
+            <div class="subheader">Real-World Tasks</div>
       <p class="stat-line">
         <strong>+53% absolute success</strong> over the
         &pi;<sub>0.5</sub> base, averaged across 8 real-world tasks.
@@ -1325,7 +955,454 @@
         <img src="./static/images/sim_results_merged_web.png"
              alt="Simulation per-task success rate across models, with the average column at the right">
       </figure>
-      -->
+
+      <!-- ADDED: baseline comparison carousel -->
+      <div class="subheader">Baseline Comparison</div>
+      <!-- Comparison videos use the EXACT same display method as the Real-World
+           Tasks grid above: plain declarative <video src> tags, no JS source
+           swapping, no posters, no clipping wrapper. Tabs just show/hide whole
+           task panels; the videos themselves render identically to the ones that
+           already work on this page. -->
+      <style>
+        .ppsc { --ppsc-line:#e4dcc8; --ppsc-soft:#efece4; --ppsc-sub:#6b6453; --ppsc-ink:#1b1b1b;
+          --ppsc-panel:#fffdf8; --ppsc-pps:#4f9d5d; --ppsc-base:#8a72b3; --ppsc-lora:#c0563f;
+          --ppsc-spec:#407CB6; --ppsc-dsrl:#F58A45; margin:14px 0 4px; }
+        .ppsc *, .ppsc *::before, .ppsc *::after { box-sizing:border-box; }
+        .ppsc-tabs { display:grid; grid-template-columns:repeat(6, 1fr); gap:8px; margin-bottom:16px; }
+        .ppsc-tab-break { display:none; }
+        .ppsc-tabs button { font:600 13.5px/1.2 'Inter','Helvetica Neue',Arial,sans-serif; color:var(--ppsc-sub); background:var(--ppsc-panel);
+          border:1px solid var(--ppsc-line); border-radius:10px; padding:9px 10px; cursor:pointer; transition:all .18s ease;
+          text-align:center; white-space:normal; }
+        @media (max-width:900px) { .ppsc-tabs { grid-template-columns:repeat(4, 1fr); } }
+        @media (max-width:560px) { .ppsc-tabs { grid-template-columns:repeat(2, 1fr); } }
+        .ppsc-tabs button:hover { background:var(--ppsc-soft); }
+        .ppsc-tabs button.on { background:var(--ppsc-ink); color:#fff; border-color:var(--ppsc-ink); }
+        /* Full-width zero-height spacer that forces a flex line break. Used to
+           push the additional-task tabs onto a dedicated second row beneath
+           the baseline-comparison tabs. */
+        .ppsc-tab-break { flex-basis:100%; height:0; pointer-events:none; }
+        .ppsc-stage { background:var(--ppsc-panel); border:1px solid var(--ppsc-line); border-radius:16px; padding:18px; }
+        .ppsc-panel { display:none; }
+        .ppsc-panel.on { display:block; }
+        /* rounding/border on the <video> itself, exactly like .result-video */
+        .ppsc-hero { position:relative; line-height:0; }
+        .ppsc-hero video { display:block; width:100%; aspect-ratio:16/9; object-fit:cover;
+          background:#000; border-radius:12px; border:2px solid var(--ppsc-line); }
+        .ppsc-tag { position:absolute; left:14px; top:14px; display:inline-flex; align-items:center; gap:6px;
+          font-size:12.5px; line-height:1; font-weight:700; color:#fff; padding:5px 11px; border-radius:999px; }
+        .ppsc-tag.pps { background:var(--ppsc-pps); } .ppsc-tag.base { background:var(--ppsc-base); } .ppsc-tag.lora { background:var(--ppsc-lora); } .ppsc-tag.spec { background:var(--ppsc-spec); } .ppsc-tag.dsrl { background:var(--ppsc-dsrl); }
+        .ppsc-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px; }
+        @media (max-width:560px){ .ppsc-row { grid-template-columns:1fr; } }
+        .ppsc-item { position:relative; line-height:0; }
+        .ppsc-item video { display:block; width:100%; aspect-ratio:16/9; object-fit:cover;
+          background:#000; border-radius:11px; border:2px solid var(--ppsc-line); }
+        .ppsc-foot { margin-top:16px; font-size:12.5px; color:var(--ppsc-sub); text-align:center; }
+        /* End-of-playback overlay: fades a (nearly opaque) white veil over the
+           video with a coloured outcome caption, shown for 3 s before the
+           video restarts. */
+        .ppsc-overlay { position:absolute; inset:0; display:flex; align-items:center;
+          justify-content:center; background:rgba(255,255,255,0.82);
+          opacity:0; pointer-events:none; transition:opacity .25s ease; }
+        .ppsc-overlay.show { opacity:1; }
+        .ppsc-hero .ppsc-overlay { border-radius:12px; }
+        .ppsc-item .ppsc-overlay { border-radius:11px; }
+        .ppsc-overlay-text { font:700 24px/1.32 'Inter','Helvetica Neue',Arial,sans-serif; text-align:center;
+          padding:0 14px; letter-spacing:-0.3px; text-shadow:0 1px 0 rgba(255,255,255,0.9);
+          /* Block-level so the text actually wraps inside the overlay width
+             instead of overflowing on a single line. */
+          display:block; width:100%; max-width:100%; box-sizing:border-box;
+          word-wrap:break-word; overflow-wrap:break-word; }
+        .ppsc-overlay-text.base { color:var(--ppsc-base); }
+        .ppsc-overlay-text.lora { color:var(--ppsc-lora); }
+        .ppsc-overlay-text.pps  { color:var(--ppsc-pps); }
+        .ppsc-overlay-text.spec { color:var(--ppsc-spec); }
+        .ppsc-overlay-text.dsrl { color:var(--ppsc-dsrl); }
+        /* Hero (full-width) video can carry a bigger "Success"; the two
+           half-width items below need a smaller font + roomier line-height
+           so the long Base/LoRA captions wrap to 2 lines without lines
+           visually crashing into each other. */
+        .ppsc-hero .ppsc-overlay-text { font-size:48px; line-height:1.18; }
+        .ppsc-item .ppsc-overlay-text { font-size:22px; line-height:1.34; }
+        @media (max-width:560px) {
+          .ppsc-hero .ppsc-overlay-text { font-size:30px; }
+          .ppsc-item .ppsc-overlay-text { font-size:15px; padding:0 10px; }
+        }
+        /* Speed badge — same look as the recovery section's "2X" pill. */
+        .ppsc-speed-badge { position:absolute; top:10px; right:10px;
+          font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+          font-size:13px; font-weight:600; line-height:1; color:#fdfaf4;
+          background:rgba(27,27,27,0.72); padding:4px 8px; border-radius:6px;
+          letter-spacing:0.5px; pointer-events:none; z-index:2; }
+        /* Persistent caption chip (PI's Robust-Execution style): the outcome
+           text sits permanently in the bottom-right corner so readers get
+           unlimited reading time. Shown only when .ppsc has .cap-persistent;
+           in that mode the end-of-clip fade veil is disabled. */
+        .ppsc-caption { position:absolute; right:8px; bottom:8px; z-index:3; display:none;
+          max-width:82%; text-align:right;
+          font-family:'Inter','Helvetica Neue',Arial,sans-serif; font-size:15px; font-weight:600; line-height:1.3;
+          color:#fdfaf4; background:rgba(27,27,27,0.72); padding:5px 9px; border-radius:6px; letter-spacing:0.2px; }
+        .ppsc-hero .ppsc-caption { font-size:17px; }
+        .ppsc.cap-persistent .ppsc-caption { display:inline-block; }
+        .ppsc.cap-persistent .ppsc-overlay { display:none; }
+        /* Version 3 — failure-type: persistent chip, colour-coded by the paper's
+           failure modes, with a legend. Colours mirror Fig. 4c. */
+        .ppsc { --ft-incorrect:#4f86c6; --ft-ood:#e8b84b; --ft-imprecise:#4f9d5d; --ft-other:#d9694a; }
+        .ppsc.cap-ftype .ppsc-caption { display:inline-block; padding-left:11px; }
+        .ppsc.cap-ftype .ppsc-overlay { display:none; }
+        .ppsc.cap-ftype .ppsc-caption[data-ftype="incorrect"] { border-left:4px solid var(--ft-incorrect); }
+        .ppsc.cap-ftype .ppsc-caption[data-ftype="ood"] { border-left:4px solid var(--ft-ood); }
+        .ppsc.cap-ftype .ppsc-caption[data-ftype="imprecise"] { border-left:4px solid var(--ft-imprecise); }
+        .ppsc-ftlegend { display:none; gap:8px 18px; flex-wrap:wrap; justify-content:center;
+          margin-top:16px; font:500 13px/1 'Inter','Helvetica Neue',Arial,sans-serif; color:var(--ppsc-sub); }
+        .ppsc.cap-ftype .ppsc-ftlegend { display:flex; }
+        .ppsc-ftlegend span { display:inline-flex; align-items:center; gap:7px; }
+        .ppsc-ftlegend i { width:12px; height:12px; border-radius:3px; display:inline-block; }
+        /* caption-mode toggle */
+        .ppsc-capmode { display:flex; align-items:center; gap:10px; justify-content:flex-end;
+          margin-bottom:12px; font-size:12.5px; color:var(--ppsc-sub); }
+        .ppsc-capseg { display:inline-flex; padding:3px; background:var(--ppsc-soft);
+          border:1px solid var(--ppsc-line); border-radius:9px; gap:2px; }
+        .ppsc-capseg button { font:600 12.5px/1 'Inter','Helvetica Neue',Arial,sans-serif; color:var(--ppsc-sub);
+          background:transparent; border:0; cursor:pointer; padding:7px 12px; border-radius:7px; }
+        .ppsc-capseg button.on { background:var(--ppsc-panel); color:var(--ppsc-ink); box-shadow:0 1px 2px rgba(40,32,16,0.08); }
+      </style>
+      <div class="ppsc">
+        <div class="ppsc-capmode">Caption style
+          <div class="ppsc-capseg" id="ppsc-capseg">
+            <button data-cap="overlay" class="on">At end</button>
+            <button data-cap="persistent">Persistent</button>
+            <button data-cap="ftype">Failure type</button>
+          </div>
+        </div>
+        <div class="ppsc-tabs" id="ppsc-tabs">
+          <button class="on" data-i="0">Coffee Brewing</button>
+          <button data-i="1">Flower Insertion</button>
+          <button data-i="2">Jeans Folding</button>
+          <button data-i="3">Shoe Retrieval</button>
+          <button data-i="4">Tissue Wiping</button>
+          <button data-i="5">Drawer Stowing</button>
+          <div class="ppsc-tab-break" aria-hidden="true"></div>
+          <button data-i="6">Lever Pressing</button>
+          <button data-i="7">Utensil Insertion</button>
+          <button data-i="8">Fruit Weighing</button>
+          <button data-i="9">Egg Cooking</button>
+          <button data-i="10">Tea Pouring</button>
+          <button data-i="11">Capsule Loading</button>
+        </div>
+        <div class="ppsc-stage">
+          <div class="ppsc-panel on" data-i="0">
+            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+              <video src="./static/videos/compare/coffee_pps.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <span class="ppsc-speed-badge">2X</span>
+              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
+            <div class="ppsc-row">
+              <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
+                <video src="./static/videos/compare/coffee_base.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <span class="ppsc-speed-badge">2X</span>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text base" data-ftype="incorrect">Can't open the lid</span></div></div>
+              <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
+                <video src="./static/videos/compare/coffee_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <span class="ppsc-speed-badge">2X</span>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text lora" data-ftype="imprecise">Overfits after a near miss</span></div></div>
+            </div>
+          </div>
+          <div class="ppsc-panel" data-i="1">
+            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+              <video src="./static/videos/compare/flower_pps.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <span class="ppsc-speed-badge">2X</span>
+              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
+            <div class="ppsc-row">
+              <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
+                <video src="./static/videos/compare/flower_base.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <span class="ppsc-speed-badge">2X</span>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text base" data-ftype="incorrect">Places instead of inserting</span></div></div>
+              <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
+                <video src="./static/videos/compare/flower_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <span class="ppsc-speed-badge">2X</span>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text lora" data-ftype="imprecise">Continues a wrong insertion</span></div></div>
+            </div>
+          </div>
+          <div class="ppsc-panel" data-i="2">
+            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+              <video src="./static/videos/compare/jeans_pps.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <span class="ppsc-speed-badge">2X</span>
+              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
+            <div class="ppsc-row">
+              <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
+                <video src="./static/videos/compare/jeans_base.mp4" autoplay muted playsinline preload="metadata" data-speed="4"></video>
+                <span class="ppsc-speed-badge">2X</span>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text base" data-ftype="incorrect">Can't fold</span></div></div>
+              <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
+                <video src="./static/videos/compare/jeans_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <span class="ppsc-speed-badge">2X</span>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text lora" data-ftype="ood">Overfits, tosses the jeans</span></div></div>
+            </div>
+          </div>
+          <div class="ppsc-panel" data-i="3">
+            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+              <video src="./static/videos/shoe.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <span class="ppsc-speed-badge">2X</span>
+              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
+            <div class="ppsc-row">
+              <div class="ppsc-item"><span class="ppsc-tag spec">Specialist</span>
+                <video src="./static/videos/compare/shoe_specialist.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <span class="ppsc-speed-badge">2X</span>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text spec" data-ftype="imprecise">Overfits to demos</span></div></div>
+              <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
+                <video src="./static/videos/compare/shoe_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <span class="ppsc-speed-badge">2X</span>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text lora" data-ftype="ood">Tips the box, can't recover</span></div></div>
+            </div>
+          </div>
+          <div class="ppsc-panel" data-i="4">
+            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+              <video src="./static/videos/compare/tissue_pps.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <span class="ppsc-speed-badge">2X</span>
+              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
+            <div class="ppsc-row">
+              <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
+                <video src="./static/videos/compare/tissue_base.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <span class="ppsc-speed-badge">2X</span>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text base" data-ftype="incorrect">Releases before wiping</span></div></div>
+              <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
+                <video src="./static/videos/compare/tissue_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <span class="ppsc-speed-badge">2X</span>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text lora" data-ftype="imprecise">Drags before the tissue is out</span></div></div>
+            </div>
+          </div>
+          <div class="ppsc-panel" data-i="5">
+            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+              <video src="./static/videos/drawer.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <span class="ppsc-speed-badge">2X</span>
+              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
+            <div class="ppsc-row">
+              <div class="ppsc-item"><span class="ppsc-tag dsrl">DSRL</span>
+                <video src="./static/videos/compare/drawer_dsrl.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <span class="ppsc-speed-badge">2X</span>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text dsrl" data-ftype="incorrect">Can't open the drawer</span></div></div>
+              <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
+                <video src="./static/videos/compare/drawer_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <span class="ppsc-speed-badge">2X</span>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text lora" data-ftype="incorrect">Stows before opening</span></div></div>
+            </div>
+          </div>
+          <!-- Additional-task panels (no baseline comparison row — just the
+               PPS rollout + Success caption). Sourced from the formerly-
+               separate Real-World Tasks / Simulated Tasks grids. -->
+          <div class="ppsc-panel" data-i="6">
+            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+              <video src="./static/videos/lever.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <span class="ppsc-speed-badge">2X</span>
+              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
+          </div>
+          <div class="ppsc-panel" data-i="7">
+            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+              <video src="./static/videos/utensile.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <span class="ppsc-speed-badge">2X</span>
+              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
+          </div>
+          <div class="ppsc-panel" data-i="8">
+            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+              <video src="./static/videos/sim_fruit.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <span class="ppsc-speed-badge">2X</span>
+              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
+          </div>
+          <div class="ppsc-panel" data-i="9">
+            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+              <video src="./static/videos/sim_egg.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <span class="ppsc-speed-badge">2X</span>
+              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
+          </div>
+          <div class="ppsc-panel" data-i="10">
+            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+              <video src="./static/videos/sim_tea.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <span class="ppsc-speed-badge">2X</span>
+              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
+          </div>
+          <div class="ppsc-panel" data-i="11">
+            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+              <video src="./static/videos/sim_capsule.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <span class="ppsc-speed-badge">2X</span>
+              <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
+          </div>
+        </div>
+      </div>
+      <script>
+      (function () {
+        var tabs = document.querySelectorAll('#ppsc-tabs button');
+        var panels = document.querySelectorAll('.ppsc-panel');
+        function show(i) {
+          tabs.forEach(function (b) { b.classList.toggle('on', +b.dataset.i === i); });
+          panels.forEach(function (p) {
+            var on = +p.dataset.i === i;
+            p.classList.toggle('on', on);
+            p.querySelectorAll('video').forEach(function (v) {
+              if (on) { var pr = v.play(); if (pr && pr.catch) pr.catch(function () {}); }
+              else { v.pause(); }
+            });
+          });
+        }
+        tabs.forEach(function (b) { b.onclick = function () { show(+b.dataset.i); }; });
+
+        // End-of-playback effect: at the final frame, fade in a translucent
+        // white veil with the per-video outcome caption, hold for 3 s, then
+        // rewind and resume. The previous `loop` attribute has been removed
+        // so the `ended` event actually fires.
+        //
+        // Per-video playback rate is read from the `data-speed` attribute
+        // (default 2.0). Browsers reset playbackRate on (re)load and on
+        // seek/play in some cases, so we re-apply on every relevant event.
+        document.querySelectorAll('.ppsc video').forEach(function (v) {
+          v.loop = false; // belt-and-suspenders in case the attribute is restored elsewhere
+          var rate = parseFloat(v.dataset.speed) || 2.0;
+          var setRate = function () { v.playbackRate = rate; };
+          setRate();
+          ['loadedmetadata', 'loadeddata', 'canplay', 'play', 'seeked'].forEach(function (ev) {
+            v.addEventListener(ev, setRate);
+          });
+
+          var overlay = v.parentNode.querySelector('.ppsc-overlay');
+          if (!overlay) return;
+          v.addEventListener('ended', function () {
+            overlay.classList.add('show');
+            var capEl = overlay.querySelector('.ppsc-overlay-text');
+            var words = capEl ? capEl.textContent.trim().split(/\s+/).length : 5;
+            var holdMs = Math.max(3500, Math.min(9000, 1200 + words * 650));
+            setTimeout(function () {
+              overlay.classList.remove('show');
+              try { v.currentTime = 0; } catch (e) {}
+              v.playbackRate = rate;
+              var panel = v.closest('.ppsc-panel');
+              if (panel && panel.classList.contains('on')) {
+                var pr = v.play(); if (pr && pr.catch) pr.catch(function () {});
+              }
+            }, holdMs);
+          });
+        });
+      })();
+      </script>
+
+<!-- Task navigation (added): a now-showing bar with prev/next arrows that
+           stays in sync with the task tabs. Hero-arrow and tab-flanking-arrow
+           styles are included too, so the control style can be switched by
+           changing the .ppsc data-nav value: a = arrows on the hero video,
+           b = arrows beside the tabs, c = hero arrows + swipe, d = now-showing bar. -->
+      <style>
+        .ppsc-stage { position: relative; }
+        .ppsc-hero { position: relative; }
+        .ppsc-nav-arrow { position:absolute; z-index:20; top:50%; transform:translateY(-50%);
+          width:44px; height:44px; border-radius:50%; border:0; cursor:pointer;
+          background:rgba(27,27,27,0.55); color:#fff; display:none; align-items:center; justify-content:center;
+          transition:background .15s ease; }
+        .ppsc-nav-arrow:hover { background:rgba(27,27,27,0.82); }
+        .ppsc-nav-arrow svg { width:20px; height:20px; }
+        .ppsc-nav-arrow.prev { left:12px; } .ppsc-nav-arrow.next { right:12px; }
+        .ppsc[data-nav="a"] .ppsc-panel.on .ppsc-hero .ppsc-nav-arrow,
+        .ppsc[data-nav="c"] .ppsc-panel.on .ppsc-hero .ppsc-nav-arrow { display:flex; }
+        .ppsc-tabwrap { display:flex; align-items:stretch; gap:10px; margin-bottom:16px; }
+        .ppsc-tabwrap .ppsc-tabs { flex:1 1 auto; margin-bottom:0; }
+        .ppsc-side-arrow { flex:0 0 auto; align-self:stretch; width:48px; border-radius:12px;
+          border:1px solid var(--ppsc-line); background:var(--ppsc-panel); color:var(--ppsc-sub);
+          cursor:pointer; display:none; align-items:center; justify-content:center; }
+        .ppsc-side-arrow:hover { background:var(--ppsc-soft); color:var(--ppsc-ink); }
+        .ppsc-side-arrow svg { width:22px; height:22px; }
+        .ppsc[data-nav="b"] .ppsc-side-arrow { display:flex; }
+        .ppsc-nowbar { display:none; align-items:center; justify-content:center; gap:16px; margin-bottom:14px; }
+        .ppsc[data-nav="d"] .ppsc-nowbar { display:flex; }
+        .ppsc-nowbar button { width:38px; height:38px; border-radius:50%; border:1px solid var(--ppsc-line);
+          background:var(--ppsc-panel); color:var(--ppsc-ink); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+        .ppsc-nowbar button:hover { background:var(--ppsc-soft); }
+        .ppsc-nowbar button svg { width:18px; height:18px; }
+        .ppsc-nowbar .now-label { font:700 21px/1.2 'Inter','Helvetica Neue',Arial,sans-serif; color:var(--ppsc-ink); min-width:240px; text-align:center; }
+        .ppsc-nowbar .now-count { color:var(--ppsc-sub); font-weight:500; font-size:16px; }
+      </style>
+      <script>
+      (function () {
+        var ppsc = document.querySelector('.ppsc'); if (!ppsc) return;
+        var tabsWrap = ppsc.querySelector('#ppsc-tabs');
+        var tabBtns = Array.prototype.slice.call(tabsWrap.querySelectorAll('button'));
+        var names = tabBtns.map(function (b) { return b.textContent.trim(); });
+        var N = tabBtns.length;
+        function current(){ var on = tabsWrap.querySelector('button.on'); return on ? +on.dataset.i : 0; }
+        function goTo(i){ i = (i % N + N) % N; var b = tabsWrap.querySelector('button[data-i="'+i+'"]'); if (b) b.click(); updateNow(); }
+        function prev(){ goTo(current()-1); }
+        function next(){ goTo(current()+1); }
+        function icon(dir){ return dir==='prev'
+          ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>'
+          : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>'; }
+        function mk(cls, dir){ var b=document.createElement('button'); b.className=cls+' '+dir; b.type='button'; b.setAttribute('aria-label', dir==='prev'?'Previous task':'Next task'); b.innerHTML=icon(dir); return b; }
+        ppsc.querySelectorAll('.ppsc-hero').forEach(function (hd) {
+          var l=mk('ppsc-nav-arrow','prev'), r=mk('ppsc-nav-arrow','next');
+          l.onclick=function(e){ e.stopPropagation(); prev(); };
+          r.onclick=function(e){ e.stopPropagation(); next(); };
+          hd.appendChild(l); hd.appendChild(r);
+        });
+        var wrap=document.createElement('div'); wrap.className='ppsc-tabwrap';
+        tabsWrap.parentNode.insertBefore(wrap, tabsWrap);
+        var ls=mk('ppsc-side-arrow','prev'), rs=mk('ppsc-side-arrow','next');
+        ls.onclick=prev; rs.onclick=next;
+        wrap.appendChild(ls); wrap.appendChild(tabsWrap); wrap.appendChild(rs);
+        var stage=ppsc.querySelector('.ppsc-stage');
+        var bar=document.createElement('div'); bar.className='ppsc-nowbar';
+        var bl=mk('','prev'), br=mk('','next');
+        var lbl=document.createElement('span'); lbl.className='now-label';
+        bl.onclick=prev; br.onclick=next;
+        bar.appendChild(bl); bar.appendChild(lbl); bar.appendChild(br);
+        stage.parentNode.insertBefore(bar, stage);
+        function updateNow(){ var i=current(); lbl.innerHTML = names[i] + ' <span class="now-count">'+(i+1)+' / '+N+'</span>'; }
+        tabBtns.forEach(function (b) { b.addEventListener('click', function () { setTimeout(updateNow, 0); }); });
+        var sx=null;
+        stage.addEventListener('touchstart', function(e){ sx=e.touches[0].clientX; }, {passive:true});
+        stage.addEventListener('touchend', function(e){ if(sx==null) return; var dx=e.changedTouches[0].clientX-sx;
+          if (ppsc.getAttribute('data-nav')==='c' && Math.abs(dx)>40) { dx<0?next():prev(); } sx=null; });
+        var hovering=false;
+        ppsc.addEventListener('mouseenter', function(){ hovering=true; });
+        ppsc.addEventListener('mouseleave', function(){ hovering=false; });
+        document.addEventListener('keydown', function(e){ if(!hovering) return;
+          if(e.key==='ArrowLeft'){ e.preventDefault(); prev(); } else if(e.key==='ArrowRight'){ e.preventDefault(); next(); } });
+        ppsc.setAttribute('data-nav','d');
+        updateNow();
+      })();
+      </script>
+
+      <!-- Caption-mode toggle: build persistent corner captions from the existing
+           end-of-clip overlay texts, and let the viewer switch between "At end"
+           (the fade veil) and "Persistent" (always-on bottom-right chip). -->
+      <script>
+      (function () {
+        var ppsc = document.querySelector('.ppsc'); if (!ppsc) return;
+        // mirror each overlay caption into a persistent corner chip
+        ppsc.querySelectorAll('.ppsc-overlay-text').forEach(function (t) {
+          var holder = t.closest('.ppsc-hero, .ppsc-item'); if (!holder) return;
+          var cls = (t.className.match(/\b(base|lora|pps|spec|dsrl)\b/) || [,''])[1];
+          var chip = document.createElement('span');
+          chip.className = 'ppsc-caption' + (cls ? ' ' + cls : '');
+          if (t.dataset.ftype) chip.setAttribute('data-ftype', t.dataset.ftype);
+          chip.textContent = t.textContent;
+          holder.appendChild(chip);
+        });
+        // failure-type legend (shown only in the "Failure type" mode)
+        var legend = document.createElement('div');
+        legend.className = 'ppsc-ftlegend';
+        legend.innerHTML =
+          '<span><i style="background:var(--ft-incorrect)"></i>Incorrect mode</span>' +
+          '<span><i style="background:var(--ft-ood)"></i>OOD state</span>' +
+          '<span><i style="background:var(--ft-imprecise)"></i>Imprecise execution</span>';
+        ppsc.querySelector('.ppsc-stage').appendChild(legend);
+        // default mode = overlay (the PI compares against this)
+        ppsc.classList.add('cap-overlay');
+        var seg = document.getElementById('ppsc-capseg');
+        seg.querySelectorAll('button').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var mode = b.dataset.cap;
+            ['overlay', 'persistent', 'ftype'].forEach(function (m) {
+              ppsc.classList.toggle('cap-' + m, m === mode);
+            });
+            seg.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); });
+          });
+        });
+      })();
+      </script>
 
     </section>
 
