@@ -222,8 +222,9 @@
             <div class="ticks"><span>0 · base</span><span>0.5 · PPS</span><span>1 · task</span></div>
           </div>
           <div class="teaserwrap">
-            <img id="teaserBg" src="../images/teaser_1_3.png" alt="Robot demonstrating jeans-folding with three rollouts; a green PPS rollout is overlaid">
-            <canvas class="teaser-overlay" id="teaserOverlay"></canvas>
+            <video id="teaserVideo" autoplay muted loop playsinline preload="auto"
+                   src="../steering_strength/2_0.7.mp4"
+                   aria-label="Rollout at the current steering strength"></video>
             <span class="cnote">Illustrative</span>
           </div>
           <div class="teaser-legend" aria-label="Trajectory colours">
@@ -259,129 +260,31 @@
     diag.gamma = parseFloat(gammaEl.value);
     function fmt(g){ return g.toFixed(2); }
 
-    /* ----- Teaser overlay --------------------------------------------
-       Trajectory anchors expressed in the underlying image's pixel space
-       (1280×855, cropped from the original 1600×900). Normalised to [0,1]
-       on the fly so the canvas tracks the responsively-sized image.
-
-       Start is fixed. Endpoint is specified at THREE values of γ
-       (0, 0.3, 1) and quadratic-interpolated for any γ in between. */
-    var TW = 1280, TH = 855;
-    var T_START = { x: 650 / TW, y: 275 / TH };          // (row 275, col 650)
-    var T_END_AT_0   = { x:  720 / TW, y: 616 / TH };    // γ = 0
-    var T_END_AT_0_6 = { x: 1080 / TW, y: 538 / TH };    // γ = 0.6
-    var T_END_AT_1   = { x: 1175 / TW, y: 500 / TH };    // γ = 1
-    // Piecewise linear: γ ∈ [0, 0.6] lerps anchor_0 → anchor_0.6,
-    // γ ∈ [0.6, 1] lerps anchor_0.6 → anchor_1. Hits all three points exactly.
-    function endAt(g) {
-      var t, p0, p1;
-      if (g <= 0.6) { t = g / 0.6;          p0 = T_END_AT_0;   p1 = T_END_AT_0_6; }
-      else          { t = (g - 0.6) / 0.4;  p0 = T_END_AT_0_6; p1 = T_END_AT_1;   }
-      return { x: p0.x + (p1.x - p0.x) * t,
-               y: p0.y + (p1.y - p0.y) * t };
-    }
-    // Three intermediate waypoints the trajectory should visit at γ=0:
-    //   (row, col) = (308, 700), (421, 698), (529, 717)
-    // Stored as (t, d) in the local frame of the start→end_γ0 line, where
-    // t is the fractional projection onto the line and d is the signed
-    // perpendicular offset (CW perp, in units of line length). At any γ
-    // we reconstruct absolute positions by feeding the CURRENT start→end
-    // line into the same parametrisation, so the trajectory stays curved
-    // for every γ while passing exactly through the three given pixels
-    // when γ = 0.
-    var WAYPOINTS_TD = [
-      { t: 0.1217, d: 0.1216 },
-      { t: 0.4386, d: 0.0507 },
-      { t: 0.7535, d: 0.0418 }
-    ];
-    function trajectoryPoints(sx, sy, ex, ey) {
-      var lvx = ex - sx, lvy = ey - sy;
-      var llen = Math.sqrt(lvx * lvx + lvy * lvy) || 1;
-      var perpX = lvy / llen, perpY = -lvx / llen;       // CW perpendicular
-      var pts = [{ x: sx, y: sy }];
-      for (var i = 0; i < WAYPOINTS_TD.length; i++) {
-        var wp = WAYPOINTS_TD[i];
-        pts.push({
-          x: sx + wp.t * lvx + wp.d * llen * perpX,
-          y: sy + wp.t * lvy + wp.d * llen * perpY
-        });
-      }
-      pts.push({ x: ex, y: ey });
-      return pts;
-    }
-    // Catmull-Rom-derived cubic bezier path through `pts` (interpolating
-    // spline — actually passes through every point, unlike a quadratic
-    // smoothing of a polyline).
-    function strokeCatmullRom(ctx, pts) {
-      var n = pts.length;
-      if (n < 2) return;
-      ctx.moveTo(pts[0].x, pts[0].y);
-      for (var i = 0; i < n - 1; i++) {
-        var p0 = pts[i - 1] || pts[i];
-        var p1 = pts[i];
-        var p2 = pts[i + 1];
-        var p3 = pts[i + 2] || pts[i + 1];
-        ctx.bezierCurveTo(
-          p1.x + (p2.x - p0.x) / 6, p1.y + (p2.y - p0.y) / 6,
-          p2.x - (p3.x - p1.x) / 6, p2.y - (p3.y - p1.y) / 6,
-          p2.x, p2.y
-        );
-      }
-    }
-
-    var teaserBg  = document.getElementById('teaserBg');
-    var teaserCv  = document.getElementById('teaserOverlay');
-    var teaserCtx = teaserCv.getContext('2d');
-
-    function sizeTeaserCanvas() {
-      var dpr = window.devicePixelRatio || 1;
-      var r = teaserCv.getBoundingClientRect();
-      teaserCv.width  = Math.max(1, Math.round(r.width  * dpr));
-      teaserCv.height = Math.max(1, Math.round(r.height * dpr));
-    }
-    function lerp(a, b, t) { return a + (b - a) * t; }
-
-    function drawTeaser(g) {
-      var dpr = window.devicePixelRatio || 1;
-      var w = teaserCv.width, h = teaserCv.height;
-      teaserCtx.setTransform(1, 0, 0, 1, 0, 0);
-      teaserCtx.clearRect(0, 0, w, h);
-
-      var sx = T_START.x * w, sy = T_START.y * h;
-      var end = endAt(g);
-      var ex = end.x * w, ey = end.y * h;
-
-      teaserCtx.lineCap = 'round';
-      teaserCtx.lineJoin = 'round';
-
-      // Curved trajectory: Catmull-Rom spline through start, three γ=0
-      // waypoints (reparametrised to the current start→end line), and end.
-      // White→green gradient stroke (20 %→0 % transparency). No dark
-      // outline behind the stroke and no outline around the end dot —
-      // line width and dot radius doubled from the previous values.
-      var pts = trajectoryPoints(sx, sy, ex, ey);
-      var strokeGrad = teaserCtx.createLinearGradient(sx, sy, ex, ey);
-      strokeGrad.addColorStop(0, 'rgba(255, 255, 255, 0.80)');
-      strokeGrad.addColorStop(1, 'rgba( 79, 157,  93, 1.00)');
-
-      teaserCtx.beginPath();
-      strokeCatmullRom(teaserCtx, pts);
-      teaserCtx.lineWidth = 4.4 * dpr;
-      teaserCtx.strokeStyle = strokeGrad;
-      teaserCtx.stroke();
-
-      teaserCtx.beginPath();
-      teaserCtx.arc(ex, ey, 3.2 * dpr, 0, Math.PI * 2);
-      teaserCtx.fillStyle = '#4f9d5d';
-      teaserCtx.fill();
-    }
-
+    /* ----- Teaser rollout video -------------------------------------
+       Eleven pre-rendered rollout clips live in ../steering_strength/
+       at γ = 0.0, 0.1, …, 1.0 (file names 2_<gamma>.mp4). The slider
+       snaps to the nearest 0.1 and we swap the <video> src so the
+       displayed rollout matches the steering strength. Cropped to
+       768×576 (left/right 20 %, top/bottom 10 %) ahead of time so the
+       robot fills the frame. */
+    var teaserVideoEl = document.getElementById('teaserVideo');
+    var teaserVideoIdx = 7;  // default src is 2_0.7.mp4 in the markup
     function syncTeaser() {
-      drawTeaser(parseFloat(gammaEl.value));
+      var g = parseFloat(gammaEl.value);
+      var idx = Math.round(g * 10);
+      if (idx < 0) idx = 0; else if (idx > 10) idx = 10;
+      if (idx === teaserVideoIdx) return;
+      teaserVideoIdx = idx;
+      var label = (idx === 10) ? '1.0' : ('0.' + idx);
+      teaserVideoEl.src = '../steering_strength/2_' + label + '.mp4';
+      var pr = teaserVideoEl.play();
+      if (pr && pr.catch) pr.catch(function () {});
     }
-    if (teaserBg.complete) { sizeTeaserCanvas(); syncTeaser(); }
-    else teaserBg.addEventListener('load', function () { sizeTeaserCanvas(); syncTeaser(); });
-    window.addEventListener('resize', function () { sizeTeaserCanvas(); syncTeaser(); });
+
+    // Initial render — fires once on script load; the actual video <src>
+    // is already correct for the slider's default γ (0.7), so syncTeaser()
+    // here is mostly a no-op unless the default ever drifts.
+    syncTeaser();
 
     /* ----- Slider drives BOTH the diagram and the teaser overlay ----- */
     gammaEl.addEventListener('input', function () {
