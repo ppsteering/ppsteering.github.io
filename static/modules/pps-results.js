@@ -18,16 +18,13 @@
   function displayName(name, baseName) { return name === 'BASE' ? baseName : name; }
 
   function buildPanel(panel, idx) {
-    var base = panel.v.BASE, pps = panel.v.PPS, gap = pps - base;
     var card = document.createElement('div'); card.className = 'panel'; card.dataset.idx = idx;
 
     var head = document.createElement('div'); head.className = 'phead';
     head.innerHTML = '<div class="ptitle">' + panel.label + '</div><div class="psub">' + panel.sub + '</div>';
     card.appendChild(head);
 
-    var delta = document.createElement('div'); delta.className = 'pdelta';
-    delta.innerHTML = '<span class="big">+' + gap + '</span><span class="dl">pts over ' + panel.baseName + '</span>';
-    card.appendChild(delta);
+    // The "+<gap> pts over πX" delta line was removed per design feedback.
 
     var chart = document.createElement('div'); chart.className = 'pchart';
     // dashed base-reference line, aligned to the bar track (after the 71px label gutter)
