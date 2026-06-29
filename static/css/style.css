@@ -459,7 +459,7 @@ header {
   pointer-events: none;
 }
 .recovery-tag.pps  { background: #4f9d5d; }
-.recovery-tag.lora { background: #c0563f; }
+.recovery-tag.lora { background: #7BC8F6; }
 
 .recovery-cell {
   position: relative;
