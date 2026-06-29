@@ -110,14 +110,6 @@
   .ticks { display: flex; justify-content: space-between; font-family: var(--font-mono);
     font-size: 12px; color: var(--sub); margin-top: 4px; }
 
-  /* Diagram legend (flow-matching path / v_base / γ·v_ref / γ·v_task) — moved
-     out of the canvas to sit in the right column below the slider. */
-  .fm-legend { display: flex; flex-direction: column; gap: 9px; margin-top: 2px;
-    font-family: var(--font-original); font-size: 13.5px; color: var(--sub); }
-  .fm-item { display: inline-flex; align-items: center; gap: 10px; }
-  .fm-sw { display: inline-block; width: 30px; height: 4px; border-radius: 2px; flex: 0 0 auto; }
-  .fm-sw.grad { background: linear-gradient(90deg, #3a3a3a, #4f9d5d); }
-
   /* γ slider "Try me" hint */
   .gamma-wrap { position: relative; margin-top: 30px; }
   .gamma-hint { position:absolute; bottom:26px; z-index:6; transform:translateX(-50%);
@@ -240,12 +232,6 @@
             <input id="gamma" type="range" min="0" max="1.0" step="0.01" value="0.7" />
             <div class="ticks"><span>0</span><span>1</span></div>
           </div>
-          <div class="fm-legend" aria-label="Diagram legend">
-            <span class="fm-item"><span class="fm-sw grad"></span>flow-matching path</span>
-            <span class="fm-item"><span class="fm-sw" style="background:#7b5ea7"></span><span class="m"><i>v</i><sub>base</sub></span></span>
-            <span class="fm-item"><span class="fm-sw" style="background:#F58A45"></span><span class="m"><i>γ</i>&middot;<i>v</i><sub>ref</sub></span></span>
-            <span class="fm-item"><span class="fm-sw" style="background:#407CB6"></span><span class="m"><i>γ</i>&middot;<i>v</i><sub>task</sub></span></span>
-          </div>
         </div>
       </div>
     </div>
@@ -254,7 +240,7 @@
   </div>
 
   <script src="pps-embed.js"></script>
-  <script src="pps-diagram_new.js?v=7"></script>
+  <script src="pps-diagram_new.js?v=8"></script>
   <script>
     // The diagram class draws a "success vs γ" curve onto a curve canvas
     // we no longer display. Hand it a throwaway 1×1 offscreen canvas to

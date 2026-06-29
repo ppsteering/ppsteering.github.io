@@ -794,8 +794,22 @@
     if (g > 0.001) arrow(ctx, ps, refTip, ARROW_REF_HUE, 2.4, 8.5);
     if (g > 0.001) arrow(ctx, ps, taskTip, ARROW_TASK_HUE, 3.0, 10.5);
 
-    // The in-canvas legend ("flow-matching path / v_base / γ·v_ref / γ·v_task")
-    // was moved out to an HTML legend below the slider in method_new.html.
+    this.legendCard(ctx, p, [
+      { type: 'grad', color: p.noise, color2: ppsCol,
+        parts: [{ t: 'flow-matching path' }] },
+      { type: 'arrow', color: p.base,
+        parts: [{ t: 'v', i: true }, { t: 'base', sub: true }] },
+      { type: 'arrow', color: ARROW_REF_HUE,
+        parts: [
+          { t: 'γ · ' },
+          { t: 'v', i: true }, { t: 'ref', sub: true }
+        ] },
+      { type: 'arrow', color: ARROW_TASK_HUE,
+        parts: [
+          { t: 'γ · ' },
+          { t: 'v', i: true }, { t: 'task', sub: true }
+        ] }
+    ]);
   };
 
   Diagram.prototype.drawCurve = function () {
