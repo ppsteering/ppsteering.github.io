@@ -28,14 +28,18 @@
   .module { background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
     box-shadow: var(--shadow); padding: 20px 20px 22px; display: flex; flex-direction: column; gap: 16px; }
 
-  /* Same wrap aspect as the method figure's old teaser so the cropped 4:3
-     rollout fills the frame identically (cover crops a thin top/bottom slice). */
+  /* Wrap aspect matches the cropped clips (1280×576, full width, top/bottom
+     10% trimmed) so object-fit:cover shows the whole frame with no side crop. */
   .vidwrap { position: relative; line-height: 0; background: var(--bg); border: 1px solid var(--line);
-    border-radius: 8px; overflow: hidden; aspect-ratio: 1280 / 855; }
-  .vidwrap video { display: block; width: 100%; height: 100%; object-fit: cover; }
-  .cnote { position: absolute; top: 10px; right: 10px; z-index: 5; font-family: var(--font-mono);
-    font-size: 9.5px; letter-spacing: .06em; text-transform: uppercase; padding: 4px 8px; border-radius: 6px;
-    background: rgba(253,250,244,0.55); color: rgba(107,100,83,0.85); }
+    border-radius: 8px; overflow: hidden; aspect-ratio: 1280 / 576; }
+  /* Poster (first frame) + video stacked; the poster covers the brief reload
+     gap while dragging so there's no black flash. The video fades in once it
+     starts playing. */
+  .vidwrap video, .vidwrap img.poster {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .vidwrap img.poster { z-index: 1; }
+  .vidwrap video { z-index: 2; opacity: 0; transition: opacity .12s ease; }
+  .vidwrap.playing video { opacity: 1; }
 
   .ctl-label { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
   .ctl-label .k { font-size: 15px; font-weight: 600; }
@@ -53,18 +57,17 @@
   /* Trajectory-colour legend (base / ref / task / final action) — moved here
      to sit with the rollout video. */
   .teaser-legend {
-    display: grid;
-    grid-template-columns: max-content max-content;   /* 2x2 layout */
+    display: flex;
+    flex-wrap: wrap;
     justify-content: center;
-    column-gap: 22px;
-    row-gap: 6px;
+    gap: 8px 18px;       /* single row, wraps only on very narrow widths */
     margin-top: 2px;
     font-family: var(--font-original);
     font-size: 12.5px;
     color: var(--sub);
   }
-  .teaser-legend .leg-item { display: inline-flex; align-items: center; gap: 9px; }
-  .teaser-legend .leg-swatch { display: inline-block; width: 44px; height: 3px; border-radius: 2px; }
+  .teaser-legend .leg-item { display: inline-flex; align-items: center; gap: 8px; }
+  .teaser-legend .leg-swatch { display: inline-block; width: 30px; height: 3px; border-radius: 2px; }
 
   /* γ slider "Try me" hint — mirrors method_new.html */
   .gamma-wrap { position: relative; margin-top: 30px; }
@@ -86,7 +89,8 @@
 <body data-theme="a">
   <div class="wrap">
     <div class="module">
-      <div class="vidwrap">
+      <div class="vidwrap" id="vidwrap">
+        <img class="poster" id="poster" src="../steering_strength/2_0.7.jpg" alt="" aria-hidden="true">
         <video id="teaserVideo" autoplay muted loop playsinline preload="auto"
                src="../steering_strength/2_0.7.mp4"
                aria-label="Rollout at the current steering strength"></video>
@@ -110,23 +114,50 @@
     var gammaEl = document.getElementById('gamma');
     function fmt(g){ return g.toFixed(2); }
 
-    /* Eleven pre-rendered rollout clips in ../steering_strength/ at γ = 0.0,
-       0.1, …, 1.0 (file names 2_<gamma>.mp4). Snap the slider to the nearest
-       0.1 and swap the <video> src so the rollout matches the steering strength. */
+    /* Eleven pre-rendered rollout clips (+ first-frame poster JPGs) in
+       ../steering_strength/ at γ = 0.0, 0.1, …, 1.0 (2_<gamma>.mp4/.jpg).
+       To avoid the black flicker caused by reloading <video> on every drag
+       step, we show the matching poster IMAGE instantly while dragging, and
+       only load + play the video once the slider has been idle for 500 ms. */
+    var vidwrap = document.getElementById('vidwrap');
+    var posterEl = document.getElementById('poster');
     var teaserVideoEl = document.getElementById('teaserVideo');
-    var teaserVideoIdx = 7;  // default src is 2_0.7.mp4 in the markup
+    var curIdx = 7;          // default src is 2_0.7 in the markup
+    var idleTimer = null;
+    function labelFor(idx) { return (idx === 10) ? '1.0' : ('0.' + idx); }
+
     function syncVideo() {
       var g = parseFloat(gammaEl.value);
       var idx = Math.round(g * 10);
       if (idx < 0) idx = 0; else if (idx > 10) idx = 10;
-      if (idx === teaserVideoIdx) return;
-      teaserVideoIdx = idx;
-      var label = (idx === 10) ? '1.0' : ('0.' + idx);
-      teaserVideoEl.src = '../steering_strength/2_' + label + '.mp4';
-      var pr = teaserVideoEl.play();
-      if (pr && pr.catch) pr.catch(function () {});
+      if (idx === curIdx) return;
+      curIdx = idx;
+      var label = labelFor(idx);
+      // Instant: swap the poster image and hide the (now-stale) video.
+      posterEl.src = '../steering_strength/2_' + label + '.jpg';
+      vidwrap.classList.remove('playing');
+      // Debounced: only fetch + play the video after the bar settles.
+      if (idleTimer) clearTimeout(idleTimer);
+      idleTimer = setTimeout(function () {
+        teaserVideoEl.src = '../steering_strength/2_' + labelFor(curIdx) + '.mp4';
+        var pr = teaserVideoEl.play();
+        if (pr && pr.catch) pr.catch(function () {});
+      }, 500);
     }
-    syncVideo();
+    // Reveal the video (fade over the poster) only once it's actually playing,
+    // and only if it still matches the current slider position.
+    function revealIfCurrent() {
+      if (teaserVideoEl.src.indexOf('2_' + labelFor(curIdx) + '.mp4') !== -1) {
+        vidwrap.classList.add('playing');
+      }
+    }
+    teaserVideoEl.addEventListener('playing', revealIfCurrent);
+    teaserVideoEl.addEventListener('loadeddata', function () {
+      if (!teaserVideoEl.paused) revealIfCurrent();
+    });
+
+    // Preload every poster so dragging swaps them instantly (no image flash).
+    for (var pi = 0; pi <= 10; pi++) { var im = new Image(); im.src = '../steering_strength/2_' + labelFor(pi) + '.jpg'; }
 
     gammaEl.addEventListener('input', function () {
       document.getElementById('gval').textContent = fmt(parseFloat(this.value));

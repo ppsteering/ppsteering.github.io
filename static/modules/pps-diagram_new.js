@@ -438,8 +438,7 @@
       else { ctx.font = '500 12.5px ' + fontStack(); w = ctx.measureText(items[i].label).width; }
       tw = Math.max(tw, w);
     }
-    var W = pad * 2 + gw + 7 + tw, H = pad * 2 + items.length * rowH - (rowH - 13),
-        x0 = (this.field && this.field._w ? this.field._w : 360) - W - 14, y0 = 46;
+    var W = pad * 2 + gw + 7 + tw, H = pad * 2 + items.length * rowH - (rowH - 13), x0 = 14, y0 = 46;
     ctx.fillStyle = rgbaStr(p.bg, 0.85); roundRect(ctx, x0, y0, W, H, 9); ctx.fill();
     ctx.strokeStyle = rgbaStr(p.sub, 0.28); ctx.lineWidth = 1; roundRect(ctx, x0, y0, W, H, 9); ctx.stroke();
     for (var k = 0; k < items.length; k++) {
@@ -795,22 +794,8 @@
     if (g > 0.001) arrow(ctx, ps, refTip, ARROW_REF_HUE, 2.4, 8.5);
     if (g > 0.001) arrow(ctx, ps, taskTip, ARROW_TASK_HUE, 3.0, 10.5);
 
-    this.legendCard(ctx, p, [
-      { type: 'grad', color: p.noise, color2: ppsCol,
-        parts: [{ t: 'flow-matching path' }] },
-      { type: 'arrow', color: p.base,
-        parts: [{ t: 'v', i: true }, { t: 'base', sub: true }] },
-      { type: 'arrow', color: ARROW_REF_HUE,
-        parts: [
-          { t: 'γ · ' },
-          { t: 'v', i: true }, { t: 'ref', sub: true }
-        ] },
-      { type: 'arrow', color: ARROW_TASK_HUE,
-        parts: [
-          { t: 'γ · ' },
-          { t: 'v', i: true }, { t: 'task', sub: true }
-        ] }
-    ]);
+    // The in-canvas legend ("flow-matching path / v_base / γ·v_ref / γ·v_task")
+    // was moved out to an HTML legend below the slider in method_new.html.
   };
 
   Diagram.prototype.drawCurve = function () {
