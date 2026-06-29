@@ -28,10 +28,9 @@
   .module { background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
     box-shadow: var(--shadow); padding: 20px 20px 22px; display: flex; flex-direction: column; gap: 16px; }
 
-  /* Wrap aspect matches the cropped clips (1280×576, full width, top/bottom
-     10% trimmed) so object-fit:cover shows the whole frame with no side crop. */
+  /* Wrap aspect matches the full uncropped source clips (1280×720, 16:9). */
   .vidwrap { position: relative; line-height: 0; background: var(--bg); border: 1px solid var(--line);
-    border-radius: 8px; overflow: hidden; aspect-ratio: 1280 / 576; }
+    border-radius: 8px; overflow: hidden; aspect-ratio: 16 / 9; }
   /* Poster (first frame) + video stacked; the poster covers the brief reload
      gap while dragging so there's no black flash. The video fades in once it
      starts playing. */
