@@ -981,8 +981,17 @@
           --ppsc-panel:#fffdf8; --ppsc-pps:#4f9d5d; --ppsc-base:#8a72b3; --ppsc-lora:#4f86c6;
           --ppsc-spec:#A4B5BD; --ppsc-dsrl:#F58A45; margin:14px 0 4px; }
         .ppsc *, .ppsc *::before, .ppsc *::after { box-sizing:border-box; }
+        /* Per-task success-rate chips (Base -> PPS) above the task name. */
+        .ppsc-stats { display:flex; align-items:center; justify-content:center;
+          gap:14px; margin:16px 0 2px; }
+        .ppsc-stat { font:700 17px/1 'Inter','Helvetica Neue',Arial,sans-serif;
+          color:#fff; padding:7px 14px; border-radius:8px; white-space:nowrap; }
+        .ppsc-stat.base { background:var(--ppsc-base); }
+        .ppsc-stat.pps  { background:var(--ppsc-pps); }
+        .ppsc-stat-arrow { font:700 22px/1 'Inter','Helvetica Neue',Arial,sans-serif;
+          color:var(--ppsc-sub); }
         /* Current-task name shown between the videos and the thumbnail gallery. */
-        .ppsc-nowname { text-align:center; margin:18px 0 14px;
+        .ppsc-nowname { text-align:center; margin:6px 0 14px;
           font:700 23px/1.2 'Inter','Helvetica Neue',Arial,sans-serif;
           color:var(--ppsc-ink); letter-spacing:-0.4px; }
         /* Thumbnail gallery (grasping.io-style) BELOW the videos: each task is
@@ -1239,6 +1248,11 @@
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
           </div>
         </div>
+        <div class="ppsc-stats" id="ppsc-stats">
+          <span class="ppsc-stat base" id="ppsc-stat-base">Base: 0/10</span>
+          <span class="ppsc-stat-arrow" aria-hidden="true">&#8594;</span>
+          <span class="ppsc-stat pps" id="ppsc-stat-pps">PPS: 5/10</span>
+        </div>
         <div class="ppsc-nowname" id="ppsc-nowname">Coffee Brewing</div>
         <div class="ppsc-gallery" id="ppsc-tabs">
           <button class="on" data-i="0" data-name="Coffee Brewing" aria-label="Coffee Brewing"><img src="./static/images/task_thumbs/thumb_coffee.png" alt="Coffee Brewing"></button>
@@ -1260,12 +1274,35 @@
         var tabs = document.querySelectorAll('#ppsc-tabs button');
         var panels = document.querySelectorAll('.ppsc-panel');
         var nameEl = document.getElementById('ppsc-nowname');
+        var statBaseEl = document.getElementById('ppsc-stat-base');
+        var statPpsEl = document.getElementById('ppsc-stat-pps');
+        // Per-task base (pi_0.5) and PPS success counts, indexed by data-i.
+        // Real-world tasks (0-7) are out of 10 (results_merged_web.py); sim
+        // tasks (8-11) are out of 100 (sim_results_merged_web.py).
+        var STATS = [
+          { b: '0/10',  p: '5/10'  },   // 0  Coffee Brewing
+          { b: '0/10',  p: '6/10'  },   // 1  Flower Insertion
+          { b: '0/10',  p: '7/10'  },   // 2  Jeans Folding
+          { b: '2/10',  p: '8/10'  },   // 3  Shoe Retrieval
+          { b: '8/10',  p: '10/10' },   // 4  Tissue Wiping
+          { b: '0/10',  p: '8/10'  },   // 5  Drawer Stowing
+          { b: '4/10',  p: '10/10' },   // 6  Lever Pressing
+          { b: '4/10',  p: '9/10'  },   // 7  Utensil Insertion
+          { b: '27/100', p: '84/100' }, // 8  Fruit Weighing
+          { b: '17/100', p: '79/100' }, // 9  Egg Cooking
+          { b: '5/100',  p: '39/100' }, // 10 Tea Pouring
+          { b: '0/100',  p: '52/100' }  // 11 Capsule Loading
+        ];
         function show(i) {
           tabs.forEach(function (b) {
             var on = +b.dataset.i === i;
             b.classList.toggle('on', on);
             if (on && nameEl) nameEl.textContent = b.dataset.name || '';
           });
+          if (STATS[i]) {
+            if (statBaseEl) statBaseEl.textContent = 'Base: ' + STATS[i].b;
+            if (statPpsEl) statPpsEl.textContent = 'PPS: ' + STATS[i].p;
+          }
           panels.forEach(function (p) {
             var on = +p.dataset.i === i;
             p.classList.toggle('on', on);
