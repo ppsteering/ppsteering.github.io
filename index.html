@@ -1110,7 +1110,28 @@
           background:transparent; border:0; cursor:pointer; padding:7px 12px; border-radius:7px; }
         .ppsc-capseg button.on { background:var(--ppsc-panel); color:var(--ppsc-ink); box-shadow:0 1px 2px rgba(40,32,16,0.08); }
       </style>
+      <div class="subheader">Select task to see example rollouts and comparisons</div>
       <div class="ppsc">
+        <div class="ppsc-gallery" id="ppsc-tabs">
+          <button class="on" data-i="0" data-name="Coffee Brewing" aria-label="Coffee Brewing"><img src="./static/images/task_thumbs/thumb_coffee.png" alt="Coffee Brewing"></button>
+          <button data-i="1" data-name="Flower Insertion" aria-label="Flower Insertion"><img src="./static/images/task_thumbs/thumb_flower.png" alt="Flower Insertion"></button>
+          <button data-i="2" data-name="Jeans Folding" aria-label="Jeans Folding"><img src="./static/images/task_thumbs/thumb_jeans.png" alt="Jeans Folding"></button>
+          <button data-i="3" data-name="Shoe Retrieval" aria-label="Shoe Retrieval"><img src="./static/images/task_thumbs/thumb_shoe.png" alt="Shoe Retrieval"></button>
+          <button data-i="4" data-name="Tissue Wiping" aria-label="Tissue Wiping"><img src="./static/images/task_thumbs/thumb_tissue.png" alt="Tissue Wiping"></button>
+          <button data-i="5" data-name="Drawer Stowing" aria-label="Drawer Stowing"><img src="./static/images/task_thumbs/thumb_drawer.png" alt="Drawer Stowing"></button>
+          <button data-i="6" data-name="Lever Pressing" aria-label="Lever Pressing"><img src="./static/images/task_thumbs/thumb_lever.png" alt="Lever Pressing"></button>
+          <button data-i="7" data-name="Utensil Insertion" aria-label="Utensil Insertion"><img src="./static/images/task_thumbs/thumb_utensil.png" alt="Utensil Insertion"></button>
+          <button data-i="8" data-name="Fruit Weighing" aria-label="Fruit Weighing"><img src="./static/images/task_thumbs/thumb_fruit.png" alt="Fruit Weighing"></button>
+          <button data-i="9" data-name="Egg Cooking" aria-label="Egg Cooking"><img src="./static/images/task_thumbs/thumb_egg.png" alt="Egg Cooking"></button>
+          <button data-i="10" data-name="Tea Pouring" aria-label="Tea Pouring"><img src="./static/images/task_thumbs/thumb_tea.png" alt="Tea Pouring"></button>
+          <button data-i="11" data-name="Capsule Loading" aria-label="Capsule Loading"><img src="./static/images/task_thumbs/thumb_capsule.png" alt="Capsule Loading"></button>
+        </div>
+        <div class="ppsc-nowname" id="ppsc-nowname">Coffee Brewing</div>
+        <div class="ppsc-stats" id="ppsc-stats">
+          <span class="ppsc-stat base" id="ppsc-stat-base">Base: 0/10</span>
+          <span class="ppsc-stat-arrow" aria-hidden="true">&#8594;</span>
+          <span class="ppsc-stat pps" id="ppsc-stat-pps">PPS: 5/10</span>
+        </div>
         <div class="ppsc-stage">
           <div class="ppsc-panel on" data-i="0">
             <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
@@ -1223,26 +1244,6 @@
               <video src="./static/videos/sim_capsule.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
           </div>
-        </div>
-        <div class="ppsc-stats" id="ppsc-stats">
-          <span class="ppsc-stat base" id="ppsc-stat-base">Base: 0/10</span>
-          <span class="ppsc-stat-arrow" aria-hidden="true">&#8594;</span>
-          <span class="ppsc-stat pps" id="ppsc-stat-pps">PPS: 5/10</span>
-        </div>
-        <div class="ppsc-nowname" id="ppsc-nowname">Coffee Brewing</div>
-        <div class="ppsc-gallery" id="ppsc-tabs">
-          <button class="on" data-i="0" data-name="Coffee Brewing" aria-label="Coffee Brewing"><img src="./static/images/task_thumbs/thumb_coffee.png" alt="Coffee Brewing"></button>
-          <button data-i="1" data-name="Flower Insertion" aria-label="Flower Insertion"><img src="./static/images/task_thumbs/thumb_flower.png" alt="Flower Insertion"></button>
-          <button data-i="2" data-name="Jeans Folding" aria-label="Jeans Folding"><img src="./static/images/task_thumbs/thumb_jeans.png" alt="Jeans Folding"></button>
-          <button data-i="3" data-name="Shoe Retrieval" aria-label="Shoe Retrieval"><img src="./static/images/task_thumbs/thumb_shoe.png" alt="Shoe Retrieval"></button>
-          <button data-i="4" data-name="Tissue Wiping" aria-label="Tissue Wiping"><img src="./static/images/task_thumbs/thumb_tissue.png" alt="Tissue Wiping"></button>
-          <button data-i="5" data-name="Drawer Stowing" aria-label="Drawer Stowing"><img src="./static/images/task_thumbs/thumb_drawer.png" alt="Drawer Stowing"></button>
-          <button data-i="6" data-name="Lever Pressing" aria-label="Lever Pressing"><img src="./static/images/task_thumbs/thumb_lever.png" alt="Lever Pressing"></button>
-          <button data-i="7" data-name="Utensil Insertion" aria-label="Utensil Insertion"><img src="./static/images/task_thumbs/thumb_utensil.png" alt="Utensil Insertion"></button>
-          <button data-i="8" data-name="Fruit Weighing" aria-label="Fruit Weighing"><img src="./static/images/task_thumbs/thumb_fruit.png" alt="Fruit Weighing"></button>
-          <button data-i="9" data-name="Egg Cooking" aria-label="Egg Cooking"><img src="./static/images/task_thumbs/thumb_egg.png" alt="Egg Cooking"></button>
-          <button data-i="10" data-name="Tea Pouring" aria-label="Tea Pouring"><img src="./static/images/task_thumbs/thumb_tea.png" alt="Tea Pouring"></button>
-          <button data-i="11" data-name="Capsule Loading" aria-label="Capsule Loading"><img src="./static/images/task_thumbs/thumb_capsule.png" alt="Capsule Loading"></button>
         </div>
       </div>
       <script>
@@ -1377,7 +1378,7 @@
 
       <!-- Steering-strength rollout (split out of the Method-section widget):
            drag γ to watch a real rollout change. -->
-      <div class="subheader">See it on a real rollout</div>
+      <div class="subheader">Visualize the steering effect</div>
       <p>
         Drag the steering strength <span class="math"><span class="var">&gamma;</span></span>
         and watch a real PPS rollout shift from base-like behavior toward the task.
