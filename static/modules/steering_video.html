@@ -171,9 +171,9 @@
       curIdx = idx;
       // Instant: swap both posters and hide the (now-stale) videos.
       sets.forEach(function (s) { s.poster.src = psrc(s.dir, idx); s.wrap.classList.remove('playing'); });
-      // Debounced: auto-play both matching clips once the slider is idle 500 ms.
+      // Debounced: auto-play both matching clips once the slider is idle 1 s.
       if (idleTimer) clearTimeout(idleTimer);
-      idleTimer = setTimeout(playAll, 500);
+      idleTimer = setTimeout(playAll, 1000);
     }
     // Reveal each panel's video (fade over poster) once it's playing + current.
     sets.forEach(function (s) {
