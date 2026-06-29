@@ -20,13 +20,16 @@
   html, body { margin: 0; }
   body { background: var(--bg); color: var(--ink); font-family: var(--font-original);
     -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
-  .wrap { max-width: 560px; margin: 0 auto; padding: 22px 26px 36px; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 22px 26px 36px; }
   .m { font-family: var(--font-math); }
   .m i { font-style: italic; font-weight: 700; }
   .m sub { font-style: normal; font-weight: 400; }
 
   .module { background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
     box-shadow: var(--shadow); padding: 20px 20px 22px; display: flex; flex-direction: column; gap: 16px; }
+  /* Two rollouts shown in parallel (capsule + tea), sharing the slider + legend. */
+  .vidrow { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 520px) { .vidrow { grid-template-columns: 1fr; } }
 
   /* Wrap aspect matches the cropped clips (768×576 = 4:3; sides 20% + top/
      bottom 10% trimmed) so object-fit:cover shows the whole frame. */
@@ -90,18 +93,26 @@
   @media (prefers-reduced-motion: reduce) { .gamma-hint.gh-bob { animation:none; } }
 
   html.pps-embedded, body.embed { background: transparent; }
-  body.embed .wrap { padding: 0; max-width: 560px; }
+  body.embed .wrap { padding: 0; max-width: 760px; }
 </style>
 </head>
 <body data-theme="a">
   <div class="wrap">
     <div class="module">
-      <div class="vidwrap" id="vidwrap">
-        <img class="poster" id="poster" src="../steering_strength/3_0.0.jpg" alt="" aria-hidden="true">
-        <video id="teaserVideo" autoplay muted loop playsinline preload="auto"
-               src="../steering_strength/3_0.0.mp4"
-               aria-label="Rollout at the current steering strength"></video>
-        <span class="vidtask">Open the lid</span>
+      <div class="vidrow">
+        <div class="vidwrap" data-dir="capsule">
+          <img class="poster" src="../steering_strength/capsule/3_0.0.jpg" alt="" aria-hidden="true">
+          <video autoplay muted loop playsinline preload="auto"
+                 src="../steering_strength/capsule/3_0.0.mp4"
+                 aria-label="Capsule rollout at the current steering strength"></video>
+          <span class="vidtask">Open the lid</span>
+        </div>
+        <div class="vidwrap" data-dir="tea">
+          <img class="poster" src="../steering_strength/tea/3_0.0.jpg" alt="" aria-hidden="true">
+          <video autoplay muted loop playsinline preload="auto"
+                 src="../steering_strength/tea/3_0.0.mp4"
+                 aria-label="Tea rollout at the current steering strength"></video>
+        </div>
       </div>
       <div>
         <div class="ctl-label"><span class="k">Steering strength <span class="m"><i>γ</i></span></span><span class="v" id="gval">0.00</span></div>
@@ -122,25 +133,31 @@
     var gammaEl = document.getElementById('gamma');
     function fmt(g){ return g.toFixed(2); }
 
-    /* Eleven pre-rendered rollout clips (+ first-frame poster JPGs) in
-       ../steering_strength/ at γ = 0.0, 0.1, …, 1.0 (3_<gamma>.mp4/.jpg).
+    /* Two parallel rollout sets, each 11 pre-rendered clips (+ first-frame
+       poster JPGs) at γ = 0.0, 0.1, …, 1.0:
+         ../steering_strength/capsule/3_<gamma>.mp4|.jpg
+         ../steering_strength/tea/3_<gamma>.mp4|.jpg
        To avoid the black flicker caused by reloading <video> on every drag
        step, we show the matching poster IMAGE instantly while dragging, and
-       only load + play the video once the slider has been idle for 500 ms. */
-    var vidwrap = document.getElementById('vidwrap');
-    var posterEl = document.getElementById('poster');
-    var teaserVideoEl = document.getElementById('teaserVideo');
-    var curIdx = 0;          // default src is 3_0.0 in the markup
+       only load + play the videos once the slider has been idle for 500 ms. */
+    // Two rollout panels (capsule + tea) driven by the one shared slider.
+    var sets = Array.prototype.map.call(document.querySelectorAll('.vidwrap[data-dir]'), function (w) {
+      return { wrap: w, dir: w.dataset.dir, poster: w.querySelector('img.poster'), video: w.querySelector('video') };
+    });
+    var curIdx = 0;          // default src is <dir>/3_0.0 in the markup
     var idleTimer = null;
     function labelFor(idx) { return (idx === 10) ? '1.0' : ('0.' + idx); }
-    function srcMatchesCur() { return teaserVideoEl.src.indexOf('3_' + labelFor(curIdx) + '.mp4') !== -1; }
+    function vsrc(dir, idx) { return '../steering_strength/' + dir + '/3_' + labelFor(idx) + '.mp4'; }
+    function psrc(dir, idx) { return '../steering_strength/' + dir + '/3_' + labelFor(idx) + '.jpg'; }
+    function setMatchesCur(s) { return s.video.src.indexOf('/' + s.dir + '/3_' + labelFor(curIdx) + '.mp4') !== -1; }
 
-    // Load (if needed) and play the rollout for the current γ.
-    function playCurrent() {
-      if (!srcMatchesCur()) teaserVideoEl.src = '../steering_strength/3_' + labelFor(curIdx) + '.mp4';
-      var pr = teaserVideoEl.play();
+    // Load (if needed) and play one panel's rollout for the current γ.
+    function playSet(s) {
+      if (!setMatchesCur(s)) s.video.src = vsrc(s.dir, curIdx);
+      var pr = s.video.play();
       if (pr && pr.catch) pr.catch(function () {});
     }
+    function playAll() { sets.forEach(playSet); }
 
     function syncVideo() {
       var g = parseFloat(gammaEl.value);
@@ -148,25 +165,20 @@
       if (idx < 0) idx = 0; else if (idx > 10) idx = 10;
       if (idx === curIdx) return;
       curIdx = idx;
-      // Instant: swap the poster image and hide the (now-stale) video.
-      posterEl.src = '../steering_strength/3_' + labelFor(idx) + '.jpg';
-      vidwrap.classList.remove('playing');
-      // Debounced: auto-play the matching clip once the slider is idle 500 ms.
+      // Instant: swap both posters and hide the (now-stale) videos.
+      sets.forEach(function (s) { s.poster.src = psrc(s.dir, idx); s.wrap.classList.remove('playing'); });
+      // Debounced: auto-play both matching clips once the slider is idle 500 ms.
       if (idleTimer) clearTimeout(idleTimer);
-      idleTimer = setTimeout(playCurrent, 500);
+      idleTimer = setTimeout(playAll, 500);
     }
-    // Reveal the video (fade over the poster) once it's actually playing and
-    // still matches the current slider position.
-    function revealIfCurrent() {
-      if (srcMatchesCur()) vidwrap.classList.add('playing');
-    }
-    teaserVideoEl.addEventListener('playing', revealIfCurrent);
-    teaserVideoEl.addEventListener('loadeddata', function () {
-      if (!teaserVideoEl.paused) revealIfCurrent();
+    // Reveal each panel's video (fade over poster) once it's playing + current.
+    sets.forEach(function (s) {
+      s.video.addEventListener('playing', function () { if (setMatchesCur(s)) s.wrap.classList.add('playing'); });
+      s.video.addEventListener('loadeddata', function () { if (!s.video.paused && setMatchesCur(s)) s.wrap.classList.add('playing'); });
     });
 
-    // Preload every poster so dragging swaps them instantly (no image flash).
-    for (var pi = 0; pi <= 10; pi++) { var im = new Image(); im.src = '../steering_strength/3_' + labelFor(pi) + '.jpg'; }
+    // Preload every poster (both panels) so dragging swaps them instantly.
+    for (var pi = 0; pi <= 10; pi++) { sets.forEach(function (s) { var im = new Image(); im.src = psrc(s.dir, pi); }); }
 
     gammaEl.addEventListener('input', function () {
       document.getElementById('gval').textContent = fmt(parseFloat(this.value));
