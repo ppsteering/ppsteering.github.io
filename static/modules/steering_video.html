@@ -93,7 +93,8 @@
   @media (prefers-reduced-motion: reduce) { .gamma-hint.gh-bob { animation:none; } }
 
   html.pps-embedded, body.embed { background: transparent; }
-  body.embed .wrap { padding: 0; max-width: 760px; }
+  /* When embedded, fill the full page-column width like the other modules. */
+  body.embed .wrap { padding: 0; max-width: none; }
 </style>
 </head>
 <body data-theme="a">
