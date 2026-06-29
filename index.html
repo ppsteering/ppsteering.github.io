@@ -858,7 +858,7 @@
         diverse skills. PPS delivers consistent gains over the base model and
         outperforms fine-tuned models, from-scratch specialists, and prior
         steering baselines, with <strong>0-to-1 gains on tasks the base never
-        solves on its own</strong>.
+        solves on its own</strong>. All rollout videos below are played at 2&times; speed.
       </p>
 
       <!-- Static three-panel bar chart (rendered by plots/results_panels_web.py,
@@ -1113,98 +1113,80 @@
       <div class="ppsc">
         <div class="ppsc-stage">
           <div class="ppsc-panel on" data-i="0">
-            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+            <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
               <video src="./static/videos/compare/coffee_pps.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-              <span class="ppsc-speed-badge">2X</span>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
             <div class="ppsc-row">
               <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
                 <video src="./static/videos/compare/coffee_base.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <span class="ppsc-speed-badge">2X</span>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text base" data-ftype="incorrect">Can't open the lid</span></div></div>
               <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
                 <video src="./static/videos/compare/coffee_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <span class="ppsc-speed-badge">2X</span>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text lora" data-ftype="imprecise">Overfits after a near miss</span></div></div>
             </div>
           </div>
           <div class="ppsc-panel" data-i="1">
-            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+            <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
               <video src="./static/videos/compare/flower_pps.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-              <span class="ppsc-speed-badge">2X</span>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
             <div class="ppsc-row">
               <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
                 <video src="./static/videos/compare/flower_base.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <span class="ppsc-speed-badge">2X</span>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text base" data-ftype="incorrect">Places instead of inserting</span></div></div>
               <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
                 <video src="./static/videos/compare/flower_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <span class="ppsc-speed-badge">2X</span>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text lora" data-ftype="imprecise">Continues a wrong insertion</span></div></div>
             </div>
           </div>
           <div class="ppsc-panel" data-i="2">
-            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+            <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
               <video src="./static/videos/compare/jeans_pps.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-              <span class="ppsc-speed-badge">2X</span>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
             <div class="ppsc-row">
               <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
                 <video src="./static/videos/compare/jeans_base.mp4" autoplay muted playsinline preload="metadata" data-speed="4"></video>
-                <span class="ppsc-speed-badge">2X</span>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text base" data-ftype="incorrect">Can't fold</span></div></div>
               <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
                 <video src="./static/videos/compare/jeans_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <span class="ppsc-speed-badge">2X</span>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text lora" data-ftype="ood">Overfits, tosses the jeans</span></div></div>
             </div>
           </div>
           <div class="ppsc-panel" data-i="3">
-            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+            <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
               <video src="./static/videos/shoe.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-              <span class="ppsc-speed-badge">2X</span>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
             <div class="ppsc-row">
               <div class="ppsc-item"><span class="ppsc-tag spec">Specialist</span>
                 <video src="./static/videos/compare/shoe_specialist.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <span class="ppsc-speed-badge">2X</span>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text spec" data-ftype="imprecise">Overfits to demos</span></div></div>
               <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
                 <video src="./static/videos/compare/shoe_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <span class="ppsc-speed-badge">2X</span>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text lora" data-ftype="ood">Tips the box, can't recover</span></div></div>
             </div>
           </div>
           <div class="ppsc-panel" data-i="4">
-            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+            <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
               <video src="./static/videos/compare/tissue_pps.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-              <span class="ppsc-speed-badge">2X</span>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
             <div class="ppsc-row">
               <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
                 <video src="./static/videos/compare/tissue_base.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <span class="ppsc-speed-badge">2X</span>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text base" data-ftype="incorrect">Releases before wiping</span></div></div>
               <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
                 <video src="./static/videos/compare/tissue_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <span class="ppsc-speed-badge">2X</span>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text lora" data-ftype="imprecise">Drags before the tissue is out</span></div></div>
             </div>
           </div>
           <div class="ppsc-panel" data-i="5">
-            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+            <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
               <video src="./static/videos/drawer.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-              <span class="ppsc-speed-badge">2X</span>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
             <div class="ppsc-row">
               <div class="ppsc-item"><span class="ppsc-tag dsrl">DSRL</span>
                 <video src="./static/videos/compare/drawer_dsrl.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <span class="ppsc-speed-badge">2X</span>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text dsrl" data-ftype="incorrect">Can't open the drawer</span></div></div>
               <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
                 <video src="./static/videos/compare/drawer_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <span class="ppsc-speed-badge">2X</span>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text lora" data-ftype="incorrect">Stows before opening</span></div></div>
             </div>
           </div>
@@ -1212,39 +1194,33 @@
                PPS rollout + Success caption). Sourced from the formerly-
                separate Real-World Tasks / Simulated Tasks grids. -->
           <div class="ppsc-panel" data-i="6">
-            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+            <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
               <video src="./static/videos/lever.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-              <span class="ppsc-speed-badge">2X</span>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
           </div>
           <div class="ppsc-panel" data-i="7">
-            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+            <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
               <video src="./static/videos/utensile.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-              <span class="ppsc-speed-badge">2X</span>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
           </div>
           <div class="ppsc-panel" data-i="8">
-            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+            <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
               <video src="./static/videos/sim_fruit.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-              <span class="ppsc-speed-badge">2X</span>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
           </div>
           <div class="ppsc-panel" data-i="9">
-            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+            <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
               <video src="./static/videos/sim_egg.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-              <span class="ppsc-speed-badge">2X</span>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
           </div>
           <div class="ppsc-panel" data-i="10">
-            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+            <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
               <video src="./static/videos/sim_tea.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-              <span class="ppsc-speed-badge">2X</span>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
           </div>
           <div class="ppsc-panel" data-i="11">
-            <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
+            <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
               <video src="./static/videos/sim_capsule.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-              <span class="ppsc-speed-badge">2X</span>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
           </div>
         </div>
@@ -1409,7 +1385,7 @@
         inherits its broad priors and recovers from failures it never saw in
         the demonstrations. LoRA fine-tuning, by contrast, overfits to the
         handful of demonstrations and loses these priors, breaking down under
-        the same perturbations.
+        the same perturbations. All videos below are played at 2&times; speed.
       </p>
 
       <div class="recovery-grid">
@@ -1417,26 +1393,22 @@
           <video class="recovery-video" src="./static/videos/lora_jeans.mp4"
                  autoplay muted loop playsinline preload="metadata"></video>
           <span class="recovery-tag lora">LoRA</span>
-          <span class="recovery-badge">2X</span>
         </div>
         <div class="recovery-cell">
           <video class="recovery-video" src="./static/videos/ours_jeans.mp4"
                  autoplay muted loop playsinline preload="metadata"></video>
-          <span class="recovery-tag pps">&#9733; PPS (Ours)</span>
-          <span class="recovery-badge">2X</span>
+          <span class="recovery-tag pps">PPS</span>
         </div>
 
         <div class="recovery-cell">
           <video class="recovery-video" src="./static/videos/lora_utensil.mp4"
                  autoplay muted loop playsinline preload="metadata"></video>
           <span class="recovery-tag lora">LoRA</span>
-          <span class="recovery-badge">2X</span>
         </div>
         <div class="recovery-cell">
           <video class="recovery-video" src="./static/videos/ours_utensil.mp4"
                  autoplay muted loop playsinline preload="metadata"></video>
-          <span class="recovery-tag pps">&#9733; PPS (Ours)</span>
-          <span class="recovery-badge">2X</span>
+          <span class="recovery-tag pps">PPS</span>
         </div>
       </div>
 
