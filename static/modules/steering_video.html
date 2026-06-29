@@ -50,6 +50,22 @@
   .ticks { display: flex; justify-content: space-between; font-family: var(--font-mono);
     font-size: 12px; color: var(--sub); margin-top: 4px; }
 
+  /* Trajectory-colour legend (base / ref / task / final action) — moved here
+     to sit with the rollout video. */
+  .teaser-legend {
+    display: grid;
+    grid-template-columns: max-content max-content;   /* 2x2 layout */
+    justify-content: center;
+    column-gap: 22px;
+    row-gap: 6px;
+    margin-top: 2px;
+    font-family: var(--font-original);
+    font-size: 12.5px;
+    color: var(--sub);
+  }
+  .teaser-legend .leg-item { display: inline-flex; align-items: center; gap: 9px; }
+  .teaser-legend .leg-swatch { display: inline-block; width: 44px; height: 3px; border-radius: 2px; }
+
   /* γ slider "Try me" hint — mirrors method_new.html */
   .gamma-wrap { position: relative; margin-top: 30px; }
   .gamma-hint { position:absolute; bottom:26px; z-index:6; transform:translateX(-50%);
@@ -79,6 +95,12 @@
         <div class="ctl-label"><span class="k">Steering strength <span class="m"><i>γ</i></span></span><span class="v" id="gval">0.70</span></div>
         <input id="gamma" type="range" min="0" max="1.0" step="0.01" value="0.7" />
         <div class="ticks"><span>0</span><span>1</span></div>
+      </div>
+      <div class="teaser-legend" aria-label="Trajectory colours">
+        <span class="leg-item"><span class="leg-swatch" style="background:#AF56BF"></span>base action</span>
+        <span class="leg-item"><span class="leg-swatch" style="background:#F58A45"></span>ref action</span>
+        <span class="leg-item"><span class="leg-swatch" style="background:#407CB6"></span>task action</span>
+        <span class="leg-item"><span class="leg-swatch" style="background:#4f9d5d"></span>final action</span>
       </div>
     </div>
   </div>
