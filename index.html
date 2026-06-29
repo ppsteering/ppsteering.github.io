@@ -970,8 +970,7 @@
       </figure>
       -->
 
-      <!-- ADDED: baseline comparison carousel -->
-      <div class="subheader">Baseline Comparison</div>
+      <!-- ADDED: baseline comparison gallery (subheader removed per request) -->
       <!-- Comparison videos use the EXACT same display method as the Real-World
            Tasks grid above: plain declarative <video src> tags, no JS source
            swapping, no posters, no clipping wrapper. Tabs just show/hide whole
@@ -982,19 +981,24 @@
           --ppsc-panel:#fffdf8; --ppsc-pps:#4f9d5d; --ppsc-base:#8a72b3; --ppsc-lora:#c0563f;
           --ppsc-spec:#407CB6; --ppsc-dsrl:#F58A45; margin:14px 0 4px; }
         .ppsc *, .ppsc *::before, .ppsc *::after { box-sizing:border-box; }
-        .ppsc-tabs { display:grid; grid-template-columns:repeat(6, 1fr); gap:8px; margin-bottom:16px; }
-        .ppsc-tab-break { display:none; }
-        .ppsc-tabs button { font:600 13.5px/1.2 'Inter','Helvetica Neue',Arial,sans-serif; color:var(--ppsc-sub); background:var(--ppsc-panel);
-          border:1px solid var(--ppsc-line); border-radius:10px; padding:9px 10px; cursor:pointer; transition:all .18s ease;
-          text-align:center; white-space:normal; }
-        @media (max-width:900px) { .ppsc-tabs { grid-template-columns:repeat(4, 1fr); } }
-        @media (max-width:560px) { .ppsc-tabs { grid-template-columns:repeat(2, 1fr); } }
-        .ppsc-tabs button:hover { background:var(--ppsc-soft); }
-        .ppsc-tabs button.on { background:var(--ppsc-ink); color:#fff; border-color:var(--ppsc-ink); }
-        /* Full-width zero-height spacer that forces a flex line break. Used to
-           push the additional-task tabs onto a dedicated second row beneath
-           the baseline-comparison tabs. */
-        .ppsc-tab-break { flex-basis:100%; height:0; pointer-events:none; }
+        /* Current-task name shown between the videos and the thumbnail gallery. */
+        .ppsc-nowname { text-align:center; margin:18px 0 14px;
+          font:700 23px/1.2 'Inter','Helvetica Neue',Arial,sans-serif;
+          color:var(--ppsc-ink); letter-spacing:-0.4px; }
+        /* Thumbnail gallery (grasping.io-style) BELOW the videos: each task is
+           a small image tile; the selected tile is highlighted, the rest dim. */
+        .ppsc-gallery { display:grid; grid-template-columns:repeat(12, 1fr); gap:8px; margin:0; }
+        @media (max-width:900px) { .ppsc-gallery { grid-template-columns:repeat(6, 1fr); } }
+        @media (max-width:560px) { .ppsc-gallery { grid-template-columns:repeat(4, 1fr); } }
+        .ppsc-gallery button { padding:0; border:2px solid var(--ppsc-line); border-radius:9px;
+          overflow:hidden; background:var(--ppsc-panel); cursor:pointer; line-height:0;
+          transition:border-color .16s ease, transform .16s ease, box-shadow .16s ease; }
+        .ppsc-gallery button img { display:block; width:100%; aspect-ratio:1/1; object-fit:cover;
+          opacity:0.55; transition:opacity .16s ease; }
+        .ppsc-gallery button:hover { border-color:var(--ppsc-sub); transform:translateY(-2px); }
+        .ppsc-gallery button:hover img { opacity:0.85; }
+        .ppsc-gallery button.on { border-color:var(--ppsc-ink); box-shadow:0 4px 12px rgba(40,32,16,0.20); }
+        .ppsc-gallery button.on img { opacity:1; }
         .ppsc-stage { background:var(--ppsc-panel); border:1px solid var(--ppsc-line); border-radius:16px; padding:18px; }
         .ppsc-panel { display:none; }
         .ppsc-panel.on { display:block; }
@@ -1095,21 +1099,6 @@
         .ppsc-capseg button.on { background:var(--ppsc-panel); color:var(--ppsc-ink); box-shadow:0 1px 2px rgba(40,32,16,0.08); }
       </style>
       <div class="ppsc">
-        <div class="ppsc-tabs" id="ppsc-tabs">
-          <button class="on" data-i="0">Coffee Brewing</button>
-          <button data-i="1">Flower Insertion</button>
-          <button data-i="2">Jeans Folding</button>
-          <button data-i="3">Shoe Retrieval</button>
-          <button data-i="4">Tissue Wiping</button>
-          <button data-i="5">Drawer Stowing</button>
-          <div class="ppsc-tab-break" aria-hidden="true"></div>
-          <button data-i="6">Lever Pressing</button>
-          <button data-i="7">Utensil Insertion</button>
-          <button data-i="8">Fruit Weighing</button>
-          <button data-i="9">Egg Cooking</button>
-          <button data-i="10">Tea Pouring</button>
-          <button data-i="11">Capsule Loading</button>
-        </div>
         <div class="ppsc-stage">
           <div class="ppsc-panel on" data-i="0">
             <div class="ppsc-hero"><span class="ppsc-tag pps">★ PPS (Ours)</span>
@@ -1247,13 +1236,33 @@
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
           </div>
         </div>
+        <div class="ppsc-nowname" id="ppsc-nowname">Coffee Brewing</div>
+        <div class="ppsc-gallery" id="ppsc-tabs">
+          <button class="on" data-i="0" data-name="Coffee Brewing" aria-label="Coffee Brewing"><img src="./static/images/task_thumbs/thumb_coffee.png" alt="Coffee Brewing"></button>
+          <button data-i="1" data-name="Flower Insertion" aria-label="Flower Insertion"><img src="./static/images/task_thumbs/thumb_flower.png" alt="Flower Insertion"></button>
+          <button data-i="2" data-name="Jeans Folding" aria-label="Jeans Folding"><img src="./static/images/task_thumbs/thumb_jeans.png" alt="Jeans Folding"></button>
+          <button data-i="3" data-name="Shoe Retrieval" aria-label="Shoe Retrieval"><img src="./static/images/task_thumbs/thumb_shoe.png" alt="Shoe Retrieval"></button>
+          <button data-i="4" data-name="Tissue Wiping" aria-label="Tissue Wiping"><img src="./static/images/task_thumbs/thumb_tissue.png" alt="Tissue Wiping"></button>
+          <button data-i="5" data-name="Drawer Stowing" aria-label="Drawer Stowing"><img src="./static/images/task_thumbs/thumb_drawer.png" alt="Drawer Stowing"></button>
+          <button data-i="6" data-name="Lever Pressing" aria-label="Lever Pressing"><img src="./static/images/task_thumbs/thumb_lever.png" alt="Lever Pressing"></button>
+          <button data-i="7" data-name="Utensil Insertion" aria-label="Utensil Insertion"><img src="./static/images/task_thumbs/thumb_utensil.png" alt="Utensil Insertion"></button>
+          <button data-i="8" data-name="Fruit Weighing" aria-label="Fruit Weighing"><img src="./static/images/task_thumbs/thumb_fruit.png" alt="Fruit Weighing"></button>
+          <button data-i="9" data-name="Egg Cooking" aria-label="Egg Cooking"><img src="./static/images/task_thumbs/thumb_egg.png" alt="Egg Cooking"></button>
+          <button data-i="10" data-name="Tea Pouring" aria-label="Tea Pouring"><img src="./static/images/task_thumbs/thumb_tea.png" alt="Tea Pouring"></button>
+          <button data-i="11" data-name="Capsule Loading" aria-label="Capsule Loading"><img src="./static/images/task_thumbs/thumb_capsule.png" alt="Capsule Loading"></button>
+        </div>
       </div>
       <script>
       (function () {
         var tabs = document.querySelectorAll('#ppsc-tabs button');
         var panels = document.querySelectorAll('.ppsc-panel');
+        var nameEl = document.getElementById('ppsc-nowname');
         function show(i) {
-          tabs.forEach(function (b) { b.classList.toggle('on', +b.dataset.i === i); });
+          tabs.forEach(function (b) {
+            var on = +b.dataset.i === i;
+            b.classList.toggle('on', on);
+            if (on && nameEl) nameEl.textContent = b.dataset.name || '';
+          });
           panels.forEach(function (p) {
             var on = +p.dataset.i === i;
             p.classList.toggle('on', on);
@@ -1305,92 +1314,25 @@
       })();
       </script>
 
-<!-- Task navigation (added): a now-showing bar with prev/next arrows that
-           stays in sync with the task tabs. Hero-arrow and tab-flanking-arrow
-           styles are included too, so the control style can be switched by
-           changing the .ppsc data-nav value: a = arrows on the hero video,
-           b = arrows beside the tabs, c = hero arrows + swipe, d = now-showing bar. -->
-      <style>
-        .ppsc-stage { position: relative; }
-        .ppsc-hero { position: relative; }
-        .ppsc-nav-arrow { position:absolute; z-index:20; top:50%; transform:translateY(-50%);
-          width:44px; height:44px; border-radius:50%; border:0; cursor:pointer;
-          background:rgba(27,27,27,0.55); color:#fff; display:none; align-items:center; justify-content:center;
-          transition:background .15s ease; }
-        .ppsc-nav-arrow:hover { background:rgba(27,27,27,0.82); }
-        .ppsc-nav-arrow svg { width:20px; height:20px; }
-        .ppsc-nav-arrow.prev { left:12px; } .ppsc-nav-arrow.next { right:12px; }
-        .ppsc[data-nav="a"] .ppsc-panel.on .ppsc-hero .ppsc-nav-arrow,
-        .ppsc[data-nav="c"] .ppsc-panel.on .ppsc-hero .ppsc-nav-arrow { display:flex; }
-        .ppsc-tabwrap { display:flex; align-items:stretch; gap:10px; margin-bottom:16px; }
-        .ppsc-tabwrap .ppsc-tabs { flex:1 1 auto; margin-bottom:0; }
-        .ppsc-side-arrow { flex:0 0 auto; align-self:stretch; width:48px; border-radius:12px;
-          border:1px solid var(--ppsc-line); background:var(--ppsc-panel); color:var(--ppsc-sub);
-          cursor:pointer; display:none; align-items:center; justify-content:center; }
-        .ppsc-side-arrow:hover { background:var(--ppsc-soft); color:var(--ppsc-ink); }
-        .ppsc-side-arrow svg { width:22px; height:22px; }
-        .ppsc[data-nav="b"] .ppsc-side-arrow { display:flex; }
-        .ppsc-nowbar { display:none; align-items:center; justify-content:center; gap:16px; margin-bottom:14px; }
-        .ppsc[data-nav="d"] .ppsc-nowbar { display:flex; }
-        .ppsc-nowbar button { width:38px; height:38px; border-radius:50%; border:1px solid var(--ppsc-line);
-          background:var(--ppsc-panel); color:var(--ppsc-ink); cursor:pointer; display:flex; align-items:center; justify-content:center; }
-        .ppsc-nowbar button:hover { background:var(--ppsc-soft); }
-        .ppsc-nowbar button svg { width:18px; height:18px; }
-        .ppsc-nowbar .now-label { font:700 21px/1.2 'Inter','Helvetica Neue',Arial,sans-serif; color:var(--ppsc-ink); min-width:240px; text-align:center; }
-        .ppsc-nowbar .now-count { color:var(--ppsc-sub); font-weight:500; font-size:16px; }
-      </style>
+      <!-- Keyboard ←/→ navigation across the gallery (the thumbnails are the
+           primary selector; arrows are a convenience while hovering the block). -->
       <script>
       (function () {
         var ppsc = document.querySelector('.ppsc'); if (!ppsc) return;
         var tabsWrap = ppsc.querySelector('#ppsc-tabs');
-        var tabBtns = Array.prototype.slice.call(tabsWrap.querySelectorAll('button'));
-        var names = tabBtns.map(function (b) { return b.textContent.trim(); });
-        var N = tabBtns.length;
+        var N = tabsWrap.querySelectorAll('button').length;
         function current(){ var on = tabsWrap.querySelector('button.on'); return on ? +on.dataset.i : 0; }
-        function goTo(i){ i = (i % N + N) % N; var b = tabsWrap.querySelector('button[data-i="'+i+'"]'); if (b) b.click(); updateNow(); }
-        function prev(){ goTo(current()-1); }
-        function next(){ goTo(current()+1); }
-        function icon(dir){ return dir==='prev'
-          ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>'
-          : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>'; }
-        function mk(cls, dir){ var b=document.createElement('button'); b.className=cls+' '+dir; b.type='button'; b.setAttribute('aria-label', dir==='prev'?'Previous task':'Next task'); b.innerHTML=icon(dir); return b; }
-        ppsc.querySelectorAll('.ppsc-hero').forEach(function (hd) {
-          var l=mk('ppsc-nav-arrow','prev'), r=mk('ppsc-nav-arrow','next');
-          l.onclick=function(e){ e.stopPropagation(); prev(); };
-          r.onclick=function(e){ e.stopPropagation(); next(); };
-          hd.appendChild(l); hd.appendChild(r);
-        });
-        var wrap=document.createElement('div'); wrap.className='ppsc-tabwrap';
-        tabsWrap.parentNode.insertBefore(wrap, tabsWrap);
-        var ls=mk('ppsc-side-arrow','prev'), rs=mk('ppsc-side-arrow','next');
-        ls.onclick=prev; rs.onclick=next;
-        wrap.appendChild(ls); wrap.appendChild(tabsWrap); wrap.appendChild(rs);
-        var stage=ppsc.querySelector('.ppsc-stage');
-        var bar=document.createElement('div'); bar.className='ppsc-nowbar';
-        var bl=mk('','prev'), br=mk('','next');
-        var lbl=document.createElement('span'); lbl.className='now-label';
-        bl.onclick=prev; br.onclick=next;
-        bar.appendChild(bl); bar.appendChild(lbl); bar.appendChild(br);
-        stage.parentNode.insertBefore(bar, stage);
-        function updateNow(){ var i=current(); lbl.innerHTML = names[i] + ' <span class="now-count">'+(i+1)+' / '+N+'</span>'; }
-        tabBtns.forEach(function (b) { b.addEventListener('click', function () { setTimeout(updateNow, 0); }); });
-        var sx=null;
-        stage.addEventListener('touchstart', function(e){ sx=e.touches[0].clientX; }, {passive:true});
-        stage.addEventListener('touchend', function(e){ if(sx==null) return; var dx=e.changedTouches[0].clientX-sx;
-          if (ppsc.getAttribute('data-nav')==='c' && Math.abs(dx)>40) { dx<0?next():prev(); } sx=null; });
+        function goTo(i){ i = (i % N + N) % N; var b = tabsWrap.querySelector('button[data-i="'+i+'"]'); if (b) b.click(); }
         var hovering=false;
         ppsc.addEventListener('mouseenter', function(){ hovering=true; });
         ppsc.addEventListener('mouseleave', function(){ hovering=false; });
         document.addEventListener('keydown', function(e){ if(!hovering) return;
-          if(e.key==='ArrowLeft'){ e.preventDefault(); prev(); } else if(e.key==='ArrowRight'){ e.preventDefault(); next(); } });
-        ppsc.setAttribute('data-nav','d');
-        updateNow();
+          if(e.key==='ArrowLeft'){ e.preventDefault(); goTo(current()-1); }
+          else if(e.key==='ArrowRight'){ e.preventDefault(); goTo(current()+1); } });
       })();
       </script>
 
-      <!-- Caption-mode toggle: build persistent corner captions from the existing
-           end-of-clip overlay texts, and let the viewer switch between "At end"
-           (the fade veil) and "Persistent" (always-on bottom-right chip). -->
+      <!-- Persistent corner captions built from the end-of-clip overlay texts. -->
       <script>
       (function () {
         var ppsc = document.querySelector('.ppsc'); if (!ppsc) return;
