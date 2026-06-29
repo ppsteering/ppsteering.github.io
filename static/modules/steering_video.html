@@ -63,8 +63,9 @@
     border: 3px solid var(--panel); box-shadow: var(--shadow); cursor: pointer; }
   input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%;
     background: var(--resid); border: 3px solid var(--panel); cursor: pointer; }
+  /* Match the shortened/inset slider width so 0 and 1 sit at the bar ends. */
   .ticks { display: flex; justify-content: space-between; font-family: var(--font-mono);
-    font-size: 12px; color: var(--sub); margin-top: 4px; }
+    font-size: 12px; color: var(--sub); margin: 4px auto 0; width: calc(100% - 56px); }
 
   /* Trajectory-colour legend (base / ref / task / final action) — moved here
      to sit with the rollout video. */
