@@ -350,13 +350,14 @@
           line-height: 0;
           border-radius: 8px;
           overflow: hidden;
+          cursor: none;   /* hide the cursor while hovering the rollout image/video */
         }
         .tih-act-frame img {
           display: block;
           width: 100%;
           height: auto;
           border-radius: 0; /* frame handles rounding */
-          cursor: pointer;
+          cursor: none;
           filter: saturate(0.85) brightness(0.97);
           transition: filter 0.25s ease, opacity 0.18s ease;
         }
@@ -511,25 +512,25 @@
             <div class="tih-act-frame">
               <img src="./static/teaser_web/teaser_1_final_action.jpg" alt="rollout 1">
               <video class="tih-act-video" src="./static/teaser_web/1_web.mp4" muted loop playsinline preload="metadata"></video>
-              <div class="tih-act-banner">Novel task behavior</div>
+              <div class="tih-act-banner">State within task demonstrations</div>
             </div>
-            <div class="tih-act-caption">State within task demonstrations</div>
+            <div class="tih-act-caption">Novel task behavior</div>
           </div>
           <div class="tih-act" data-i="2">
             <div class="tih-act-frame">
               <img src="./static/teaser_web/teaser_2_final_action.jpg" alt="rollout 2">
               <video class="tih-act-video" src="./static/teaser_web/2_web.mp4" muted loop playsinline preload="metadata"></video>
-              <div class="tih-act-banner">Recovery via base prior</div>
+              <div class="tih-act-banner">State outside task demonstrations</div>
             </div>
-            <div class="tih-act-caption">State outside task demonstrations</div>
+            <div class="tih-act-caption">Recovery via base prior</div>
           </div>
           <div class="tih-act" data-i="3">
             <div class="tih-act-frame">
               <img src="./static/teaser_web/teaser_3_final_action.jpg" alt="rollout 3">
               <video class="tih-act-video" src="./static/teaser_web/3_web.mp4" muted loop playsinline preload="metadata"></video>
-              <div class="tih-act-banner">Agreement reached</div>
+              <div class="tih-act-banner">State within task and base distribution</div>
             </div>
-            <div class="tih-act-caption">State within task and base distribution</div>
+            <div class="tih-act-caption">Agreement reached</div>
           </div>
         </div>
       </div>
@@ -708,8 +709,24 @@
           distRow.addEventListener('mouseleave', function () { root.classList.remove('focused'); });
         }
 
-        // Default state shown on load: variant 1 + action 1 active.
+        // Auto-rotate which panel floats every 2 s while the cursor is NOT
+        // over the figure. Hovering pauses it (hover drives the active panel);
+        // leaving the figure resumes from wherever it was.
+        var ROTATE_MS = 2000;
+        var rotateTimer = null;
+        var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        function currentActive() { var a = root.querySelector('.tih-act.active'); return a ? +a.dataset.i : 1; }
+        function startRotate() {
+          if (rotateTimer || reduceMotion) return;
+          rotateTimer = setInterval(function () { activate(currentActive() % 3 + 1); }, ROTATE_MS);
+        }
+        function stopRotate() { if (rotateTimer) { clearInterval(rotateTimer); rotateTimer = null; } }
+        root.addEventListener('mouseenter', stopRotate);
+        root.addEventListener('mouseleave', startRotate);
+
+        // Default state shown on load: variant 1 + action 1 active, then rotate.
         activate(1);
+        startRotate();
       })();
       </script>
 
@@ -729,14 +746,12 @@
           opacity: 0; animation: tih-bob 1.8s ease-in-out infinite;
         }
         .tih-hint-pill .hint-cursor { width: 15px; height: 15px; flex: 0 0 auto; color: #4f9d5d; }
-        .tih:not(.tih-hinted) .tih-hint-pill { opacity: 1; }
+        /* The "Try me" pill stays visible (kept on purpose); panels are drawn
+           attention to by the 2 s auto-rotation instead of a glow pulse. */
+        .tih-hint-pill { opacity: 1; }
         @keyframes tih-bob { 0%,100% { transform: var(--bob) translateY(0); } 50% { transform: var(--bob) translateY(-5px); } }
-        @keyframes tih-glow { 0%,100% { box-shadow: 0 0 0 0 rgba(79,157,93,0); } 50% { box-shadow: 0 0 0 5px rgba(79,157,93,.38); } }
-        .tih:not(.tih-hinted) .tih-act[data-i="2"] { animation: tih-glow 2.2s ease-in-out infinite; }
-        .tih:not(.tih-hinted) .tih-act[data-i="3"] { animation: tih-glow 2.2s ease-in-out infinite; animation-delay: .6s; }
         @media (prefers-reduced-motion: reduce) {
           .tih-hint-pill { animation: none !important; }
-          .tih .tih-act { animation: none !important; }
         }
       </style>
       <script>
@@ -753,13 +768,7 @@
         pill.innerHTML = '<svg class="hint-cursor" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 2.5l15.5 8.2-6.6 1.6-1.9 6.6z"/></svg><span class="hint-text">' + (touch ? 'Tap me' : 'Try me') + '</span>';
         actRow.appendChild(pill);
 
-        var dismissed = false;
-        function dismiss() { if (dismissed) return; dismissed = true; tih.classList.add('tih-hinted'); }
-
-        // desktop: entering any non-default panel clears the hint
-        acts.forEach(function (a) {
-          a.addEventListener('mouseenter', function () { if (+a.dataset.i !== 1) dismiss(); });
-        });
+        // The "Try me" pill is kept persistent — no dismiss-on-hover.
 
         // touch: tap switches panels (reuse the core mouseenter/leave logic)
         var lastTap = null;
@@ -769,7 +778,6 @@
             if (lastTap && lastTap !== a) lastTap.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }));
             a.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
             lastTap = a;
-            if (+a.dataset.i !== 1) dismiss();
           });
         });
       })();
