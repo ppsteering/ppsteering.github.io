@@ -792,9 +792,10 @@
         <li>
           <strong>Reference proxy</strong>
           <span class="math"><span class="var">&pi;</span><sub>ref</sub></span>:
-          distilled on-policy from the base's own denoising trajectories, so
-          it reproduces base behavior on exactly the states the sampler visits
-          at inference.
+          distilled from
+          <span class="math"><span class="var">&pi;</span><sub>base</sub></span>
+          on the observations from task-specific demonstrations, mimicking the
+          base behavior on the task distribution.
         </li>
         <li>
           <strong>Task proxy</strong>
