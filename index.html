@@ -900,7 +900,7 @@
         diverse skills. PPS delivers consistent gains over the base model and
         outperforms fine-tuned models, from-scratch specialists, and prior
         steering baselines, with <strong>0-to-1 gains on tasks the base never
-        solves on its own</strong>. All rollout videos below are played at 2&times; speed.
+        solves on its own</strong>.
       </p>
 
       <!-- Static three-panel bar chart (rendered by plots/results_panels_web.py,
@@ -1348,6 +1348,15 @@
         // Per-video playback rate is read from the `data-speed` attribute
         // (default 2.0). Browsers reset playbackRate on (re)load and on
         // seek/play in some cases, so we re-apply on every relevant event.
+        // Re-add a "2X" speed badge to each rollout panel (top-right).
+        document.querySelectorAll('.ppsc-hero, .ppsc-item').forEach(function (h) {
+          if (h.querySelector('video') && !h.querySelector('.ppsc-speed-badge')) {
+            var b = document.createElement('span');
+            b.className = 'ppsc-speed-badge';
+            b.textContent = '2X';
+            h.appendChild(b);
+          }
+        });
         document.querySelectorAll('.ppsc video').forEach(function (v) {
           // Persistent captions are always visible, so just loop smoothly
           // instead of freezing on the last frame for the (now hidden) overlay.
@@ -1440,7 +1449,7 @@
         inherits its broad priors and recovers from failures it never saw in
         the demonstrations. LoRA fine-tuning, by contrast, overfits to the
         handful of demonstrations and loses these priors, breaking down under
-        the same perturbations. All videos below are played at 2&times; speed.
+        the same perturbations.
       </p>
 
       <div class="recovery-grid">
@@ -1585,6 +1594,15 @@
       ['loadedmetadata', 'loadeddata', 'canplay', 'play', 'seeked'].forEach(function (ev) {
         v.addEventListener(ev, setRate);
       });
+    });
+    // Re-add a "2X" speed badge to each Robust Execution clip.
+    document.querySelectorAll('.recovery-cell').forEach(function (c) {
+      if (c.querySelector('video') && !c.querySelector('.recovery-badge')) {
+        var b = document.createElement('span');
+        b.className = 'recovery-badge';
+        b.textContent = '2X';
+        c.appendChild(b);
+      }
     });
 
     // Cross-modality: speaker icon toggles audio on the audio_mod video.
