@@ -1033,9 +1033,13 @@
         .ppsc-stat-arrow { font:700 18px/1 'Inter','Helvetica Neue',Arial,sans-serif;
           color:var(--ppsc-sub); }
         /* Current-task name shown between the videos and the thumbnail gallery. */
+        /* Match the section body text (Inter 18px, ink) but bold. */
         .ppsc-nowname { text-align:center; margin:6px 0 14px;
-          font:700 23px/1.2 'Inter','Helvetica Neue',Arial,sans-serif;
-          color:var(--ppsc-ink); letter-spacing:-0.4px; }
+          font:700 18px/1.65 'Inter','Helvetica Neue',Arial,sans-serif;
+          color:var(--ppsc-ink); letter-spacing:normal; }
+        /* Gallery subtitle: body-text style + bold (overrides the .subheader
+           size/spacing without touching other subheaders). */
+        .subheader.ppsc-sel-title { font-size:18px; letter-spacing:normal; }
         /* Thumbnail gallery (grasping.io-style) BELOW the videos: each task is
            a small image tile; the selected tile scales up and floats above the
            row, the rest sit flat and dim. Extra top padding gives the lifted/
@@ -1152,7 +1156,7 @@
           background:transparent; border:0; cursor:pointer; padding:7px 12px; border-radius:7px; }
         .ppsc-capseg button.on { background:var(--ppsc-panel); color:var(--ppsc-ink); box-shadow:0 1px 2px rgba(40,32,16,0.08); }
       </style>
-      <div class="subheader">Select task to see example rollouts and comparisons</div>
+      <div class="subheader ppsc-sel-title">Select task to see example rollouts and comparisons</div>
       <div class="ppsc">
         <div class="ppsc-gallery" id="ppsc-tabs">
           <button class="on" data-i="0" data-name="Coffee Brewing" aria-label="Coffee Brewing"><img src="./static/images/task_thumbs/thumb_coffee.png" alt="Coffee Brewing"></button>
