@@ -52,8 +52,8 @@
   .vidwrap.playing video { opacity: 1; }
 
   .ctl-label { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
-  .ctl-label .k { font-size: 15px; font-weight: 600; }
-  .ctl-label .v { font-family: var(--font-mono); font-size: 15px; color: var(--resid); font-weight: 500; }
+  .ctl-label .k { font-family: var(--font-original); font-size: 18px; font-weight: 600; }
+  .ctl-label .v { font-family: var(--font-original); font-size: 18px; color: var(--resid); font-weight: 500; }
   /* Slightly inset/shortened track so the "Try me" pill (anchored to the thumb)
      doesn't overflow the module edge at γ=0 / γ=1. */
   input[type=range] { -webkit-appearance: none; appearance: none; width: calc(100% - 56px); height: 4px;
@@ -73,23 +73,24 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 8px 18px;       /* single row, wraps only on very narrow widths */
-    margin-top: 2px;
+    gap: 10px 40px;      /* larger gap between items */
+    margin-top: 6px;
     font-family: var(--font-original);
-    font-size: 12.5px;
+    font-size: 18px;     /* same as the section body text */
     color: var(--sub);
   }
-  .teaser-legend .leg-item { display: inline-flex; align-items: center; gap: 8px; }
+  .teaser-legend .leg-item { display: inline-flex; align-items: center; gap: 9px; }
   .teaser-legend .leg-swatch { display: inline-block; width: 30px; height: 3px; border-radius: 2px; }
 
-  /* γ slider "Try me" hint — mirrors method_new.html */
-  .gamma-wrap { position: relative; margin-top: 30px; }
-  .gamma-hint { position:absolute; bottom:26px; z-index:6; transform:translateX(-50%);
+  /* γ slider "Try me" hint — pill sits BELOW the bar, arrow pointing up. */
+  .gamma-wrap { position: relative; margin: 8px 0 30px; }
+  .gamma-hint { position:absolute; top:calc(100% + 6px); z-index:6; transform:translateX(-50%);
     display:inline-flex; align-items:center; gap:6px; padding:5px 11px 5px 9px; border-radius:999px;
     white-space:nowrap; pointer-events:none; font:600 12px/1 var(--font-original);
     background:#fffdf8; color:#3f8f5a; border:1.5px solid #4f9d5d; box-shadow:0 4px 12px rgba(40,32,16,.14); opacity:0; }
   .gamma-hint .gh-cursor { width:13px; height:13px; flex:0 0 auto; color:#4f9d5d; }
-  .gamma-hint::after { content:''; position:absolute; top:100%; left:50%; margin-left:-5px; border:5px solid transparent; border-top-color:#4f9d5d; }
+  /* arrow on top of the pill, pointing up at the bar (pill now sits below). */
+  .gamma-hint::after { content:''; position:absolute; bottom:100%; left:50%; margin-left:-5px; border:5px solid transparent; border-bottom-color:#4f9d5d; }
   .gamma-hint.show { opacity:1; }
   @keyframes gh-bob { 0%,100%{ transform:translateX(calc(-50% - 5px)); } 50%{ transform:translateX(calc(-50% + 5px)); } }
   .gamma-hint.show.gh-bob { animation: gh-bob 1.5s ease-in-out infinite; }
@@ -122,13 +123,12 @@
       <div>
         <div class="ctl-label"><span class="k">Steering strength <span class="m"><i>γ</i></span></span><span class="v" id="gval">0.00</span></div>
         <input id="gamma" type="range" min="0" max="1.0" step="0.01" value="0" />
-        <div class="ticks"><span>0</span><span>1</span></div>
       </div>
       <div class="teaser-legend" aria-label="Trajectory colours">
-        <span class="leg-item"><span class="leg-swatch" style="background:#AF56BF"></span>base action</span>
-        <span class="leg-item"><span class="leg-swatch" style="background:#F58A45"></span>ref action</span>
-        <span class="leg-item"><span class="leg-swatch" style="background:#407CB6"></span>task action</span>
-        <span class="leg-item"><span class="leg-swatch" style="background:#4f9d5d"></span>final action</span>
+        <span class="leg-item"><span class="leg-swatch" style="background:#AF56BF"></span><span class="m"><i>&pi;</i><sub>base</sub></span>&nbsp;action</span>
+        <span class="leg-item"><span class="leg-swatch" style="background:#F58A45"></span><span class="m"><i>&pi;</i><sub>ref</sub></span>&nbsp;action</span>
+        <span class="leg-item"><span class="leg-swatch" style="background:#407CB6"></span><span class="m"><i>&pi;</i><sub>task</sub></span>&nbsp;action</span>
+        <span class="leg-item"><span class="leg-swatch" style="background:#4f9d5d"></span><span class="m"><i>&pi;</i><sub>PPS</sub></span>&nbsp;action</span>
       </div>
     </div>
   </div>
