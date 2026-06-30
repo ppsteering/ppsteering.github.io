@@ -512,13 +512,15 @@ header {
   align-items: start;
 }
 
+/* Column header above each video column — matches the section subheaders
+   (e.g. "Visualize the steering effect"): Inter 700, 21px, -0.4px. */
 .crossmod-col-header {
   font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
-  font-weight: 500;
+  font-weight: 700;
   font-size: 21px;
   text-align: center;
-  letter-spacing: -0.3px;
-  margin-bottom: 2px;
+  letter-spacing: -0.4px;
+  margin-bottom: 6px;
 }
 
 .crossmod-video {
@@ -537,11 +539,11 @@ header {
   line-height: 0; /* kill descender gap under the video */
 }
 
-/* Modality label overlay (e.g. "point cloud", "audio") on cross-mod cells. */
+/* Modality label overlay (e.g. "point cloud", "audio") — top-left corner. */
 .crossmod-tag {
   position: absolute;
   top: 14px;
-  right: 14px;
+  left: 14px;
   font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
   font-size: 15px;
   font-weight: 700;
