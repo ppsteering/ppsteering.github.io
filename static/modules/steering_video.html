@@ -27,7 +27,7 @@
 
   .module { background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
     box-shadow: var(--shadow); padding: 20px 20px 22px; display: flex; flex-direction: column; gap: 16px; }
-  /* Two rollouts shown in parallel (capsule + tea), sharing the slider + legend. */
+  /* Two rollouts shown in parallel (capsule + fruit), sharing the slider + legend. */
   .vidrow { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   @media (max-width: 520px) { .vidrow { grid-template-columns: 1fr; } }
 
@@ -112,12 +112,12 @@
                  aria-label="Capsule rollout at the current steering strength"></video>
           <span class="vidtask">Open the lid</span>
         </div>
-        <div class="vidwrap" data-dir="tea">
-          <img class="poster" src="../steering_strength/tea/3_0.0.jpg" alt="" aria-hidden="true">
+        <div class="vidwrap" data-dir="fruit">
+          <img class="poster" src="../steering_strength/fruit/3_0.0.jpg" alt="" aria-hidden="true">
           <video autoplay muted loop playsinline preload="auto"
-                 src="../steering_strength/tea/3_0.0.mp4"
-                 aria-label="Tea rollout at the current steering strength"></video>
-          <span class="vidtask">Pick up the tea pot</span>
+                 src="../steering_strength/fruit/3_0.0.mp4"
+                 aria-label="Fruit rollout at the current steering strength"></video>
+          <span class="vidtask">Weigh the fruit</span>
         </div>
       </div>
       <div>
@@ -141,11 +141,11 @@
     /* Two parallel rollout sets, each 11 pre-rendered clips (+ first-frame
        poster JPGs) at γ = 0.0, 0.1, …, 1.0:
          ../steering_strength/capsule/3_<gamma>.mp4|.jpg
-         ../steering_strength/tea/3_<gamma>.mp4|.jpg
+         ../steering_strength/fruit/3_<gamma>.mp4|.jpg
        To avoid the black flicker caused by reloading <video> on every drag
        step, we show the matching poster IMAGE instantly while dragging, and
        only load + play the videos once the slider has been idle for 500 ms. */
-    // Two rollout panels (capsule + tea) driven by the one shared slider.
+    // Two rollout panels (capsule + fruit) driven by the one shared slider.
     var sets = Array.prototype.map.call(document.querySelectorAll('.vidwrap[data-dir]'), function (w) {
       return { wrap: w, dir: w.dataset.dir, poster: w.querySelector('img.poster'), video: w.querySelector('video') };
     });
