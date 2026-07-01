@@ -378,8 +378,17 @@
         }
         .tih-act-frame.video-on .tih-act-video { opacity: 1; }
         .tih-act-frame.video-on img { opacity: 0; }
-        /* State caption overlaid at the bottom of each rollout image, e.g.
-           "s_in: state within task distribution". */
+        /* State label (s_in / s_out / s_both) top-left of each rollout image. */
+        .tih-act-state {
+          position: absolute;
+          top: 8px; left: 8px; z-index: 4;
+          font-family: 'Inter','Helvetica Neue',Arial,sans-serif;
+          font-size: 12.5px; font-weight: 500; color: #fff;
+          background: rgba(20,20,20,0.66); padding: 4px 9px; border-radius: 6px;
+          line-height: 1; pointer-events: none;
+        }
+        .tih-act-state i { font-style: italic; }
+        .tih-act-state sub { font-style: normal; font-size: 0.72em; font-weight: 500; vertical-align: -0.15em; }
         .tih-act-banner {
           position: absolute;
           left: 0; right: 0; bottom: 0;
@@ -392,8 +401,6 @@
           padding: 6px 8px;
           line-height: 1.2;
         }
-        .tih-act-banner i { font-style: italic; }
-        .tih-act-banner sub { font-style: normal; font-size: 0.72em; font-weight: 500; vertical-align: -0.15em; }
         /* Per-image descriptive caption sits just below the image frame
            inside the same grey container. */
         .tih-act-caption {
@@ -516,7 +523,8 @@
             <div class="tih-act-frame">
               <img src="./static/teaser_web/teaser_1_final_action.jpg" alt="rollout 1">
               <video class="tih-act-video" src="./static/teaser_web/1_web.mp4" muted loop playsinline preload="metadata"></video>
-              <div class="tih-act-banner"><i>s</i><sub>in</sub>: state within task distribution</div>
+              <span class="tih-act-state"><i>s</i><sub>in</sub></span>
+              <div class="tih-act-banner">State within task distribution</div>
             </div>
             <div class="tih-act-caption">Novel task behavior</div>
           </div>
@@ -524,7 +532,8 @@
             <div class="tih-act-frame">
               <img src="./static/teaser_web/teaser_2_final_action.jpg" alt="rollout 2">
               <video class="tih-act-video" src="./static/teaser_web/2_web.mp4" muted loop playsinline preload="metadata"></video>
-              <div class="tih-act-banner"><i>s</i><sub>out</sub>: state outside task distribution</div>
+              <span class="tih-act-state"><i>s</i><sub>out</sub></span>
+              <div class="tih-act-banner">State outside task distribution</div>
             </div>
             <div class="tih-act-caption">Recovery via base prior</div>
           </div>
@@ -532,7 +541,8 @@
             <div class="tih-act-frame">
               <img src="./static/teaser_web/teaser_3_final_action.jpg" alt="rollout 3">
               <video class="tih-act-video" src="./static/teaser_web/3_web.mp4" muted loop playsinline preload="metadata"></video>
-              <div class="tih-act-banner"><i>s</i><sub>both</sub>: state within task and base distribution</div>
+              <span class="tih-act-state"><i>s</i><sub>both</sub></span>
+              <div class="tih-act-banner">State within task and base distribution</div>
             </div>
             <div class="tih-act-caption">Agreement reached</div>
           </div>
@@ -874,11 +884,14 @@
       -->
 
       <!-- Single-path interactive steering diagram. Subheader + description
-           removed; the iframe carries the explanation itself. -->
+           removed; the iframe carries the explanation itself.
+           Commented out per request (second figure — interactive steering
+           strength with distribution shape).
       <div class="pps-embed-block">
         <iframe class="pps-embed-frame" data-embed src="./static/modules/method_new.html?v=25"
                 title="Interactive method diagram (single-path variant)" scrolling="no" loading="lazy"></iframe>
       </div>
+      -->
     </section>
 
     <section class="section" id="results">
