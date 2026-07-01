@@ -166,14 +166,14 @@
 
     /* Bottom-right outcome badge, keyed on the current γ index (0..10):
          capsule — γ≤0.2 can't open the lid (fail); γ≥0.3 opens (success).
-         fruit   — γ≤0.4 recovers from the missed grasp (success);
+         fruit   — γ≤0.4 opens the gripper to regrasp (success);
                    γ≥0.5 over-steers and fails to recover (fail). */
     var ICON_OK  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"/></svg>';
     var ICON_BAD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
     var OUTCOMES = {
       capsule: [ { max: 2,  cls: 'bad', txt: "Can't open the lid" },
                  { max: 10, cls: 'ok',  txt: 'Successfully open' } ],
-      fruit:   [ { max: 4,  cls: 'ok',  txt: 'Recovers from missed grasp' },
+      fruit:   [ { max: 4,  cls: 'ok',  txt: 'Open gripper to regrasp' },
                  { max: 10, cls: 'bad', txt: 'Fails to recover' } ]
     };
     function updateOutcome(s, idx) {
