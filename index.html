@@ -1255,9 +1255,8 @@
             </div>
           </div>
           <!-- Additional-task panels sourced from the formerly-separate
-               Real-World Tasks / Simulated Tasks grids. Utensil Insertion (7)
-               still shows just the PPS rollout + Success caption; the rest
-               carry a baseline comparison row. -->
+               Real-World Tasks / Simulated Tasks grids; each carries a
+               baseline comparison row below the PPS rollout. -->
           <div class="ppsc-panel" data-i="6">
             <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
               <video src="./static/videos/lever.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
@@ -1275,6 +1274,14 @@
             <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
               <video src="./static/videos/utensile.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
+            <div class="ppsc-row">
+              <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
+                <video src="./static/videos/compare/utensil_base.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text base" data-ftype="imprecise">Imprecise insertion</span></div></div>
+              <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
+                <video src="./static/videos/compare/utensil_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text lora" data-ftype="ood">Overfit to insertion mode</span></div></div>
+            </div>
           </div>
           <div class="ppsc-panel" data-i="8">
             <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
