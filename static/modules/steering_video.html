@@ -118,7 +118,7 @@
       <div class="vidrow">
         <div class="vidwrap" data-dir="capsule">
           <img class="poster" src="../steering_strength/capsule/3_0.3.jpg" alt="" aria-hidden="true">
-          <video autoplay muted loop playsinline preload="auto"
+          <video muted loop playsinline preload="auto"
                  src="../steering_strength/capsule/3_0.3.mp4"
                  aria-label="Capsule rollout at the current steering strength"></video>
           <span class="vidtask">Open the lid</span>
@@ -126,7 +126,7 @@
         </div>
         <div class="vidwrap" data-dir="fruit">
           <img class="poster" src="../steering_strength/fruit/3_0.3.jpg" alt="" aria-hidden="true">
-          <video autoplay muted loop playsinline preload="auto"
+          <video muted loop playsinline preload="auto"
                  src="../steering_strength/fruit/3_0.3.mp4"
                  aria-label="Fruit rollout at the current steering strength"></video>
           <span class="vidtask">Pick up the pear</span>
@@ -193,11 +193,22 @@
     function psrc(dir, idx) { return '../steering_strength/' + dir + '/3_' + labelFor(idx) + '.jpg'; }
     function setMatchesCur(s) { return s.video.src.indexOf('/' + s.dir + '/3_' + labelFor(curIdx) + '.mp4') !== -1; }
 
-    // Load (if needed) and play one panel's rollout for the current γ.
+    // Load (if needed) and play one panel's rollout for the current γ. With
+    // autoplay removed, a freshly-swapped src must finish loading before we can
+    // play it — calling play() mid-load aborts it, so defer to 'canplay'.
     function playSet(s) {
-      if (!setMatchesCur(s)) s.video.src = vsrc(s.dir, curIdx);
-      var pr = s.video.play();
-      if (pr && pr.catch) pr.catch(function () {});
+      if (setMatchesCur(s)) {
+        var pr = s.video.play();
+        if (pr && pr.catch) pr.catch(function () {});
+        return;
+      }
+      s.video.src = vsrc(s.dir, curIdx);
+      s.video.addEventListener('canplay', function () {
+        if (!setMatchesCur(s)) return;   // slider moved on again; a later playAll covers it
+        var pr = s.video.play();
+        if (pr && pr.catch) pr.catch(function () {});
+      }, { once: true });
+      s.video.load();
     }
     function playAll() { sets.forEach(playSet); }
 
@@ -209,9 +220,9 @@
       curIdx = idx;
       // Instant: swap both posters and hide the (now-stale) videos.
       sets.forEach(function (s) { s.poster.src = psrc(s.dir, idx); s.wrap.classList.remove('playing'); updateOutcome(s, idx); });
-      // Debounced: auto-play both matching clips once the slider is idle 1 s.
+      // Debounced: auto-play both matching clips once the slider is idle 2 s.
       if (idleTimer) clearTimeout(idleTimer);
-      idleTimer = setTimeout(playAll, 1000);
+      idleTimer = setTimeout(playAll, 2000);
     }
     // Reveal each panel's video (fade over poster) once it's playing + current.
     sets.forEach(function (s) {
@@ -221,6 +232,11 @@
 
     // Preload every poster (both panels) so dragging swaps them instantly.
     for (var pi = 0; pi <= 10; pi++) { sets.forEach(function (s) { var im = new Image(); im.src = psrc(s.dir, pi); }); }
+
+    // Autoplay removed: hold on the poster and start the first playback 2 s
+    // after load if the bar is left alone. Any bar movement (including the
+    // intro jitter) reschedules this through syncVideo's idle timer.
+    idleTimer = setTimeout(playAll, 2000);
 
     gammaEl.addEventListener('input', function () {
       document.getElementById('gval').textContent = fmt(parseFloat(this.value));
@@ -242,7 +258,7 @@
       ['pointerdown','touchstart','keydown'].forEach(function(e){ gammaEl.addEventListener(e, dismiss); });
       function applyG(g){ gammaEl.value=g.toFixed(2); gammaEl.dispatchEvent(new Event('input')); }
       function tween(a,b,d,done){ var t0=null; function s(ts){ if(dismissed)return; if(t0===null)t0=ts; var k=Math.min(1,(ts-t0)/d); var e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2; applyG(a+(b-a)*e); if(k<1)requestAnimationFrame(s); else if(done)done(); } requestAnimationFrame(s); }
-      function wiggle(){ if(wiggled||dismissed||RM)return; wiggled=true; var st=parseFloat(gammaEl.value); tween(st,0.35,820,function(){ tween(0.35,st,820); }); }
+      function wiggle(){ if(wiggled||dismissed||RM)return; wiggled=true; var st=parseFloat(gammaEl.value); tween(st,0.5,820,function(){ tween(0.5,0.1,1000,function(){ tween(0.1,st,820); }); }); }
       var begun=false; function begin(){ if(begun)return; begun=true; show(); setTimeout(wiggle,750); }
       if(document.readyState==='complete') setTimeout(begin,150); else window.addEventListener('load', function(){ setTimeout(begin,150); });
     })();
