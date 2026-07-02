@@ -117,25 +117,25 @@
     <div class="module">
       <div class="vidrow">
         <div class="vidwrap" data-dir="capsule">
-          <img class="poster" src="../steering_strength/capsule/3_0.0.jpg" alt="" aria-hidden="true">
+          <img class="poster" src="../steering_strength/capsule/3_0.3.jpg" alt="" aria-hidden="true">
           <video autoplay muted loop playsinline preload="auto"
-                 src="../steering_strength/capsule/3_0.0.mp4"
+                 src="../steering_strength/capsule/3_0.3.mp4"
                  aria-label="Capsule rollout at the current steering strength"></video>
           <span class="vidtask">Open the lid</span>
           <span class="vidout"></span>
         </div>
         <div class="vidwrap" data-dir="fruit">
-          <img class="poster" src="../steering_strength/fruit/3_0.0.jpg" alt="" aria-hidden="true">
+          <img class="poster" src="../steering_strength/fruit/3_0.3.jpg" alt="" aria-hidden="true">
           <video autoplay muted loop playsinline preload="auto"
-                 src="../steering_strength/fruit/3_0.0.mp4"
+                 src="../steering_strength/fruit/3_0.3.mp4"
                  aria-label="Fruit rollout at the current steering strength"></video>
-          <span class="vidtask">Weigh the fruit</span>
+          <span class="vidtask">Pick up the pear</span>
           <span class="vidout"></span>
         </div>
       </div>
       <div>
-        <div class="ctl-label"><span class="k">Steering strength <span class="m"><i>γ</i></span></span><span class="v" id="gval">0.0</span></div>
-        <input id="gamma" type="range" min="0" max="1.0" step="0.01" value="0" />
+        <div class="ctl-label"><span class="k">Steering strength <span class="m"><i>γ</i></span></span><span class="v" id="gval">0.3</span></div>
+        <input id="gamma" type="range" min="0" max="1.0" step="0.01" value="0.3" />
       </div>
       <div class="teaser-legend" aria-label="Trajectory colours">
         <span class="leg-item"><span class="leg-swatch" style="background:#AF56BF"></span><span class="m"><i>&pi;</i><sub>base</sub></span>&nbsp;trajectory</span>
@@ -184,9 +184,9 @@
       s.out.className = 'vidout ' + o.cls;
       s.out.innerHTML = (o.cls === 'ok' ? ICON_OK : ICON_BAD) + '<span>' + o.txt + '</span>';
     }
-    sets.forEach(function (s) { updateOutcome(s, 0); });
+    sets.forEach(function (s) { updateOutcome(s, 3); });
 
-    var curIdx = 0;          // default src is <dir>/3_0.0 in the markup
+    var curIdx = 3;          // default src is <dir>/3_0.3 in the markup (γ=0.3)
     var idleTimer = null;
     function labelFor(idx) { return (idx === 10) ? '1.0' : ('0.' + idx); }
     function vsrc(dir, idx) { return '../steering_strength/' + dir + '/3_' + labelFor(idx) + '.mp4'; }
