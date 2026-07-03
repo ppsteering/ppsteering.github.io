@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>PPS rollout vs. steering strength</title>
+<title>PPS rollout vs. steering strength &amp; input noise</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500&family=STIX+Two+Text:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
@@ -20,31 +20,27 @@
   html, body { margin: 0; }
   body { background: var(--bg); color: var(--ink); font-family: var(--font-original);
     -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
-  .wrap { max-width: 760px; margin: 0 auto; padding: 22px 26px 36px; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 22px 26px 36px; }
   .m { font-family: var(--font-math); }
   .m i { font-style: italic; font-weight: 700; }
   .m sub { font-style: normal; font-weight: 400; }
 
   .module { background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
     box-shadow: var(--shadow); padding: 20px 20px 22px; display: flex; flex-direction: column; gap: 16px; }
-  /* Two rollouts shown in parallel (capsule + fruit), sharing the slider + legend. */
-  .vidrow { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  @media (max-width: 520px) { .vidrow { grid-template-columns: 1fr; } }
+  /* Three rollouts shown in parallel (capsule + fruit + tea), sharing the
+     strength slider + input-noise buttons + legend. */
+  .vidrow { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  @media (max-width: 640px) { .vidrow { grid-template-columns: 1fr; } }
 
-  /* Wrap aspect matches the cropped clips (768×576 = 4:3; sides 20% + top/
-     bottom 10% trimmed) so object-fit:cover shows the whole frame. */
+  /* Panels share one aspect (768/518); the taller 4:3 fruit clip is cover-fit. */
   .vidwrap { position: relative; line-height: 0; background: var(--bg); border: 1px solid var(--line);
     border-radius: 8px; overflow: hidden; aspect-ratio: 768 / 518; }
-  /* Subtask label overlaid on the rollout, top-left — same chip style/size as
-     the other video tags across the page (Inter 700, 15px, padding 6px 12px,
-     8px corners, solid dark fill). */
+  /* Subtask label overlaid on the rollout, top-left. */
   .vidwrap .vidtask { position: absolute; top: 14px; left: 14px; z-index: 4;
     font: 700 15px/1 var(--font-original); color: #fff;
     background: rgba(27, 27, 27, 0.7); padding: 6px 12px; border-radius: 8px;
     letter-spacing: 0; pointer-events: none; }
-  /* Outcome badge, bottom-right — same solid-dark chip as the subtask tag, but
-     coloured like the carousel's "Success" label: green ✓ for a success, red ✗
-     for a failure. Icon + text share the outcome colour. */
+  /* Outcome badge, bottom-right — green ✓ success / red ✗ failure. */
   .vidwrap .vidout { position: absolute; bottom: 14px; right: 14px; z-index: 4;
     display: inline-flex; align-items: center; gap: 7px; max-width: 84%;
     font: 700 15px/1 var(--font-original); text-align: right;
@@ -53,20 +49,29 @@
   .vidwrap .vidout svg { width: 15px; height: 15px; flex: 0 0 auto; display: block; }
   .vidwrap .vidout.ok  { color: #5fd07a; }
   .vidwrap .vidout.bad { color: #f0846a; }
-  /* Poster (first frame) + video stacked; the poster covers the brief reload
-     gap while dragging so there's no black flash. The video fades in once it
-     starts playing. */
+  /* Poster (first frame) + video stacked; the poster covers the reload gap
+     while changing γ / noise so there's no black flash. */
   .vidwrap video, .vidwrap img.poster {
     position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .vidwrap img.poster { z-index: 1; }
   .vidwrap video { z-index: 2; opacity: 0; transition: opacity .12s ease; }
   .vidwrap.playing video { opacity: 1; }
 
+  /* Input-noise selector: 5 buttons (1–5) shared across all panels. */
+  .noise-ctl { display: flex; align-items: center; justify-content: center; gap: 12px;
+    flex-wrap: wrap; margin: 2px 0 0; }
+  .noise-ctl .k { font-family: var(--font-original); font-size: 18px; font-weight: 600; color: var(--ink); }
+  .noise-ctl .k .m { font-weight: 600; }
+  .noise-btns { display: inline-flex; gap: 6px; }
+  .noise-btns button { font: 600 15px/1 var(--font-original); color: var(--sub);
+    background: var(--soft); border: 1px solid var(--line); border-radius: 8px;
+    width: 36px; height: 32px; cursor: pointer; transition: background .12s ease, color .12s ease, border-color .12s ease; }
+  .noise-btns button:hover { border-color: var(--resid); color: var(--ink); }
+  .noise-btns button.on { background: var(--resid); border-color: var(--resid); color: #fff; }
+
   .ctl-label { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
   .ctl-label .k { font-family: var(--font-original); font-size: 18px; font-weight: 600; }
   .ctl-label .v { font-family: var(--font-original); font-size: 18px; color: var(--resid); font-weight: 500; }
-  /* Slightly inset/shortened track so the "Try me" pill (anchored to the thumb)
-     doesn't overflow the module edge at γ=0 / γ=1. */
   input[type=range] { -webkit-appearance: none; appearance: none; width: calc(100% - 56px); height: 4px;
     background: var(--line); border-radius: 99px; outline: none; margin: 6px auto 2px; display: block; }
   input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none;
@@ -74,21 +79,12 @@
     border: 3px solid var(--panel); box-shadow: var(--shadow); cursor: pointer; }
   input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%;
     background: var(--resid); border: 3px solid var(--panel); cursor: pointer; }
-  /* Match the shortened/inset slider width so 0 and 1 sit at the bar ends. */
-  .ticks { display: flex; justify-content: space-between; font-family: var(--font-mono);
-    font-size: 12px; color: var(--sub); margin: 4px auto 0; width: calc(100% - 56px); }
 
-  /* Trajectory-colour legend (base / ref / task / final action) — moved here
-     to sit with the rollout video. */
+  /* Trajectory-colour legend (base / ref / task / PPS). */
   .teaser-legend {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px 40px;      /* larger gap between items */
-    margin-top: 6px;
-    font-family: var(--font-original);
-    font-size: 18px;     /* same as the section body text */
-    color: var(--sub);
+    display: flex; flex-wrap: wrap; justify-content: center;
+    gap: 10px 40px; margin-top: 6px;
+    font-family: var(--font-original); font-size: 18px; color: var(--sub);
   }
   .teaser-legend .leg-item { display: inline-flex; align-items: center; gap: 9px; }
   .teaser-legend .leg-swatch { display: inline-block; width: 30px; height: 3px; border-radius: 2px; }
@@ -100,7 +96,6 @@
     white-space:nowrap; pointer-events:none; font:600 12px/1 var(--font-original);
     background:#fffdf8; color:#3f8f5a; border:1.5px solid #4f9d5d; box-shadow:0 4px 12px rgba(40,32,16,.14); opacity:0; }
   .gamma-hint .gh-cursor { width:13px; height:13px; flex:0 0 auto; color:#4f9d5d; }
-  /* arrow on top of the pill, pointing up at the bar (pill now sits below). */
   .gamma-hint::after { content:''; position:absolute; bottom:100%; left:50%; margin-left:-5px; border:5px solid transparent; border-bottom-color:#4f9d5d; }
   .gamma-hint.show { opacity:1; }
   @keyframes gh-bob { 0%,100%{ transform:translateX(calc(-50% - 5px)); } 50%{ transform:translateX(calc(-50% + 5px)); } }
@@ -108,7 +103,6 @@
   @media (prefers-reduced-motion: reduce) { .gamma-hint.gh-bob { animation:none; } }
 
   html.pps-embedded, body.embed { background: transparent; }
-  /* When embedded, fill the full page-column width like the other modules. */
   body.embed .wrap { padding: 0; max-width: none; }
 </style>
 </head>
@@ -117,20 +111,38 @@
     <div class="module">
       <div class="vidrow">
         <div class="vidwrap" data-dir="capsule">
-          <img class="poster" src="../steering_strength/capsule/3_0.3.jpg" alt="" aria-hidden="true">
+          <img class="poster" src="../steering_strength/capsule/0_0.3.jpg" alt="" aria-hidden="true">
           <video muted loop playsinline preload="auto"
-                 src="../steering_strength/capsule/3_0.3.mp4"
-                 aria-label="Capsule rollout at the current steering strength"></video>
+                 src="../steering_strength/capsule/0_0.3.mp4"
+                 aria-label="Capsule rollout at the current steering strength and input noise"></video>
           <span class="vidtask">Open the lid</span>
           <span class="vidout"></span>
         </div>
         <div class="vidwrap" data-dir="fruit">
-          <img class="poster" src="../steering_strength/fruit/3_0.3.jpg" alt="" aria-hidden="true">
+          <img class="poster" src="../steering_strength/fruit/0_0.3.jpg" alt="" aria-hidden="true">
           <video muted loop playsinline preload="auto"
-                 src="../steering_strength/fruit/3_0.3.mp4"
-                 aria-label="Fruit rollout at the current steering strength"></video>
+                 src="../steering_strength/fruit/0_0.3.mp4"
+                 aria-label="Fruit rollout at the current steering strength and input noise"></video>
           <span class="vidtask">Pick up the pear</span>
           <span class="vidout"></span>
+        </div>
+        <div class="vidwrap" data-dir="tea">
+          <img class="poster" src="../steering_strength/tea/0_0.3.jpg" alt="" aria-hidden="true">
+          <video muted loop playsinline preload="auto"
+                 src="../steering_strength/tea/0_0.3.mp4"
+                 aria-label="Tea rollout at the current steering strength and input noise"></video>
+          <span class="vidtask">Pick up the teapot</span>
+          <span class="vidout"></span>
+        </div>
+      </div>
+      <div class="noise-ctl">
+        <span class="k">Input noise</span>
+        <div class="noise-btns" id="noise-btns" role="group" aria-label="Input noise sample">
+          <button type="button" data-noise="0" class="on">1</button>
+          <button type="button" data-noise="1">2</button>
+          <button type="button" data-noise="2">3</button>
+          <button type="button" data-noise="3">4</button>
+          <button type="button" data-noise="4">5</button>
         </div>
       </div>
       <div>
@@ -151,14 +163,12 @@
     var gammaEl = document.getElementById('gamma');
     function fmt(g){ return g.toFixed(1); }
 
-    /* Two parallel rollout sets, each 11 pre-rendered clips (+ first-frame
-       poster JPGs) at γ = 0.0, 0.1, …, 1.0:
-         ../steering_strength/capsule/3_<gamma>.mp4|.jpg
-         ../steering_strength/fruit/3_<gamma>.mp4|.jpg
-       To avoid the black flicker caused by reloading <video> on every drag
-       step, we show the matching poster IMAGE instantly while dragging, and
-       only load + play the videos once the slider has been idle for 500 ms. */
-    // Two rollout panels (capsule + fruit) driven by the one shared slider.
+    /* Three parallel rollout sets. Each clip is keyed by input-noise sample
+       (0–4, shown as buttons 1–5) and steer strength γ (0.0…1.0):
+         ../steering_strength/<dir>/<noise>_<gamma>.mp4|.jpg
+       The step (planning horizon) is baked in per task during encoding
+       (capsule=step 2, fruit=step 1, tea=step 2). Posters cover the reload
+       gap while changing γ / noise so there's no black flash. */
     var sets = Array.prototype.map.call(document.querySelectorAll('.vidwrap[data-dir]'), function (w) {
       return { wrap: w, dir: w.dataset.dir, poster: w.querySelector('img.poster'),
                video: w.querySelector('video'), out: w.querySelector('.vidout') };
@@ -167,14 +177,17 @@
     /* Bottom-right outcome badge, keyed on the current γ index (0..10):
          capsule — γ≤0.1 can't open the lid (fail); γ≥0.2 opens (success).
          fruit   — γ≤0.4 opens the gripper to regrasp (success);
-                   γ≥0.5 over-steers and fails to recover (fail). */
+                   γ≥0.5 over-steers and fails to recover (fail).
+         tea     — placeholder thresholds; refine once the outcomes are known. */
     var ICON_OK  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"/></svg>';
     var ICON_BAD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
     var OUTCOMES = {
       capsule: [ { max: 1,  cls: 'bad', txt: "Can't open the lid" },
                  { max: 10, cls: 'ok',  txt: 'Successfully open' } ],
       fruit:   [ { max: 4,  cls: 'ok',  txt: 'Open gripper to regrasp' },
-                 { max: 10, cls: 'bad', txt: 'Fails to recover' } ]
+                 { max: 10, cls: 'bad', txt: 'Fails to recover' } ],
+      tea:     [ { max: 5,  cls: 'bad', txt: "Can't reach the teapot" },
+                 { max: 10, cls: 'ok',  txt: 'Grasps the teapot' } ]
     };
     function updateOutcome(s, idx) {
       if (!s.out) return;
@@ -184,27 +197,28 @@
       s.out.className = 'vidout ' + o.cls;
       s.out.innerHTML = (o.cls === 'ok' ? ICON_OK : ICON_BAD) + '<span>' + o.txt + '</span>';
     }
-    sets.forEach(function (s) { updateOutcome(s, 3); });
 
-    var curIdx = 3;          // default src is <dir>/3_0.3 in the markup (γ=0.3)
+    var curNoise = 0;        // 0..4 (buttons 1..5); default clip is <dir>/0_0.3
+    var curIdx = 3;          // γ index (γ=0.3)
     var idleTimer = null;
     function labelFor(idx) { return (idx === 10) ? '1.0' : ('0.' + idx); }
-    function vsrc(dir, idx) { return '../steering_strength/' + dir + '/3_' + labelFor(idx) + '.mp4'; }
-    function psrc(dir, idx) { return '../steering_strength/' + dir + '/3_' + labelFor(idx) + '.jpg'; }
-    function setMatchesCur(s) { return s.video.src.indexOf('/' + s.dir + '/3_' + labelFor(curIdx) + '.mp4') !== -1; }
+    function clipBase(dir) { return '../steering_strength/' + dir + '/' + curNoise + '_' + labelFor(curIdx); }
+    function vsrc(dir) { return clipBase(dir) + '.mp4'; }
+    function psrc(dir) { return clipBase(dir) + '.jpg'; }
+    function setMatchesCur(s) { return s.video.src.indexOf('/' + s.dir + '/' + curNoise + '_' + labelFor(curIdx) + '.mp4') !== -1; }
 
-    // Load (if needed) and play one panel's rollout for the current γ. With
-    // autoplay removed, a freshly-swapped src must finish loading before we can
-    // play it — calling play() mid-load aborts it, so defer to 'canplay'.
+    // Load (if needed) and play one panel's rollout for the current γ + noise.
+    // With autoplay removed, a freshly-swapped src must finish loading before we
+    // can play it — calling play() mid-load aborts it, so defer to 'canplay'.
     function playSet(s) {
       if (setMatchesCur(s)) {
         var pr = s.video.play();
         if (pr && pr.catch) pr.catch(function () {});
         return;
       }
-      s.video.src = vsrc(s.dir, curIdx);
+      s.video.src = vsrc(s.dir);
       s.video.addEventListener('canplay', function () {
-        if (!setMatchesCur(s)) return;   // slider moved on again; a later playAll covers it
+        if (!setMatchesCur(s)) return;   // changed again; a later playAll covers it
         var pr = s.video.play();
         if (pr && pr.catch) pr.catch(function () {});
       }, { once: true });
@@ -212,38 +226,60 @@
     }
     function playAll() { sets.forEach(playSet); }
 
-    function syncVideo() {
-      var g = parseFloat(gammaEl.value);
-      var idx = Math.round(g * 10);
-      if (idx < 0) idx = 0; else if (idx > 10) idx = 10;
-      if (idx === curIdx) return;
-      curIdx = idx;
-      // Instant: swap both posters and hide the (now-stale) videos.
-      sets.forEach(function (s) { s.poster.src = psrc(s.dir, idx); s.wrap.classList.remove('playing'); updateOutcome(s, idx); });
-      // Debounced: auto-play both matching clips once the slider is idle 2 s.
+    // Swap every panel's poster to the current (noise, γ), hide the stale video,
+    // and (debounced) auto-play once the controls have been idle `delay` ms.
+    function applyState(delay) {
+      sets.forEach(function (s) { s.poster.src = psrc(s.dir); s.wrap.classList.remove('playing'); });
       if (idleTimer) clearTimeout(idleTimer);
-      idleTimer = setTimeout(playAll, 2000);
+      idleTimer = setTimeout(playAll, delay);
     }
+
     // Reveal each panel's video (fade over poster) once it's playing + current.
     sets.forEach(function (s) {
       s.video.addEventListener('playing', function () { if (setMatchesCur(s)) s.wrap.classList.add('playing'); });
       s.video.addEventListener('loadeddata', function () { if (!s.video.paused && setMatchesCur(s)) s.wrap.classList.add('playing'); });
     });
 
-    // Preload every poster (both panels) so dragging swaps them instantly.
-    for (var pi = 0; pi <= 10; pi++) { sets.forEach(function (s) { var im = new Image(); im.src = psrc(s.dir, pi); }); }
+    // Preload one noise row (all γ, all panels) so dragging swaps instantly.
+    function preloadRow(noise) {
+      sets.forEach(function (s) {
+        for (var i = 0; i <= 10; i++) { var im = new Image(); im.src = '../steering_strength/' + s.dir + '/' + noise + '_' + labelFor(i) + '.jpg'; }
+      });
+    }
+    preloadRow(curNoise);
+    sets.forEach(function (s) { updateOutcome(s, curIdx); });
 
     // Autoplay removed: hold on the poster and start the first playback 2 s
-    // after load if the bar is left alone. Any bar movement (including the
-    // intro jitter) reschedules this through syncVideo's idle timer.
+    // after load if the controls are left alone. Any change reschedules this.
     idleTimer = setTimeout(playAll, 2000);
 
+    // γ slider: update readout always; on an index change swap clips + outcome
+    // and (re)arm the 2 s idle play.
     gammaEl.addEventListener('input', function () {
-      document.getElementById('gval').textContent = fmt(parseFloat(this.value));
-      syncVideo();
+      var g = parseFloat(this.value);
+      var idx = Math.round(g * 10); if (idx < 0) idx = 0; else if (idx > 10) idx = 10;
+      document.getElementById('gval').textContent = fmt(g);
+      if (idx === curIdx) return;
+      curIdx = idx;
+      sets.forEach(function (s) { updateOutcome(s, idx); });
+      applyState(2000);
     });
 
-    /* γ slider "Try me" hint: bobbing pill on the thumb + one auto-wiggle */
+    // Input-noise buttons (1..5 → noise 0..4), shared across all panels.
+    var noiseBtns = Array.prototype.slice.call(document.querySelectorAll('#noise-btns button'));
+    noiseBtns.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var n = +b.dataset.noise;
+        if (n === curNoise) return;
+        curNoise = n;
+        noiseBtns.forEach(function (x) { x.classList.toggle('on', +x.dataset.noise === curNoise); });
+        preloadRow(curNoise);
+        applyState(700);
+      });
+    });
+
+    /* γ slider "Try me" hint: bobbing pill on the thumb + one auto-jitter that
+       sweeps the 0.1–0.5 range before settling back to the default. */
     (function () {
       var wrap = document.createElement('div'); wrap.className = 'gamma-wrap';
       gammaEl.parentNode.insertBefore(wrap, gammaEl); wrap.appendChild(gammaEl);
