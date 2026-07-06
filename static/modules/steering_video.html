@@ -29,9 +29,8 @@
     box-shadow: var(--shadow); padding: 20px 20px 22px; display: flex; flex-direction: column; gap: 16px; }
   /* Four rollouts shown in parallel (capsule + fruit + tea + egg), sharing the
      strength slider + input-noise buttons + legend. */
-  .vidrow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
-  @media (max-width: 900px) { .vidrow { grid-template-columns: 1fr 1fr; } }
-  @media (max-width: 480px) { .vidrow { grid-template-columns: 1fr; } }
+  .vidrow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  @media (max-width: 540px) { .vidrow { grid-template-columns: 1fr 1fr; } }
 
   /* Panels share one aspect (768/518); the taller 4:3 fruit clip is cover-fit. */
   .vidwrap { position: relative; line-height: 0; background: var(--bg); border: 1px solid var(--line);
