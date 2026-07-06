@@ -50,6 +50,8 @@
   .vidwrap .vidout svg { width: 15px; height: 15px; flex: 0 0 auto; display: block; }
   .vidwrap .vidout.ok  { color: #5fd07a; }
   .vidwrap .vidout.bad { color: #f0846a; }
+  .vidwrap .vidout.mid { color: #f4d35e; }
+  .vidwrap .vidout .vo-mark { font: 800 15px/1 var(--font-original); letter-spacing: -1.5px; }
   /* Poster (first frame) + video stacked; the poster covers the reload gap
      while changing γ / noise so there's no black flash. */
   .vidwrap video, .vidwrap img.poster {
@@ -190,23 +192,41 @@
          tea/pot — placeholder thresholds; refine once the outcomes are known. */
     var ICON_OK  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"/></svg>';
     var ICON_BAD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+    var ICON_MID = '<span class="vo-mark" aria-hidden="true">--</span>';   // partial outcome (yellow)
+    // Base rule per task, resolved by γ index (first matching max wins).
     var OUTCOMES = {
       capsule: [ { max: 1,  cls: 'bad', txt: "Can't open the lid" },
                  { max: 10, cls: 'ok',  txt: 'Successfully open' } ],
       fruit:   [ { max: 4,  cls: 'ok',  txt: 'Open gripper to regrasp' },
-                 { max: 10, cls: 'bad', txt: 'Fails to recover' } ],
-      tea:     [ { max: 5,  cls: 'bad', txt: "Can't reach the teapot" },
-                 { max: 10, cls: 'ok',  txt: 'Grasps the teapot' } ],
+                 { max: 10, cls: 'bad', txt: 'Fails to regrasp' } ],
+      tea:     [ { max: 3,  cls: 'bad', txt: "Can't reach the teapot" },
+                 { max: 10, cls: 'ok',  txt: 'Approach teapot' } ],
       pot:     [ { max: 5,  cls: 'bad', txt: "Can't reach the egg" },
                  { max: 10, cls: 'ok',  txt: 'Grasps the egg' } ]
     };
-    function updateOutcome(s, idx) {
+    // Per-(γ index, noise index) overrides, keyed "<idx>_<noise>" (noise 0-4 =
+    // buttons 1-5). Take precedence over the base rule.
+    function ov(cls, txt) { return { cls: cls, txt: txt }; }
+    var SLIGHT = 'slightly open', REGRASP = 'Fails to regrasp', IMPRECISE = 'imprecise grasp';
+    var OVERRIDES = {
+      capsule: { '1_1': ov('mid', SLIGHT), '1_2': ov('mid', SLIGHT),
+                 '2_0': ov('mid', SLIGHT), '2_1': ov('mid', SLIGHT), '2_3': ov('mid', SLIGHT), '2_4': ov('mid', SLIGHT),
+                 '3_4': ov('mid', SLIGHT) },
+      fruit:   { '2_0': ov('bad', REGRASP), '3_0': ov('bad', REGRASP), '3_3': ov('bad', REGRASP),
+                 '4_0': ov('bad', REGRASP), '4_2': ov('bad', REGRASP), '4_3': ov('bad', REGRASP) },
+      tea:     { '10_1': ov('mid', IMPRECISE), '10_3': ov('mid', IMPRECISE), '10_4': ov('mid', IMPRECISE) }
+    };
+    function updateOutcome(s, idx, noise) {
       if (!s.out) return;
-      var rules = OUTCOMES[s.dir] || [], o = null;
-      for (var i = 0; i < rules.length; i++) { if (idx <= rules[i].max) { o = rules[i]; break; } }
+      var o = (OVERRIDES[s.dir] && OVERRIDES[s.dir][idx + '_' + noise]) || null;
+      if (!o) {
+        var rules = OUTCOMES[s.dir] || [];
+        for (var i = 0; i < rules.length; i++) { if (idx <= rules[i].max) { o = rules[i]; break; } }
+      }
       if (!o) return;
       s.out.className = 'vidout ' + o.cls;
-      s.out.innerHTML = (o.cls === 'ok' ? ICON_OK : ICON_BAD) + '<span>' + o.txt + '</span>';
+      var mark = o.cls === 'ok' ? ICON_OK : (o.cls === 'bad' ? ICON_BAD : ICON_MID);
+      s.out.innerHTML = mark + '<span>' + o.txt + '</span>';
     }
 
     var curNoise = 0;        // 0..4 (buttons 1..5); default clip is <dir>/0_0.3
@@ -258,7 +278,7 @@
       });
     }
     preloadRow(curNoise);
-    sets.forEach(function (s) { updateOutcome(s, curIdx); });
+    sets.forEach(function (s) { updateOutcome(s, curIdx, curNoise); });
 
     // Autoplay removed: hold on the poster and start the first playback 2 s
     // after load if the controls are left alone. Any change reschedules this.
@@ -272,7 +292,7 @@
       document.getElementById('gval').textContent = fmt(g);
       if (idx === curIdx) return;
       curIdx = idx;
-      sets.forEach(function (s) { updateOutcome(s, idx); });
+      sets.forEach(function (s) { updateOutcome(s, idx, curNoise); });
       applyState(2000);
     });
 
@@ -284,6 +304,7 @@
         if (n === curNoise) return;
         curNoise = n;
         noiseBtns.forEach(function (x) { x.classList.toggle('on', +x.dataset.noise === curNoise); });
+        sets.forEach(function (s) { updateOutcome(s, curIdx, curNoise); });
         preloadRow(curNoise);
         applyState(700);
       });
