@@ -189,7 +189,8 @@
          fruit   — γ≤0.4 opens the gripper to regrasp (success);
                    γ≥0.5 over-steers and fails to recover (fail).
          tea     — γ≤0.3 can't reach the teapot; γ≥0.4 approaches it.
-         pot     — γ≤0.4 regrasp (success); γ≥0.5 moves away (fail). */
+         pot     — γ≤0.4 opens gripper to regrasp (success);
+                   γ≥0.5 proceeds to placing (fail). */
     var ICON_OK  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"/></svg>';
     var ICON_BAD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
     var ICON_MID = '<span class="vo-mark" aria-hidden="true">--</span>';   // partial outcome (yellow)
@@ -201,8 +202,8 @@
                  { max: 10, cls: 'bad', txt: 'Fails to regrasp' } ],
       tea:     [ { max: 3,  cls: 'bad', txt: "Can't reach the teapot" },
                  { max: 10, cls: 'ok',  txt: 'Approach teapot' } ],
-      pot:     [ { max: 4,  cls: 'ok',  txt: 'Regrasp' },
-                 { max: 10, cls: 'bad', txt: 'Move away' } ]
+      pot:     [ { max: 4,  cls: 'ok',  txt: 'Open gripper to regrasp' },
+                 { max: 10, cls: 'bad', txt: 'Proceed to placing' } ]
     };
     // Per-(γ index, noise index) overrides, keyed "<idx>_<noise>" (noise 0-4 =
     // buttons 1-5). Take precedence over the base rule.
