@@ -113,33 +113,33 @@
     <div class="module">
       <div class="vidrow">
         <div class="vidwrap" data-dir="capsule">
-          <img class="poster" src="../steering_strength/capsule/0_0.3.jpg" alt="" aria-hidden="true">
+          <img class="poster" src="../steering_strength/capsule/1_0.3.jpg" alt="" aria-hidden="true">
           <video muted loop playsinline preload="auto"
-                 src="../steering_strength/capsule/0_0.3.mp4"
+                 src="../steering_strength/capsule/1_0.3.mp4"
                  aria-label="Capsule rollout at the current steering strength and input noise"></video>
           <span class="vidtask">Open the lid</span>
           <span class="vidout"></span>
         </div>
         <div class="vidwrap" data-dir="fruit">
-          <img class="poster" src="../steering_strength/fruit/0_0.3.jpg" alt="" aria-hidden="true">
+          <img class="poster" src="../steering_strength/fruit/1_0.3.jpg" alt="" aria-hidden="true">
           <video muted loop playsinline preload="auto"
-                 src="../steering_strength/fruit/0_0.3.mp4"
+                 src="../steering_strength/fruit/1_0.3.mp4"
                  aria-label="Fruit rollout at the current steering strength and input noise"></video>
           <span class="vidtask">Pick up the pear</span>
           <span class="vidout"></span>
         </div>
         <div class="vidwrap" data-dir="tea">
-          <img class="poster" src="../steering_strength/tea/0_0.3.jpg" alt="" aria-hidden="true">
+          <img class="poster" src="../steering_strength/tea/1_0.3.jpg" alt="" aria-hidden="true">
           <video muted loop playsinline preload="auto"
-                 src="../steering_strength/tea/0_0.3.mp4"
+                 src="../steering_strength/tea/1_0.3.mp4"
                  aria-label="Tea rollout at the current steering strength and input noise"></video>
           <span class="vidtask">Pick up the teapot</span>
           <span class="vidout"></span>
         </div>
         <div class="vidwrap" data-dir="pot">
-          <img class="poster" src="../steering_strength/pot/0_0.3.jpg" alt="" aria-hidden="true">
+          <img class="poster" src="../steering_strength/pot/1_0.3.jpg" alt="" aria-hidden="true">
           <video muted loop playsinline preload="auto"
-                 src="../steering_strength/pot/0_0.3.mp4"
+                 src="../steering_strength/pot/1_0.3.mp4"
                  aria-label="Egg rollout at the current steering strength and input noise"></video>
           <span class="vidtask">Pick up the egg</span>
           <span class="vidout"></span>
@@ -147,9 +147,12 @@
       </div>
       <div class="noise-ctl">
         <span class="k">Input noise</span>
+        <!-- Buttons 1 and 2 are swapped: button "1" → noise index 1, button "2"
+             → noise index 0 (buttons 3-5 map identically). data-noise is the
+             single source that drives both the clip path and the override key. -->
         <div class="noise-btns" id="noise-btns" role="group" aria-label="Input noise sample">
-          <button type="button" data-noise="0" class="on">1</button>
-          <button type="button" data-noise="1">2</button>
+          <button type="button" data-noise="1" class="on">1</button>
+          <button type="button" data-noise="0">2</button>
           <button type="button" data-noise="2">3</button>
           <button type="button" data-noise="3">4</button>
           <button type="button" data-noise="4">5</button>
@@ -234,7 +237,7 @@
       s.out.innerHTML = mark + '<span>' + o.txt + '</span>';
     }
 
-    var curNoise = 0;        // 0..4 (buttons 1..5); default clip is <dir>/0_0.3
+    var curNoise = 1;        // buttons 1&2 swapped; default (button 1) = index 1, clip <dir>/1_0.3
     var curIdx = 3;          // γ index (γ=0.3)
     var idleTimer = null;
     function labelFor(idx) { return (idx === 10) ? '1.0' : ('0.' + idx); }
