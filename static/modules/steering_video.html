@@ -20,17 +20,18 @@
   html, body { margin: 0; }
   body { background: var(--bg); color: var(--ink); font-family: var(--font-original);
     -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
-  .wrap { max-width: 980px; margin: 0 auto; padding: 22px 26px 36px; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 22px 26px 36px; }
   .m { font-family: var(--font-math); }
   .m i { font-style: italic; font-weight: 700; }
   .m sub { font-style: normal; font-weight: 400; }
 
   .module { background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
     box-shadow: var(--shadow); padding: 20px 20px 22px; display: flex; flex-direction: column; gap: 16px; }
-  /* Three rollouts shown in parallel (capsule + fruit + tea), sharing the
+  /* Four rollouts shown in parallel (capsule + fruit + tea + egg), sharing the
      strength slider + input-noise buttons + legend. */
-  .vidrow { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
-  @media (max-width: 640px) { .vidrow { grid-template-columns: 1fr; } }
+  .vidrow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  @media (max-width: 900px) { .vidrow { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 480px) { .vidrow { grid-template-columns: 1fr; } }
 
   /* Panels share one aspect (768/518); the taller 4:3 fruit clip is cover-fit. */
   .vidwrap { position: relative; line-height: 0; background: var(--bg); border: 1px solid var(--line);
@@ -134,6 +135,14 @@
           <span class="vidtask">Pick up the teapot</span>
           <span class="vidout"></span>
         </div>
+        <div class="vidwrap" data-dir="pot">
+          <img class="poster" src="../steering_strength/pot/0_0.3.jpg" alt="" aria-hidden="true">
+          <video muted loop playsinline preload="auto"
+                 src="../steering_strength/pot/0_0.3.mp4"
+                 aria-label="Egg rollout at the current steering strength and input noise"></video>
+          <span class="vidtask">Pick up the egg</span>
+          <span class="vidout"></span>
+        </div>
       </div>
       <div class="noise-ctl">
         <span class="k">Input noise</span>
@@ -178,7 +187,7 @@
          capsule — γ≤0.1 can't open the lid (fail); γ≥0.2 opens (success).
          fruit   — γ≤0.4 opens the gripper to regrasp (success);
                    γ≥0.5 over-steers and fails to recover (fail).
-         tea     — placeholder thresholds; refine once the outcomes are known. */
+         tea/pot — placeholder thresholds; refine once the outcomes are known. */
     var ICON_OK  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"/></svg>';
     var ICON_BAD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
     var OUTCOMES = {
@@ -187,7 +196,9 @@
       fruit:   [ { max: 4,  cls: 'ok',  txt: 'Open gripper to regrasp' },
                  { max: 10, cls: 'bad', txt: 'Fails to recover' } ],
       tea:     [ { max: 5,  cls: 'bad', txt: "Can't reach the teapot" },
-                 { max: 10, cls: 'ok',  txt: 'Grasps the teapot' } ]
+                 { max: 10, cls: 'ok',  txt: 'Grasps the teapot' } ],
+      pot:     [ { max: 5,  cls: 'bad', txt: "Can't reach the egg" },
+                 { max: 10, cls: 'ok',  txt: 'Grasps the egg' } ]
     };
     function updateOutcome(s, idx) {
       if (!s.out) return;
