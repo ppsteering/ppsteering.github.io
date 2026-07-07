@@ -191,7 +191,8 @@
          capsule — γ≤0.1 can't open the lid (fail); γ≥0.2 opens (success).
          fruit   — γ≤0.4 opens the gripper to regrasp (success);
                    γ≥0.5 over-steers and fails to recover (fail).
-         tea     — γ≤0.3 can't reach the teapot; γ≥0.4 approaches it.
+         tea     — γ≤0.3 can't reach; γ≥0.4 approaches; per-noise collisions at
+                   high γ ("collide" red / "slightly collide" yellow).
          pot     — γ≤0.3 opens gripper to regrasp (success); γ≥0.4 proceeds to
                    placing (fail), plus per-noise "proceed" overrides at low γ. */
     var ICON_OK  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"/></svg>';
@@ -211,14 +212,17 @@
     // Per-(γ index, noise index) overrides, keyed "<idx>_<noise>" (noise 0-4 =
     // buttons 1-5). Take precedence over the base rule.
     function ov(cls, txt) { return { cls: cls, txt: txt }; }
-    var SLIGHT = 'slightly open', REGRASP = 'Fails to regrasp', IMPRECISE = 'imprecise grasp', PLACING = 'Proceed to placing';
+    var SLIGHT = 'slightly open', REGRASP = 'Fails to regrasp', PLACING = 'Proceed to placing';
+    var COLLIDE = 'Collide with teapot', SLIGHT_COLLIDE = 'slightly collide with teapot';
     var OVERRIDES = {
       capsule: { '1_1': ov('mid', SLIGHT), '1_2': ov('mid', SLIGHT),
                  '2_0': ov('mid', SLIGHT), '2_1': ov('mid', SLIGHT), '2_3': ov('mid', SLIGHT), '2_4': ov('mid', SLIGHT),
                  '3_4': ov('mid', SLIGHT) },
       fruit:   { '2_0': ov('bad', REGRASP), '3_0': ov('bad', REGRASP), '3_3': ov('bad', REGRASP),
                  '4_0': ov('bad', REGRASP), '4_2': ov('bad', REGRASP), '4_3': ov('bad', REGRASP) },
-      tea:     { '10_1': ov('mid', IMPRECISE), '10_3': ov('mid', IMPRECISE), '10_4': ov('mid', IMPRECISE) },
+      tea:     { '8_1': ov('mid', SLIGHT_COLLIDE),
+                 '9_1': ov('bad', COLLIDE), '9_3': ov('mid', SLIGHT_COLLIDE), '9_4': ov('bad', COLLIDE),
+                 '10_1': ov('bad', COLLIDE), '10_3': ov('bad', COLLIDE), '10_4': ov('bad', COLLIDE) },
       pot:     { '0_3': ov('bad', PLACING),
                  '1_0': ov('bad', PLACING), '1_1': ov('bad', PLACING), '1_3': ov('bad', PLACING),
                  '2_0': ov('bad', PLACING), '2_1': ov('bad', PLACING), '2_3': ov('bad', PLACING),
