@@ -116,12 +116,10 @@ header {
 .authors a {
   color: #1b1b1b;
   text-decoration: none;
-  border-bottom: 1.5px solid #c6bba0;
-  padding-bottom: 1px;
 }
 
 .authors a:hover {
-  border-bottom-color: #1b1b1b;
+  color: #6b6453;
 }
 
 .authors sup {
