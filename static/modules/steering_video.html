@@ -140,8 +140,8 @@
           <img class="poster" src="../steering_strength/pot/1_0.4.jpg" alt="" aria-hidden="true">
           <video muted loop playsinline preload="auto"
                  src="../steering_strength/pot/1_0.4.mp4"
-                 aria-label="Egg rollout at the current steering strength and input noise"></video>
-          <span class="vidtask">Pick up the egg</span>
+                 aria-label="Pear-grasp rollout at the current steering strength and input noise"></video>
+          <span class="vidtask">Grasp the pear</span>
           <span class="vidout"></span>
         </div>
       </div>
@@ -193,8 +193,8 @@
                    γ≥0.5 over-steers and fails to recover (fail).
          tea     — γ≤0.3 can't reach; γ≥0.4 approaches; per-noise collisions at
                    high γ ("collide" red / "slightly collide" yellow).
-         pot     — γ≤0.3 opens gripper to regrasp (success); γ≥0.4 proceeds to
-                   placing (fail), plus per-noise "proceed" overrides at low γ. */
+         pot     — "grasp the pear": γ≤0.1 fails; γ≥0.2 succeeds, with per-noise
+                   slightly/unstable/missed-grasp overrides at various γ. */
     var ICON_OK  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"/></svg>';
     var ICON_BAD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
     var ICON_MID = '<span class="vo-mark" aria-hidden="true">--</span>';   // partial outcome (yellow)
@@ -206,14 +206,16 @@
                  { max: 10, cls: 'bad', txt: 'Fails to regrasp' } ],
       tea:     [ { max: 3,  cls: 'bad', txt: "Can't reach the teapot" },
                  { max: 10, cls: 'ok',  txt: 'Approach teapot' } ],
-      pot:     [ { max: 3,  cls: 'ok',  txt: 'Open gripper to regrasp' },
-                 { max: 10, cls: 'bad', txt: 'Proceed to placing' } ]
+      pot:     [ { max: 1,  cls: 'bad', txt: 'Fails to grasp' },
+                 { max: 10, cls: 'ok',  txt: 'Successfully grasp' } ]
     };
     // Per-(γ index, noise index) overrides, keyed "<idx>_<noise>" (noise 0-4 =
     // buttons 1-5). Take precedence over the base rule.
     function ov(cls, txt) { return { cls: cls, txt: txt }; }
-    var SLIGHT = 'slightly open', REGRASP = 'Fails to regrasp', PLACING = 'Proceed to placing';
+    var SLIGHT = 'slightly open', REGRASP = 'Fails to regrasp';
     var COLLIDE = 'Collide with teapot', SLIGHT_COLLIDE = 'slightly collide with teapot';
+    var GRASP_FAIL = 'Fails to grasp', GRASP_OK = 'Successfully grasp', GRASP_SLIGHT = 'Slightly grasp',
+        GRASP_UNSTABLE = 'Unstable grasp', GRASP_MISS = 'Missed grasp';
     var OVERRIDES = {
       capsule: { '1_1': ov('mid', SLIGHT), '1_2': ov('mid', SLIGHT),
                  '2_0': ov('mid', SLIGHT), '2_1': ov('mid', SLIGHT), '2_3': ov('mid', SLIGHT), '2_4': ov('mid', SLIGHT),
@@ -223,10 +225,13 @@
       tea:     { '8_1': ov('mid', SLIGHT_COLLIDE),
                  '9_1': ov('bad', COLLIDE), '9_3': ov('mid', SLIGHT_COLLIDE), '9_4': ov('bad', COLLIDE),
                  '10_1': ov('bad', COLLIDE), '10_3': ov('bad', COLLIDE), '10_4': ov('bad', COLLIDE) },
-      pot:     { '0_3': ov('bad', PLACING),
-                 '1_0': ov('bad', PLACING), '1_1': ov('bad', PLACING), '1_3': ov('bad', PLACING),
-                 '2_0': ov('bad', PLACING), '2_1': ov('bad', PLACING), '2_3': ov('bad', PLACING),
-                 '3_0': ov('bad', PLACING), '3_1': ov('bad', PLACING), '3_3': ov('bad', PLACING), '3_4': ov('bad', PLACING) }
+      pot:     { '2_0': ov('bad', GRASP_FAIL), '2_2': ov('bad', GRASP_FAIL), '2_3': ov('bad', GRASP_FAIL),
+                 '3_2': ov('mid', GRASP_SLIGHT), '3_4': ov('mid', GRASP_SLIGHT),
+                 '4_4': ov('mid', GRASP_SLIGHT),
+                 '7_3': ov('mid', GRASP_SLIGHT), '7_4': ov('mid', GRASP_SLIGHT),
+                 '8_2': ov('mid', GRASP_UNSTABLE), '8_4': ov('mid', GRASP_UNSTABLE),
+                 '9_2': ov('mid', GRASP_UNSTABLE), '9_4': ov('bad', GRASP_MISS),
+                 '10_2': ov('mid', GRASP_UNSTABLE), '10_3': ov('mid', GRASP_SLIGHT), '10_4': ov('bad', GRASP_MISS) }
     };
     function updateOutcome(s, idx, noise) {
       if (!s.out) return;
