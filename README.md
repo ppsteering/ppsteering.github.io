@@ -2,7 +2,7 @@
 
 Anonymous project page for the CoRL 2026 submission **"Proxy Policy Steering:
 Inference-Time Adaptation of Robotic Foundation Models"**. Live at
-<https://proxy-policy-steering.github.io>.
+<https://ppsteering.github.io>.
 
 The page is based on the [Nerfies project page template](https://github.com/nerfies/nerfies.github.io)
 (CC-BY-SA 4.0) with all author-identifying links removed.
