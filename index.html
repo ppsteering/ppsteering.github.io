@@ -1484,7 +1484,7 @@
         and watch the trade off between base priors and task guidance.
       </p>
       <div class="pps-embed-block">
-        <iframe class="pps-embed-frame" data-embed src="./static/modules/steering_video.html?v=44"
+        <iframe class="pps-embed-frame" data-embed src="./static/modules/steering_video.html?v=45"
                 title="Real rollout vs. steering strength" scrolling="no" loading="lazy"></iframe>
       </div>
 
@@ -1545,7 +1545,7 @@
 
       <div class="figure-row">
         <figure>
-          <img src="./static/images/gamma_web.png" style="width:100%; height:220px; object-fit:contain;"
+          <img src="./static/images/gamma_web.png" class="analysis-fig"
                alt="Success rate versus steering scale: PPS peaks near 0.4 to 0.6, above the specialist and base baselines.">
           <p class="figure-caption">
             <strong>Steering strength.</strong> The coefficient
@@ -1556,7 +1556,7 @@
           </p>
         </figure>
         <figure>
-          <img src="./static/images/ablation_average_success_rate_web.png" style="width:100%; height:220px; object-fit:contain;"
+          <img src="./static/images/ablation_average_success_rate_web.png" class="analysis-fig"
                alt="Proxy-training ablation: w/o ref, w/o vel, and w/o tune all trail the full method.">
           <p class="figure-caption">
             <strong>Proxy training.</strong> On-policy distillation,
@@ -1565,12 +1565,22 @@
             difference is an informative task signal.           </p>
         </figure>
         <figure>
-          <img src="./static/images/failure_pps_web.png" style="width:100%; height:220px; object-fit:contain;"
+          <img src="./static/images/failure_pps_web.png" class="analysis-fig"
                alt="Failure-mode breakdown for Specialist, base, and PPS by root cause; PPS has far fewer total failures.">
           <p class="figure-caption">
             <strong>Failure modes.</strong> PPS fails far less often than the
             specialist and base, cutting incorrect-mode errors 69% versus the
             base and out-of-distribution errors 44% versus the specialist.
+          </p>
+        </figure>
+        <figure>
+          <img src="./static/images/data_scaling_web.png" class="analysis-fig"
+               alt="Data scaling on Tea and Capsule: success rate versus number of demonstrations from 50 to 200 for Specialist, LoRA, and PPS.">
+          <p class="figure-caption">
+            <strong>Data scaling.</strong> On the two lowest-success tasks (Tea
+            and Capsule), PPS leads at every demonstration budget from 50 to 200,
+            with its largest margin in the low-data regime. The from-scratch
+            specialist improves steadily and catches up near 200 demonstrations.
           </p>
         </figure>
       </div>
@@ -1591,6 +1601,7 @@
       <div class="crossmod-grid">
         <div class="crossmod-col-header">Additional Modality</div>
         <div class="crossmod-col-header">Steered Policy Rollout</div>
+        <div class="crossmod-col-header">Success Rate</div>
         <div class="crossmod-cell">
           <video class="crossmod-video" src="./static/videos/pointcloud_mod.mp4"
                  autoplay muted loop playsinline preload="metadata"></video>
@@ -1599,6 +1610,10 @@
         <div class="crossmod-cell">
           <video class="crossmod-video" src="./static/videos/pointcloud_base.mp4"
                  autoplay muted loop playsinline preload="metadata"></video>
+        </div>
+        <div class="crossmod-chart">
+          <img src="./static/images/multimodal_marble_web.png"
+               alt="Marble task success rate: PPS reaches about 82%, ahead of Specialist, LoRA, LoRA-MM, DSRL, and the base policy.">
         </div>
 
         <div class="crossmod-cell">
@@ -1626,6 +1641,13 @@
           <video class="crossmod-video" src="./static/videos/audio_base.mp4"
                  autoplay muted loop playsinline preload="metadata"></video>
         </div>
+        <div class="crossmod-chart">
+          <img src="./static/images/multimodal_phone_web.png"
+               alt="Phone task success rate: PPS reaches about 86%, ahead of LoRA-MM, Specialist, LoRA, DSRL, and the base policy.">
+        </div>
+      </div>
+      <div class="crossmod-legend">
+        <img src="./static/images/multimodal_legend_web.png" alt="Legend: base policy, Specialist, DSRL, LoRA, LoRA-MM, PPS.">
       </div>
     </section>
 

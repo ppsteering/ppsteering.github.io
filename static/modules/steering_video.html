@@ -29,6 +29,14 @@
     box-shadow: var(--shadow); padding: 20px 20px 22px; display: flex; flex-direction: column; gap: 16px; }
   /* Four rollouts shown in parallel (capsule + fruit + tea + egg), sharing the
      strength slider + input-noise buttons + legend. */
+  /* Task tabs (matches the Baseline Comparison carousel tabs). */
+  .task-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .task-tabs button { font: 600 14px/1.2 var(--font-original); color: var(--sub); background: var(--panel);
+    border: 1px solid var(--line); border-radius: 10px; padding: 10px 8px; cursor: pointer;
+    text-align: center; transition: all .18s ease; }
+  .task-tabs button:hover { background: var(--soft); }
+  .task-tabs button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+  /* 2×2 grid = the 4 input-noise samples of the selected task. */
   .vidrow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   @media (max-width: 420px) { .vidrow { grid-template-columns: 1fr; } }
 
@@ -37,6 +45,7 @@
     border-radius: 8px; overflow: hidden; aspect-ratio: 768 / 518; }
   /* Subtask label overlaid on the rollout, top-left. */
   .vidwrap .vidtask { position: absolute; top: 14px; left: 14px; z-index: 4;
+    font-family: var(--font-mono); font-size: 13px; font-weight: 500;
     font: 700 15px/1 var(--font-original); color: #fff;
     background: rgba(27, 27, 27, 0.7); padding: 6px 12px; border-radius: 8px;
     letter-spacing: 0; pointer-events: none; }
@@ -74,8 +83,8 @@
   .ctl-label { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
   .ctl-label .k { font-family: var(--font-original); font-size: 18px; font-weight: 600; }
   .ctl-label .v { font-family: var(--font-original); font-size: 18px; color: var(--resid); font-weight: 500; }
-  input[type=range] { -webkit-appearance: none; appearance: none; width: calc(100% - 56px); height: 4px;
-    background: var(--line); border-radius: 99px; outline: none; margin: 6px auto 2px; display: block; }
+  input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 4px;
+    background: var(--line); border-radius: 99px; outline: none; margin: 6px 0 2px; display: block; }
   input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none;
     width: 18px; height: 18px; border-radius: 50%; background: var(--resid);
     border: 3px solid var(--panel); box-shadow: var(--shadow); cursor: pointer; }
@@ -111,53 +120,36 @@
 <body data-theme="a">
   <div class="wrap">
     <div class="module">
-      <div class="vidrow">
-        <div class="vidwrap" data-dir="capsule">
-          <img class="poster" src="../steering_strength/capsule/1_0.4.jpg" alt="" aria-hidden="true">
-          <video muted loop playsinline preload="auto"
-                 src="../steering_strength/capsule/1_0.4.mp4"
-                 aria-label="Capsule rollout at the current steering strength and input noise"></video>
-          <span class="vidtask">Open the lid</span>
-          <span class="vidout"></span>
-        </div>
-        <div class="vidwrap" data-dir="pot">
-          <img class="poster" src="../steering_strength/pot/1_0.4.jpg" alt="" aria-hidden="true">
-          <video muted loop playsinline preload="auto"
-                 src="../steering_strength/pot/1_0.4.mp4"
-                 aria-label="Pear-grasp rollout at the current steering strength and input noise"></video>
-          <span class="vidtask">Grasp the pear</span>
-          <span class="vidout"></span>
-        </div>
-        <div class="vidwrap" data-dir="tea">
-          <img class="poster" src="../steering_strength/tea/1_0.4.jpg" alt="" aria-hidden="true">
-          <video muted loop playsinline preload="auto"
-                 src="../steering_strength/tea/1_0.4.mp4"
-                 aria-label="Tea rollout at the current steering strength and input noise"></video>
-          <span class="vidtask">Pick up the teapot</span>
-          <span class="vidout"></span>
-        </div>
-        <div class="vidwrap" data-dir="fruit">
-          <img class="poster" src="../steering_strength/fruit/1_0.4.jpg" alt="" aria-hidden="true">
-          <video muted loop playsinline preload="auto"
-                 src="../steering_strength/fruit/1_0.4.mp4"
-                 aria-label="Fruit rollout at the current steering strength and input noise"></video>
-          <span class="vidtask">Regrasp the pear</span>
-          <span class="vidout"></span>
-        </div>
+      <div class="task-tabs" id="task-tabs" role="tablist" aria-label="Task">
+        <button type="button" data-dir="capsule" class="on">Open the lid</button>
+        <button type="button" data-dir="pot">Grasp the pear</button>
+        <button type="button" data-dir="tea">Pick up the teapot</button>
+        <button type="button" data-dir="fruit">Regrasp the pear</button>
       </div>
-      <div class="noise-ctl">
-        <span class="k">Input noise</span>
-        <!-- Buttons 1 and 2 are swapped: button "1" → noise index 1, button "2"
-             → noise index 0 (buttons 3-5 map identically). data-noise is the
-             single source that drives both the clip path and the override key. -->
-        <div class="noise-btns" id="noise-btns" role="group" aria-label="Input noise sample">
-          <button type="button" data-noise="1" class="on">1</button>
-          <button type="button" data-noise="0">2</button>
-          <button type="button" data-noise="2">3</button>
-          <button type="button" data-noise="3">4</button>
-          <!-- noise 5 (index 4) commented out per request; its clips (<dir>/4_*) stay on disk but are no longer selectable/loaded.
-          <button type="button" data-noise="4">5</button>
-          -->
+      <div class="vidrow">
+        <div class="vidwrap" data-noise="1">
+          <img class="poster" src="" alt="" aria-hidden="true">
+          <video muted loop playsinline preload="auto" aria-label="Rollout for input noise 1 at the current steering strength"></video>
+          <span class="vidtask">Input noise 1</span>
+          <span class="vidout"></span>
+        </div>
+        <div class="vidwrap" data-noise="0">
+          <img class="poster" src="" alt="" aria-hidden="true">
+          <video muted loop playsinline preload="auto" aria-label="Rollout for input noise 2 at the current steering strength"></video>
+          <span class="vidtask">Input noise 2</span>
+          <span class="vidout"></span>
+        </div>
+        <div class="vidwrap" data-noise="2">
+          <img class="poster" src="" alt="" aria-hidden="true">
+          <video muted loop playsinline preload="auto" aria-label="Rollout for input noise 3 at the current steering strength"></video>
+          <span class="vidtask">Input noise 3</span>
+          <span class="vidout"></span>
+        </div>
+        <div class="vidwrap" data-noise="3">
+          <img class="poster" src="" alt="" aria-hidden="true">
+          <video muted loop playsinline preload="auto" aria-label="Rollout for input noise 4 at the current steering strength"></video>
+          <span class="vidtask">Input noise 4</span>
+          <span class="vidout"></span>
         </div>
       </div>
       <div>
@@ -184,8 +176,9 @@
        The step (planning horizon) is baked in per task during encoding
        (capsule=step 2, fruit=step 1, tea=step 2). Posters cover the reload
        gap while changing γ / noise so there's no black flash. */
-    var sets = Array.prototype.map.call(document.querySelectorAll('.vidwrap[data-dir]'), function (w) {
-      return { wrap: w, dir: w.dataset.dir, poster: w.querySelector('img.poster'),
+    var curDir = 'capsule';   // selected task (tabs); each panel is one input-noise sample
+    var sets = Array.prototype.map.call(document.querySelectorAll('.vidwrap[data-noise]'), function (w) {
+      return { wrap: w, noise: +w.dataset.noise, poster: w.querySelector('img.poster'),
                video: w.querySelector('video'), out: w.querySelector('.vidout') };
     });
 
@@ -235,11 +228,12 @@
                  '9_2': ov('mid', GRASP_UNSTABLE), '9_1': ov('bad', GRASP_MISS),
                  '10_2': ov('mid', GRASP_UNSTABLE), '10_3': ov('mid', GRASP_SLIGHT), '10_1': ov('bad', GRASP_MISS) }
     };
-    function updateOutcome(s, idx, noise) {
+    function updateOutcome(s, idx) {
       if (!s.out) return;
-      var o = (OVERRIDES[s.dir] && OVERRIDES[s.dir][idx + '_' + noise]) || null;
+      var noise = s.noise;
+      var o = (OVERRIDES[curDir] && OVERRIDES[curDir][idx + '_' + noise]) || null;
       if (!o) {
-        var rules = OUTCOMES[s.dir] || [];
+        var rules = OUTCOMES[curDir] || [];
         for (var i = 0; i < rules.length; i++) { if (idx <= rules[i].max) { o = rules[i]; break; } }
       }
       if (!o) return;
@@ -248,14 +242,13 @@
       s.out.innerHTML = mark + '<span>' + o.txt + '</span>';
     }
 
-    var curNoise = 1;        // buttons 1&2 swapped; default (button 1) = index 1, clip <dir>/1_0.4
     var curIdx = 4;          // γ index (γ=0.4)
     var idleTimer = null;
     function labelFor(idx) { return (idx === 10) ? '1.0' : ('0.' + idx); }
-    function clipBase(dir) { return '../steering_strength/' + dir + '/' + curNoise + '_' + labelFor(curIdx); }
-    function vsrc(dir) { return clipBase(dir) + '.mp4'; }
-    function psrc(dir) { return clipBase(dir) + '.jpg'; }
-    function setMatchesCur(s) { return s.video.src.indexOf('/' + s.dir + '/' + curNoise + '_' + labelFor(curIdx) + '.mp4') !== -1; }
+    function clipBase(noise) { return '../steering_strength/' + curDir + '/' + noise + '_' + labelFor(curIdx); }
+    function vsrc(noise) { return clipBase(noise) + '.mp4'; }
+    function psrc(noise) { return clipBase(noise) + '.jpg'; }
+    function setMatchesCur(s) { return s.video.src.indexOf('/' + curDir + '/' + s.noise + '_' + labelFor(curIdx) + '.mp4') !== -1; }
 
     // Load (if needed) and play one panel's rollout for the current γ + noise.
     // With autoplay removed, a freshly-swapped src must finish loading before we
@@ -266,7 +259,7 @@
         if (pr && pr.catch) pr.catch(function () {});
         return;
       }
-      s.video.src = vsrc(s.dir);
+      s.video.src = vsrc(s.noise);
       s.video.addEventListener('canplay', function () {
         if (!setMatchesCur(s)) return;   // changed again; a later playAll covers it
         var pr = s.video.play();
@@ -279,7 +272,7 @@
     // Swap every panel's poster to the current (noise, γ), hide the stale video,
     // and (debounced) auto-play once the controls have been idle `delay` ms.
     function applyState(delay) {
-      sets.forEach(function (s) { s.poster.src = psrc(s.dir); s.wrap.classList.remove('playing'); });
+      sets.forEach(function (s) { s.poster.src = psrc(s.noise); s.wrap.classList.remove('playing'); });
       if (idleTimer) clearTimeout(idleTimer);
       idleTimer = setTimeout(playAll, delay);
     }
@@ -291,13 +284,13 @@
     });
 
     // Preload one noise row (all γ, all panels) so dragging swaps instantly.
-    function preloadRow(noise) {
+    function preloadTask(dir) {
       sets.forEach(function (s) {
-        for (var i = 0; i <= 10; i++) { var im = new Image(); im.src = '../steering_strength/' + s.dir + '/' + noise + '_' + labelFor(i) + '.jpg'; }
+        for (var i = 0; i <= 10; i++) { var im = new Image(); im.src = '../steering_strength/' + dir + '/' + s.noise + '_' + labelFor(i) + '.jpg'; }
       });
     }
-    preloadRow(curNoise);
-    sets.forEach(function (s) { updateOutcome(s, curIdx, curNoise); });
+    preloadTask(curDir);
+    sets.forEach(function (s) { s.poster.src = psrc(s.noise); s.video.src = vsrc(s.noise); updateOutcome(s, curIdx); });
 
     // Autoplay removed: hold on the poster and start the first playback 2 s
     // after load if the controls are left alone. Any change reschedules this.
@@ -311,20 +304,20 @@
       document.getElementById('gval').textContent = fmt(g);
       if (idx === curIdx) return;
       curIdx = idx;
-      sets.forEach(function (s) { updateOutcome(s, idx, curNoise); });
+      sets.forEach(function (s) { updateOutcome(s, idx); });
       applyState(2000);
     });
 
-    // Input-noise buttons (1..5 → noise 0..4), shared across all panels.
-    var noiseBtns = Array.prototype.slice.call(document.querySelectorAll('#noise-btns button'));
-    noiseBtns.forEach(function (b) {
+    // Task tabs: switch which task's 4 input-noise rollouts are shown.
+    var taskBtns = Array.prototype.slice.call(document.querySelectorAll('#task-tabs button'));
+    taskBtns.forEach(function (b) {
       b.addEventListener('click', function () {
-        var n = +b.dataset.noise;
-        if (n === curNoise) return;
-        curNoise = n;
-        noiseBtns.forEach(function (x) { x.classList.toggle('on', +x.dataset.noise === curNoise); });
-        sets.forEach(function (s) { updateOutcome(s, curIdx, curNoise); });
-        preloadRow(curNoise);
+        var d = b.dataset.dir;
+        if (d === curDir) return;
+        curDir = d;
+        taskBtns.forEach(function (x) { x.classList.toggle('on', x.dataset.dir === curDir); });
+        sets.forEach(function (s) { updateOutcome(s, curIdx); });
+        preloadTask(curDir);
         applyState(700);
       });
     });
