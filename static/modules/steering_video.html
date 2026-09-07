@@ -121,8 +121,8 @@
   <div class="wrap">
     <div class="module">
       <div class="task-tabs" id="task-tabs" role="tablist" aria-label="Task">
-        <button type="button" data-dir="capsule" class="on">Open the lid</button>
-        <button type="button" data-dir="pot">Grasp the pear</button>
+        <button type="button" data-dir="pot" class="on">Grasp the pear</button>
+        <button type="button" data-dir="capsule">Open the lid</button>
         <button type="button" data-dir="tea">Pick up the teapot</button>
         <button type="button" data-dir="fruit">Regrasp the pear</button>
       </div>
@@ -176,7 +176,7 @@
        The step (planning horizon) is baked in per task during encoding
        (capsule=step 2, fruit=step 1, tea=step 2). Posters cover the reload
        gap while changing γ / noise so there's no black flash. */
-    var curDir = 'capsule';   // selected task (tabs); each panel is one input-noise sample
+    var curDir = 'pot';      // selected task (tabs); each panel is one input-noise sample
     var sets = Array.prototype.map.call(document.querySelectorAll('.vidwrap[data-noise]'), function (w) {
       return { wrap: w, noise: +w.dataset.noise, poster: w.querySelector('img.poster'),
                video: w.querySelector('video'), out: w.querySelector('.vidout') };

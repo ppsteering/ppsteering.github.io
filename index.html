@@ -1485,7 +1485,7 @@
         and watch the trade off between base priors and task guidance.
       </p>
       <div class="pps-embed-block">
-        <iframe class="pps-embed-frame" data-embed src="./static/modules/steering_video.html?v=45"
+        <iframe class="pps-embed-frame" data-embed src="./static/modules/steering_video.html?v=46"
                 title="Real rollout vs. steering strength" scrolling="no" loading="lazy"></iframe>
       </div>
 
@@ -1557,13 +1557,14 @@
           </p>
         </figure>
         <figure>
-          <img src="./static/images/ablation_average_success_rate_web.png" class="analysis-fig"
-               alt="Proxy-training ablation: w/o ref, w/o vel, and w/o tune all trail the full method.">
+          <img src="./static/images/data_scaling_web.png" class="analysis-fig"
+               alt="Data scaling on Tea and Capsule: success rate versus number of demonstrations from 50 to 200 for Specialist, LoRA, and PPS.">
           <p class="figure-caption">
-            <strong>Proxy training.</strong> On-policy distillation,
-            velocity-level supervision, and reference initialization each
-            ensure the two proxies differ by task supervision alone, and their
-            difference is an informative task signal.           </p>
+            <strong>Data scaling.</strong> On the two lowest-success tasks (Tea
+            and Capsule), PPS leads at every demonstration budget from 50 to 200,
+            with its largest margin in the low-data regime. The from-scratch
+            specialist improves steadily and catches up near 200 demonstrations.
+          </p>
         </figure>
         <figure>
           <img src="./static/images/failure_pps_web.png" class="analysis-fig"
@@ -1575,14 +1576,13 @@
           </p>
         </figure>
         <figure>
-          <img src="./static/images/data_scaling_web.png" class="analysis-fig"
-               alt="Data scaling on Tea and Capsule: success rate versus number of demonstrations from 50 to 200 for Specialist, LoRA, and PPS.">
+          <img src="./static/images/ablation_average_success_rate_web.png" class="analysis-fig"
+               alt="Proxy-training ablation: w/o ref, w/o vel, and w/o tune all trail the full method.">
           <p class="figure-caption">
-            <strong>Data scaling.</strong> On the two lowest-success tasks (Tea
-            and Capsule), PPS leads at every demonstration budget from 50 to 200,
-            with its largest margin in the low-data regime. The from-scratch
-            specialist improves steadily and catches up near 200 demonstrations.
-          </p>
+            <strong>Proxy training.</strong> On-policy distillation,
+            velocity-level supervision, and reference initialization each
+            ensure the two proxies differ by task supervision alone, and their
+            difference is an informative task signal.           </p>
         </figure>
       </div>
     </section>
