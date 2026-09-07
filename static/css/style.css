@@ -139,6 +139,17 @@ header {
   color: #888;
 }
 
+/* Venue sits under the footnote but is not one — the accent keeps it from
+   reading as a third line of fine print after two greyed-out ones. */
+.venue {
+  display: block;
+  margin-top: 10px;
+  color: #4f9d5d;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
 /* ---------- Resource buttons (paper / arXiv / code) ---------- */
 
 .hero-links {
