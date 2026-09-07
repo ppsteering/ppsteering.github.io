@@ -9,7 +9,7 @@
   <meta name="keywords"
         content="Proxy Policy Steering, PPS, VLA, robotic foundation models, flow matching, policy steering">
   <link rel="icon" href="./static/images/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./static/css/style.css?v=12">
+  <link rel="stylesheet" href="./static/css/style.css?v=13">
   <style>
     /* Interactive module embeds (added). Each module is an isolated same-origin
        iframe under static/modules/, auto-sized to its content by the script at
@@ -53,6 +53,12 @@
                  src="./static/captions/introduction.vtt?v=4" default>
           Your browser does not support the HTML5 video tag.
         </video>
+
+        <!-- Captions are drawn here rather than by the browser: ::cue accepts
+             only a few properties and the OS caption settings can override it
+             (macOS adds a text-edge shadow), so the track is kept 'hidden' and
+             the active cue is written into this element instead. -->
+        <p class="hero-captions" aria-hidden="true"></p>
 
         <div class="hero-controls" aria-label="Video controls">
           <button type="button" class="hero-btn hero-play"
@@ -1766,6 +1772,7 @@
     var playBtn = controls.querySelector('.hero-play');
     var muteBtn = controls.querySelector('.hero-mute');
     var ccBtn   = controls.querySelector('.hero-cc');
+    var capEl   = video.parentElement.querySelector('.hero-captions');
     var bar     = controls.querySelector('.hero-progress');
     var fill    = controls.querySelector('.hero-progress-fill');
     var timeEl  = controls.querySelector('.hero-time');
@@ -1791,17 +1798,36 @@
       muteBtn.setAttribute('title', label);
     }
 
-    /* Captions live in a WebVTT sidecar; the custom control bar replaces the
-       native one, so the track is shown/hidden explicitly rather than by the
-       browser's own CC menu. On by default because the hero autoplays muted. */
+    /* Captions live in a WebVTT sidecar. The track stays in 'hidden' mode --
+       that still tracks activeCues and fires cuechange, it just stops the
+       browser drawing them -- and the active cue is rendered into .hero-captions
+       so its styling is entirely ours. On by default: the hero autoplays muted. */
+    var captionsOn = true;
+
     function captionTrack() {
       var t = video.textTracks && video.textTracks[0];
       return (t && t.kind === 'captions') ? t : null;
     }
 
-    function setCaptions(on) {
+    function renderCue() {
       var t = captionTrack();
-      if (t) t.mode = on ? 'showing' : 'hidden';
+      var active = (t && t.activeCues) ? t.activeCues : null;
+      if (!captionsOn || !active || !active.length) {
+        if (capEl.firstChild) capEl.textContent = '';
+        return;
+      }
+      var cue = active[0];
+      if (capEl.textContent !== cue.text) capEl.textContent = cue.text;
+      /* Cue lines are counted up from the bottom, as in the VTT. */
+      var line = (typeof cue.line === 'number' && isFinite(cue.line)) ? Math.abs(cue.line) : 2;
+      capEl.style.setProperty('--cap-line', line);
+    }
+
+    function setCaptions(on) {
+      captionsOn = on;
+      var t = captionTrack();
+      if (t && t.mode !== 'hidden') t.mode = 'hidden';
+      renderCue();
       ccBtn.classList.toggle('is-on', on);
       var label = on ? 'Hide captions' : 'Show captions';
       ccBtn.setAttribute('aria-label', label);
@@ -1816,6 +1842,7 @@
       fill.style.width = pct + '%';
       bar.setAttribute('aria-valuenow', Math.round(pct));
       timeEl.textContent = fmt(t) + ' / ' + fmt(d);
+      renderCue();
     }
 
     playBtn.addEventListener('click', function () {
@@ -1836,17 +1863,21 @@
     });
 
     ccBtn.addEventListener('click', function () {
-      var t = captionTrack();
-      setCaptions(!(t && t.mode === 'showing'));
+      setCaptions(!captionsOn);
     });
 
-    /* The track element may not be parsed yet on first run; setting mode once
-       the track loads keeps the default-on state reliable across browsers. */
+    /* The track may not be parsed on first run, so bind cuechange once it is. */
+    function bindCues() {
+      var t = captionTrack();
+      if (!t || t._bound) return;
+      t._bound = true;
+      t.addEventListener('cuechange', renderCue);
+      setCaptions(captionsOn);
+    }
     setCaptions(true);
+    bindCues();
     var trackEl = video.querySelector('track');
-    if (trackEl) trackEl.addEventListener('load', function () { 
-      if (ccBtn.classList.contains('is-on')) setCaptions(true);
-    });
+    if (trackEl) trackEl.addEventListener('load', bindCues);
 
     function seekFromEvent(ev) {
       var rect = bar.getBoundingClientRect();

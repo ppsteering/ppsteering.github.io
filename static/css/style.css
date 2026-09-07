@@ -368,6 +368,8 @@ header {
 /* ---------- Hero video custom controls (no native panel) ---------- */
 
 .hero-video {
+  /* Sizing context for .hero-captions, so cue text scales with the video. */
+  container-type: inline-size;
   position: relative;
   display: block;
   width: 100%;
@@ -455,18 +457,33 @@ header {
 .hero-cc.is-on { opacity: 1; }
 .hero-cc:hover { opacity: 1; }
 
-/* Caption cues. Plain white text: no background box and no shadow. */
-#heroVideo::cue {
-  background: transparent;
-  color: #fff;
+/* Captions are rendered into .hero-captions by the player script, not by the
+   browser's own cue layer: ::cue accepts only a handful of properties, and the
+   OS caption settings (macOS Accessibility > Captions) can impose a text-edge
+   shadow that page CSS cannot override. Drawing them ourselves guarantees
+   plain white text with no box and no shadow. */
+.hero-captions {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  /* Cue lines counted up from the bottom, matching the VTT's line:-N. */
+  bottom: calc(var(--cap-line, 2) * 1.3em);
+  z-index: 2;
+  margin: 0;
+  text-align: center;
   font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
-  /* The ceiling for one-line cues is ~0.70em: at the WebVTT default cue size
-     of 5% of video height, the longest cue (108 chars) measures 50.7x its font
-     size in Inter against a 16:9 width. 0.53em sits well under that, so every
-     cue stays on one line with room to spare. */
-  font-size: 0.53em;
+  font-size: 13px;             /* fallback where container queries are missing */
+  font-size: 1.49cqw;          /* scales with the video, like a native cue */
   line-height: 1.3;
+  color: #fff;
+  background: none;
   text-shadow: none;
+  white-space: pre-line;
+  pointer-events: none;
+}
+
+.hero-captions:empty {
+  display: none;
 }
 
 .hero-progress {
