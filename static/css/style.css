@@ -466,9 +466,7 @@ header {
 .hero-cc.is-on { opacity: 1; }
 .hero-cc:hover { opacity: 1; }
 
-/* Caption cues. No background box — legibility comes from the text shadow,
-   which has to carry the text over both the bright slides and the dark lab
-   footage. ::cue accepts only a short property list; text-shadow is in it. */
+/* Caption cues. Plain white text: no background box and no shadow. */
 #heroVideo::cue {
   background: transparent;
   color: #fff;
@@ -479,7 +477,7 @@ header {
      cue stays on one line with room to spare. */
   font-size: 0.53em;
   line-height: 1.3;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95), 0 0 7px rgba(0, 0, 0, 0.75);
+  text-shadow: none;
 }
 
 .hero-progress {
