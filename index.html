@@ -9,7 +9,7 @@
   <meta name="keywords"
         content="Proxy Policy Steering, PPS, VLA, robotic foundation models, flow matching, policy steering">
   <link rel="icon" href="./static/images/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./static/css/style.css?v=8">
+  <link rel="stylesheet" href="./static/css/style.css?v=9">
   <style>
     /* Interactive module embeds (added). Each module is an isolated same-origin
        iframe under static/modules/, auto-sized to its content by the script at
@@ -87,7 +87,11 @@
                     stroke-width="2.5" stroke-linecap="round"></line>
             </svg>
           </button>
+        </div>
 
+        <!-- Captions are a preference, not a transport control, so the CC
+             toggle sits outside the bar that fades in on hover. -->
+        <div class="hero-cc-dock">
           <button type="button" class="hero-btn hero-cc is-on"
                   aria-label="Hide captions" title="Hide captions" aria-pressed="true">
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -1764,7 +1768,7 @@
     var controls = video.parentElement.querySelector('.hero-controls');
     var playBtn = controls.querySelector('.hero-play');
     var muteBtn = controls.querySelector('.hero-mute');
-    var ccBtn   = controls.querySelector('.hero-cc');
+    var ccBtn   = video.parentElement.querySelector('.hero-cc');
     var bar     = controls.querySelector('.hero-progress');
     var fill    = controls.querySelector('.hero-progress-fill');
     var timeEl  = controls.querySelector('.hero-time');
