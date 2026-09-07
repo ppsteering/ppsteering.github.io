@@ -389,8 +389,7 @@ header {
   display: flex;
   align-items: center;
   gap: 12px;
-  /* Right padding clears the always-visible CC dock. */
-  padding: 0 62px 12px 14px;
+  padding: 0 14px 12px 14px;
   /* No background panel — buttons + bar carry their own contrast. */
   opacity: 0;
   transition: opacity 0.18s ease;
@@ -450,16 +449,6 @@ header {
 .hero-mute.is-on .speaker-waves { display: block; }
 .hero-mute.is-on .speaker-slash { display: none; }
 
-/* The CC toggle sits outside .hero-controls: opacity on that parent would cap
-   the child's, so a button inside it can never stay visible while it fades. */
-.hero-cc-dock {
-  position: absolute;
-  right: 14px;
-  bottom: 12px;
-  z-index: 4;
-  line-height: 0;
-}
-
 /* CC toggle: dimmed when captions are off, full contrast when on — the CC
    glyph has no natural "off" form the way the speaker has its slash. */
 .hero-cc { opacity: 0.55; }
@@ -518,13 +507,8 @@ header {
 
 @media (max-width: 700px) {
   .hero-controls {
-    /* Right padding still has to clear the CC dock, which is 32px wide here. */
-    padding: 0 51px 10px 10px;
+    padding: 0 10px 10px 10px;
     gap: 9px;
-  }
-  .hero-cc-dock {
-    right: 10px;
-    bottom: 10px;
   }
   .hero-btn {
     width: 32px;
