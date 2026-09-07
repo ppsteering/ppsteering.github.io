@@ -477,6 +477,12 @@ header {
   line-height: 1.3;
   color: #fff;
   background: none;
+  /* Contrast comes from a hard outline rather than a blur: the video runs from
+     near-white slides to a dark lab, so plain white text disappears on half of
+     it, but a blurred shadow reads as a halo behind the letters. paint-order
+     puts the stroke behind the fill so the letterforms stay sharp. */
+  -webkit-text-stroke: 0.11em rgba(0, 0, 0, 0.72);
+  paint-order: stroke fill;
   text-shadow: none;
   white-space: pre-line;
   pointer-events: none;
