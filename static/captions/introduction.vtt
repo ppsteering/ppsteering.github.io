@@ -1,0 +1,161 @@
+WEBVTT
+
+1
+00:00:00.547 --> 00:00:06.488 line:-2 align:center
+We introduce Proxy Policy Steering an inference time adaptation method for robotics foundation models
+
+2
+00:00:07.040 --> 00:00:11.334 line:-2 align:center
+Generalist policies carry broad manipulation priors from large scale data
+
+3
+00:00:12.470 --> 00:00:18.249 line:-2 align:center
+However they still struggle in downstream tasks that are underrepresented in the training distribution
+
+4
+00:00:18.309 --> 00:00:21.300 line:-2 align:center
+Direct fine tuning methods tackle this by modifying the base policy
+
+5
+00:00:21.360 --> 00:00:24.478 line:-2 align:center
+weights reshaping the base policy action distribution
+
+6
+00:00:25.107 --> 00:00:27.200 line:-2 align:center
+While this effectively adapts the policy behavior
+
+7
+00:00:27.260 --> 00:00:31.495 line:-2 align:center
+it can overfit to the limited demonstrations and lose the general priors
+
+8
+00:00:32.720 --> 00:00:36.520 line:-2 align:center
+Existing steering methods like DSRL change the initial noise or
+
+9
+00:00:36.580 --> 00:00:40.168 line:-2 align:center
+flow matching process to select actions suitable for the task
+
+10
+00:00:40.358 --> 00:00:46.417 line:-2 align:center
+However the sampled actions still stay within the base distribution and fail to deliver novel behaviors
+
+11
+00:00:46.680 --> 00:00:51.151 line:-2 align:center
+How could generalist policies learn new skills without losing the base prior
+
+12
+00:00:52.332 --> 00:00:54.000 line:-2 align:center
+We propose Proxy Policy Steering
+
+13
+00:00:54.060 --> 00:00:59.160 line:-2 align:center
+Instead of reshaping the base action distribution we estimate how task supervision would change it
+
+14
+00:00:59.220 --> 00:01:04.894 line:-2 align:center
+Specifically we distill the base policy into a lightweight reference proxy under task observations
+
+15
+00:01:04.954 --> 00:01:09.306 line:-2 align:center
+We then fine tune this proxy under task supervision to obtain a task proxy
+
+16
+00:01:09.644 --> 00:01:12.480 line:-2 align:center
+At inference we take the velocity predictions of all three models
+
+17
+00:01:12.540 --> 00:01:15.893 line:-2 align:center
+subtract the reference velocity and add the task velocity
+
+18
+00:01:18.038 --> 00:01:20.120 line:-2 align:center
+This residual captures the task induced shift
+
+19
+00:01:20.180 --> 00:01:24.239 line:-2 align:center
+steering the policy to approximate the fine tuned action distribution
+
+20
+00:01:25.692 --> 00:01:29.354 line:-3.3 align:center
+Facing a state within task distribution while the base policy fails to locate the
+
+21
+00:01:29.414 --> 00:01:34.374 line:-3.3 align:center
+correct grasping position the residual steers the base toward the task proxy
+
+22
+00:01:35.004 --> 00:01:39.180 line:-3.3 align:center
+which guides the robot to show novel task behavior for correct grasping
+
+23
+00:01:43.080 --> 00:01:47.395 line:-3.3 align:center
+At an out of distribution state the base policy shows generic recovery behavior
+
+24
+00:01:47.455 --> 00:01:52.538 line:-3.3 align:center
+Here our proxy policies share the same overfitting errors making the residual near zero
+
+25
+00:01:52.598 --> 00:01:56.892 line:-3.3 align:center
+Therefore the base retains control and recovers from the grasping failure
+
+26
+00:02:01.127 --> 00:02:03.560 line:-3.3 align:center
+When the state is within both the pre training distribution and
+
+27
+00:02:03.620 --> 00:02:07.208 line:-3.3 align:center
+the task demonstrations the three policies reach an agreement
+
+28
+00:02:10.360 --> 00:02:14.740 line:-2 align:center
+By combining proxy residual with the base prior PPS injects task guidance while retaining
+
+29
+00:02:14.800 --> 00:02:19.859 line:-2 align:center
+the general priors of the base model achieving robust manipulation in downstream tasks
+
+30
+00:02:20.712 --> 00:02:23.980 line:-2 align:center
+We evaluate PPS on 12 tasks spanning long horizon goals
+
+31
+00:02:24.240 --> 00:02:27.358 line:-2 align:center
+deformable and articulated objects and diverse skills
+
+32
+00:02:27.520 --> 00:02:32.932 line:-2 align:center
+PPS outperforms LoRA fine tuning previous steering methods and trained from scratch policies
+
+33
+00:02:33.729 --> 00:02:38.249 line:-2 align:center
+Since PPS keeps the base model intact it preserves the general priors from the base model
+
+34
+00:02:38.309 --> 00:02:40.900 line:-2 align:center
+This helps the policy recover under human interventions even though
+
+35
+00:02:40.960 --> 00:02:44.195 line:-2 align:center
+no recovery behavior is collected in the demonstrations
+
+36
+00:02:46.998 --> 00:02:51.000 line:-2 align:center
+Whereas LoRA fine tuning can overfit to the small scale task specific demonstrations and overwrite parts
+
+37
+00:02:51.060 --> 00:02:56.140 line:-2 align:center
+of the manipulation priors learned during pre training causing it to fail under perturbations
+
+38
+00:02:56.200 --> 00:03:00.500 line:-2 align:center
+PPS also enables injecting information from additional modalities into the base model
+
+39
+00:03:00.560 --> 00:03:06.913 line:-2 align:center
+such as using point cloud to locate textureless objects and leveraging audio inputs to find the sound source
+
+40
+00:03:09.763 --> 00:03:10.880 line:-2 align:center
+Thanks for watching
