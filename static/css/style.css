@@ -405,16 +405,6 @@ header {
   pointer-events: auto;
 }
 
-/* Touch devices never fire :hover, and pointer-events:none blocks the tap that
-   :focus-within would need, so the bar would be permanently unreachable.
-   Show it outright there instead of relying on a reveal gesture. */
-@media (hover: none) {
-  .hero-controls {
-    opacity: 1;
-    pointer-events: auto;
-  }
-}
-
 .hero-btn {
   flex: 0 0 auto;
   width: 36px;
