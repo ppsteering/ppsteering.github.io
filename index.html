@@ -853,7 +853,9 @@
         </li>
       </ul>
 
-      <p>At inference, PPS integrates the velocity predictions (<span class="math"><span class="var">v</span></span>) of three models in each flow-matching step:</p>
+      <p>At inference, PPS integrates the velocity predictions (<span class="math"><span class="var">v</span></span>)
+        of three models in each flow-matching step, with coefficient <span class="math"><span class="var">&gamma;</span></span>
+        representing the steering strength:</p>
 
       <div class="equation">
         <span style="color:#4f9d5d"><span class="var">v</span><sub>PPS</sub></span>
@@ -873,11 +875,9 @@
       </div>
 
       <p>
-        The coefficient <span class="math"><span class="var">&gamma;</span></span>
-        sets the steering strength: when the demonstrations call for new
-        actions the residual drives the sampler toward the task proxy, and when
-        the proxies agree it vanishes and the frozen base stays in control,
-        preserving broadly useful priors.
+        When the demonstrations call for new actions the residual drives the
+        sampler toward the task proxy, and when the proxies agree it vanishes
+        and the frozen base stays in control, preserving broadly useful priors.
       </p>
 
       <!-- OLD "Try the steering yourself" widget — superseded by the
