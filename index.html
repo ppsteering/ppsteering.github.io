@@ -375,8 +375,8 @@
           position: relative;
           transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
-        /* Image frame holds the photo + its 75 % black bottom banner.
-           overflow: hidden so the banner respects the rounded corners. */
+        /* Image frame holds the rollout photo; overflow: hidden so the
+           photo respects the rounded corners. */
         .tih-act-frame {
           position: relative;
           line-height: 0;
@@ -421,18 +421,6 @@
         }
         .tih-act-state i { font-style: italic; }
         .tih-act-state sub { font-style: normal; font-size: 0.72em; font-weight: 500; vertical-align: -0.15em; }
-        .tih-act-banner {
-          position: absolute;
-          left: 0; right: 0; bottom: 0;
-          background: rgba(0, 0, 0, 0.75);
-          color: #ffffff;
-          font-family: 'Inter','Helvetica Neue',Arial,sans-serif;
-          font-size: 12.5px;   /* keeps the (swapped-in) state text at its original size */
-          font-weight: 600;
-          text-align: center;
-          padding: 6px 8px;
-          line-height: 1.2;
-        }
         /* Per-image descriptive caption sits just below the image frame
            inside the same grey container. */
         .tih-act-caption {
@@ -476,8 +464,8 @@
 
         /* 70%-opacity white mask over OTHER action images while in the
            floating state. The pseudo-element rides the image frame so it
-           covers only the photo + banner — the descriptive caption below
-           the frame stays unmasked and readable. */
+           covers only the photo — the descriptive caption below the frame
+           stays unmasked and readable. */
         .tih-act-frame::after {
           content: '';
           position: absolute;
@@ -556,27 +544,24 @@
               <img src="./static/teaser_web/teaser_1_final_action.jpg" alt="rollout 1">
               <video class="tih-act-video" src="./static/teaser_web/1_web.mp4" muted loop playsinline preload="metadata"></video>
               <span class="tih-act-state"><i>s</i><sub>in</sub></span>
-              <div class="tih-act-banner">State within task distribution</div>
             </div>
-            <div class="tih-act-caption">Novel task behavior</div>
+            <div class="tih-act-caption">Steer to task behavior</div>
           </div>
           <div class="tih-act" data-i="2">
             <div class="tih-act-frame">
               <img src="./static/teaser_web/teaser_2_final_action.jpg" alt="rollout 2">
               <video class="tih-act-video" src="./static/teaser_web/2_web.mp4" muted loop playsinline preload="metadata"></video>
               <span class="tih-act-state"><i>s</i><sub>out</sub></span>
-              <div class="tih-act-banner">State outside task distribution</div>
             </div>
-            <div class="tih-act-caption">Recovery via base prior</div>
+            <div class="tih-act-caption">Recover via base prior</div>
           </div>
           <div class="tih-act" data-i="3">
             <div class="tih-act-frame">
               <img src="./static/teaser_web/teaser_3_final_action.jpg" alt="rollout 3">
               <video class="tih-act-video" src="./static/teaser_web/3_web.mp4" muted loop playsinline preload="metadata"></video>
               <span class="tih-act-state"><i>s</i><sub>both</sub></span>
-              <div class="tih-act-banner">State within task and base distribution</div>
             </div>
-            <div class="tih-act-caption">Agreement reached</div>
+            <div class="tih-act-caption">Agree with base</div>
           </div>
         </div>
       </div>
