@@ -113,12 +113,12 @@
         We propose <strong>Proxy Policy Steering (PPS)</strong>, which adapts a
         frozen base policy
         <span class="math"><span class="var">&pi;</span><sub>base</sub></span>
-        using two learned proxy policies,
+        by training two lightweight proxy policies,
         <span class="math"><span class="var">&pi;</span><sub>ref</sub></span> and
-        <span class="math"><span class="var">&pi;</span><sub>task</sub></span>,
-        combined in velocity space. By adding the proxy residual to the base
-        prior, PPS steers the action distribution toward task behaviors while
-        preserving general priors.
+        <span class="math"><span class="var">&pi;</span><sub>task</sub></span>.
+        By adding their velocity-space residual to the base in the
+        flow-matching process, PPS steers the action distribution toward task
+        behaviors while preserving the base policy's general priors.
       </figcaption>
     </figure>
 
@@ -126,27 +126,35 @@
       <div class="tagline">Abstract</div>
 
       <p>
-        Robotics foundation models carry broad manipulation priors from
-        large-scale data, but specializing them to a new task remains the
-        deployment bottleneck. This requires injecting new task-specific
-        behavior from limited demonstrations without eroding their broad
-        capabilities. We introduce
-        <strong>Proxy Policy Steering (PPS)</strong>, a novel adaptation
-        method that addresses this challenge by training two lightweight
-        proxy policies. A <em>reference proxy</em> models the frozen
-        base's behavior on target-task observations, and a
-        <em>task proxy</em>, initialized from the reference, captures how
-        this behavior changes under task supervision. Their difference
-        forms a calibrated velocity-space residual that steers the frozen
-        base sampler at every denoising step.
-        We identify the conditions under which this residual isolates the
-        change induced by task supervision, and validate them empirically.
-        On 8 real-world and 4 simulation manipulation tasks, PPS lifts the
-        state-of-the-art &pi;<sub>0.5</sub> base policy by 53% absolute
-        success rate on average, with zero-to-one gains on tasks the base
-        never solves, while preserving the base's broad capabilities. PPS
-        outperforms LoRA fine-tuning, from-scratch specialists, residual
-        policies, and prior inference-time steering methods.
+        Generalist robot policies carry broad manipulation priors from
+        large-scale data, but specializing them to a new task remains
+        the deployment bottleneck. This requires eliciting task-specific
+        behavior from limited demonstrations without degrading their
+        broad capabilities. We introduce <strong>Proxy Policy Steering
+        (PPS)</strong>, an inference-time adaptation method that
+        resolves this challenge by training two lightweight proxy
+        policies whose calibrated velocity-space difference steers the
+        frozen base sampler. A <em>reference proxy</em> models the
+        frozen base's behavior on target-task observations, and a
+        <em>task proxy</em>, initialized from the reference, captures
+        how this behavior changes under task supervision. Their
+        difference forms a calibrated velocity-space residual that
+        steers the frozen base sampler at every denoising step. We
+        identify the conditions under which this residual isolates the
+        change induced by task supervision, and validate them
+        empirically. Because the base is never directly modified, its
+        broad capabilities remain available at inference, including
+        behaviors such as recovery from failure that the demonstrations
+        themselves do not exercise. Adaptation requires only forward
+        velocity predictions from the base, making PPS lightweight to
+        train and applicable even without access to the base's
+        parameters. On 8 real-world and 4 simulation manipulation tasks,
+        PPS lifts the state-of-the-art &pi;<sub>0.5</sub> base policy by
+        55% absolute success rate on average, with zero-to-one gains on
+        tasks the base never solves, while preserving the base's broad
+        capabilities. PPS outperforms LoRA fine-tuning, from-scratch
+        specialists, residual policies, and prior inference-time
+        steering methods.
       </p>
     </section>
 
