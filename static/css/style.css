@@ -410,9 +410,17 @@ header {
   z-index: 3;
 }
 
-.hero-video:hover .hero-controls,
-.hero-video:focus-within .hero-controls,
-.hero-controls.is-active {
+.hero-video:hover .hero-controls {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Keyboard focus reveals the bar too, but deliberately NOT :focus-within:
+   clicking a control leaves it focused, which kept the bar up after the
+   pointer left until you clicked elsewhere. A mouse click sets :focus but
+   not :focus-visible, so this matches Tab navigation only. Kept as its own
+   rule so a browser that cannot parse :has() still gets the :hover rule. */
+.hero-video:has(:focus-visible) .hero-controls {
   opacity: 1;
   pointer-events: auto;
 }
