@@ -8,7 +8,7 @@
   <meta name="keywords"
         content="Proxy Policy Steering, PPS, VLA, robotic foundation models, flow matching, policy steering">
   <link rel="icon" href="./static/images/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./static/css/style.css?v=45">
+  <link rel="stylesheet" href="./static/css/style.css?v=46">
   <style>
     /* Interactive module embeds (added). Each module is an isolated same-origin
        iframe under static/modules/, auto-sized to its content by the script at
@@ -190,14 +190,14 @@
 
         /* Row 1: FOUR individual grey rounded containers, evenly spaced,
            with arrows in the gaps between (1↔2 "Distill") and (2↔3
-           "Finetune"). 7-column grid (4 containers @ 1fr + 3 arrow slots
-           @ 50px) — the slot between containers 3 and 4 holds an empty
+           "Finetune"). 7-column grid (4 containers @ 1fr + 2 arrow slots
+           @ 45px) — the slot between containers 3 and 4 holds an empty
            placeholder so all four containers stay evenly spaced. */
         .tih-row.dist {
-          /* arrow slots shrunk to 40 px, placeholder between 3 and 4 down
-             to 25 px — both reclaim horizontal space, so the four 1fr
-             container columns and the distributions inside them grow. */
-          grid-template-columns: 1fr 40px 1fr 40px 1fr 25px 1fr;
+          /* arrow slots are 45 px — wide enough that "Fine-tune" set at 14.3 px
+             clears the plots by ~3.5 px on each side — and the placeholder
+             between 3 and 4 stays at 25 px since nothing is labelled there. */
+          grid-template-columns: 1fr 45px 1fr 45px 1fr 25px 1fr;
           gap: 14px;
           align-items: center;
           transform: translateY(-2px);
@@ -300,9 +300,9 @@
         .tih-dist-caption.ref  { color: #F58A45; }
         .tih-dist-caption.task { color: #407CB6; }
         .tih-dist-caption.pps  { color: #55A86E; }
-        /* Label reads top-to-bottom (rotated 90 degrees clockwise) and sits
-           just above the arrow, so the pair fits the narrow gap between the
-           panels without pushing them apart. */
+        /* Label reads horizontally and sits above the arrow. The slot is 45px,
+           so the longer label spills into the 14px gaps on either side; it is
+           centred and non-wrapping, and still clears the plots. */
         .tih-arrow {
           position: relative;
           display: flex;
@@ -315,18 +315,17 @@
           margin-bottom: 22px;
         }
         /* The arrow stays on the panels' horizontal midline in both cells; the
-           label hangs below it from a fixed offset, so "Distill" and
-           "Fine-tune" start at the same height regardless of length. */
+           label sits above it at a fixed offset, so "Distill" and "Fine-tune"
+           share a baseline regardless of length. */
         .tih-arrow .lbl {
           position: absolute;
           left: 50%;
-          top: calc(50% + 14px);
+          bottom: calc(50% + 10px);
           transform: translateX(-50%);
-          font-size: 14px;
+          font-size: 14.3px;
           font-weight: 400;
-          letter-spacing: 0.2px;
+          letter-spacing: 0.1px;
           white-space: nowrap;
-          writing-mode: vertical-rl;
           line-height: 1;
         }
         /* SVG sized to match its inner path width so the arrow lands at the
@@ -345,7 +344,7 @@
            between the first three cells, → before the last cell. */
         .tih-eq {
           display: grid;
-          grid-template-columns: 1fr 40px 1fr 40px 1fr 25px 1fr;
+          grid-template-columns: 1fr 45px 1fr 45px 1fr 25px 1fr;
           gap: 14px;
           align-items: center;
           margin-bottom: 14px;
@@ -1046,8 +1045,7 @@
       <style>
         .ppsc { --ppsc-line:#e4dcc8; --ppsc-soft:#efece4; --ppsc-sub:#6b6453; --ppsc-ink:#1b1b1b;
           --ppsc-panel:#fffdf8; --ppsc-pps:#4f9d5d; --ppsc-base:#8a72b3; --ppsc-lora:#4f86c6;
-          --ppsc-spec:#A4B5BD; --ppsc-dsrl:#F58A45; margin:14px 0 4px;
-          background:var(--ppsc-soft); border-radius:12px; padding:18px; }
+          --ppsc-spec:#A4B5BD; --ppsc-dsrl:#F58A45; margin:14px 0 4px; }
         .ppsc *, .ppsc *::before, .ppsc *::after { box-sizing:border-box; }
         /* Per-task success-rate chips (Base -> PPS) above the task name. */
         .ppsc-stats { display:flex; align-items:center; justify-content:center;
@@ -1581,7 +1579,7 @@
         and watch the trade-off between base priors and task guidance.
       </p>
       <div class="pps-embed-block">
-        <iframe class="pps-embed-frame" data-embed src="./static/modules/steering_video.html?v=68"
+        <iframe class="pps-embed-frame" data-embed src="./static/modules/steering_video.html?v=69"
                 title="Real rollout vs. steering strength" scrolling="no" loading="lazy"></iframe>
       </div>
     </section>

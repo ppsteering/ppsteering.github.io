@@ -291,6 +291,13 @@ header {
   text-align: left;
 }
 
+/* The abstract is a single narrow column of running prose — the one block on
+   the page where justification reads as typeset rather than as ragged gaps. */
+#abstract p {
+  text-align: justify;
+  hyphens: auto;
+}
+
 .section ul {
   margin: 14px 0;
   padding-left: 22px;
@@ -633,9 +640,6 @@ header {
   gap: 14px;
   margin: 28px 0 12px 0;
   align-items: start;
-  background: #efece4;
-  border-radius: 12px;
-  padding: 18px;
 }
 
 .recovery-col-header {
@@ -722,9 +726,6 @@ header {
   gap: 12px 14px;
   margin: 28px 0 12px 0;
   align-items: stretch;
-  background: #efece4;
-  border-radius: 12px;
-  padding: 18px;
 }
 
 /* Per-task success-rate chart (third column): scaled to the row height, which

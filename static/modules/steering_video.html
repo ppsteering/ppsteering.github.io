@@ -27,8 +27,8 @@
 
   /* One filled block for the whole figure (same fill as the method figure's
      panels); the clips inside sit directly on it without their own cards. */
-  .module { background: var(--soft); border: 0; border-radius: 12px;
-    box-shadow: none; padding: 18px; display: flex; flex-direction: column; gap: 16px; }
+  .module { background: none; border: 0; border-radius: 0;
+    box-shadow: none; padding: 0; display: flex; flex-direction: column; gap: 16px; }
   /* Four rollouts shown in parallel (capsule + fruit + tea + egg), sharing the
      strength slider + input-noise buttons + legend. */
   /* Task tabs (matches the Baseline Comparison carousel tabs). */
@@ -101,7 +101,7 @@
 
   .ctl-label { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
   .ctl-ends { display: flex; justify-content: space-between; margin-top: 4px;
-    font-family: var(--font-original); font-size: 14px; color: var(--sub); }
+    font-family: var(--font-original); font-size: 14px; color: var(--ink); }
   .ctl-label .k { font-family: var(--font-original); font-size: 14px; font-weight: 400; color: var(--sub); }
   .ctl-label .v { font-family: var(--font-original); font-size: 14px; color: var(--ink); font-weight: 600;
     display: inline-block; min-width: 2.2em; }
@@ -194,7 +194,7 @@
       <div>
         <div class="ctl-label"><span class="k">Steering strength <span class="m"><i>γ</i></span> = <span class="v" id="gval">0.4</span></span></div>
         <input id="gamma" type="range" min="0" max="1.0" step="0.01" value="0.4" />
-        <div class="ctl-ends" aria-hidden="true"><span>0 (base only)</span><span>1 (task proxy)</span></div>
+        <div class="ctl-ends" aria-hidden="true"><span>0</span><span>1</span></div>
       </div>
       <div class="teaser-legend" aria-label="Trajectory colours">
         <span class="leg-title">Trajectories</span>
