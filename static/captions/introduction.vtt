@@ -1,99 +1,99 @@
 WEBVTT
 
 1
-00:00:00.000 --> 00:00:02.059 line:-2 align:center
+00:00:00.000 --> 00:00:02.059 line:-0.9 align:center
 We introduce Proxy Policy Steering,
 
 2
-00:00:02.220 --> 00:00:06.161 line:-2 align:center
+00:00:02.220 --> 00:00:06.161 line:-0.9 align:center
 an inference-time adaptation method for robotics foundation models.
 
 3
-00:00:06.720 --> 00:00:11.073 line:-2 align:center
+00:00:06.720 --> 00:00:11.073 line:-0.9 align:center
 Generalist policies carry broad manipulation priors from large-scale data.
 
 4
-00:00:11.620 --> 00:00:14.380 line:-2 align:center
+00:00:11.620 --> 00:00:14.380 line:-0.9 align:center
 However, they still struggle in downstream tasks that
 
 5
-00:00:14.420 --> 00:00:17.320 line:-2 align:center
+00:00:14.420 --> 00:00:17.320 line:-0.9 align:center
 are underrepresented in the training distribution.
 
 6
-00:00:17.360 --> 00:00:20.800 line:-2 align:center
+00:00:17.360 --> 00:00:20.800 line:-0.9 align:center
 Direct fine-tuning methods tackle this by modifying the base policy
 
 7
-00:00:20.840 --> 00:00:23.480 line:-2 align:center
+00:00:20.840 --> 00:00:23.480 line:-0.9 align:center
 weights, reshaping the base policy’s action distribution.
 
 8
-00:00:23.520 --> 00:00:26.461 line:-2 align:center
+00:00:23.520 --> 00:00:26.461 line:-0.9 align:center
 While this effectively adapts the policy behavior,
 
 9
-00:00:26.720 --> 00:00:31.014 line:-2 align:center
+00:00:26.720 --> 00:00:31.014 line:-0.9 align:center
 it can overfit to the limited demonstrations and lose the general priors.
 
 10
-00:00:31.540 --> 00:00:35.340 line:-2 align:center
+00:00:31.540 --> 00:00:35.340 line:-0.9 align:center
 Existing steering methods, like DSRL, change the initial noise or
 
 11
-00:00:35.380 --> 00:00:38.680 line:-2 align:center
+00:00:35.380 --> 00:00:38.680 line:-0.9 align:center
 flow-matching process to select actions suitable for the task.
 
 12
-00:00:38.720 --> 00:00:41.200 line:-2 align:center
+00:00:38.720 --> 00:00:41.200 line:-0.9 align:center
 However, the actions are still sampled from the base
 
 13
-00:00:41.240 --> 00:00:44.064 line:-2 align:center
+00:00:41.240 --> 00:00:44.064 line:-0.9 align:center
 distribution and do not deliver novel behaviors.
 
 14
-00:00:44.940 --> 00:00:49.469 line:-2 align:center
+00:00:44.940 --> 00:00:49.469 line:-0.9 align:center
 How could generalist policies learn new skills without losing the base prior?
 
 15
-00:00:50.880 --> 00:00:52.920 line:-2 align:center
+00:00:50.880 --> 00:00:52.920 line:-0.9 align:center
 We propose Proxy Policy Steering.
 
 16
-00:00:53.080 --> 00:00:55.380 line:-2 align:center
+00:00:53.080 --> 00:00:55.380 line:-0.9 align:center
 Instead of reshaping the base action distribution,
 
 17
-00:00:55.420 --> 00:00:58.300 line:-2 align:center
+00:00:55.420 --> 00:00:58.300 line:-0.9 align:center
 we estimate how task supervision would change it.
 
 18
-00:00:58.340 --> 00:01:00.980 line:-2 align:center
+00:00:58.340 --> 00:01:00.980 line:-0.9 align:center
 Specifically, we distill the base policy into a lightweight
 
 19
-00:01:01.020 --> 00:01:03.373 line:-2 align:center
+00:01:01.020 --> 00:01:03.373 line:-0.9 align:center
 reference proxy under task observations.
 
 20
-00:01:03.500 --> 00:01:07.912 line:-2 align:center
+00:01:03.500 --> 00:01:07.912 line:-0.9 align:center
 We then fine-tune this proxy under task supervision to obtain a task proxy.
 
 21
-00:01:08.160 --> 00:01:11.620 line:-2 align:center
+00:01:08.160 --> 00:01:11.620 line:-0.9 align:center
 At inference, we take the velocity predictions of all three models,
 
 22
-00:01:11.660 --> 00:01:15.072 line:-2 align:center
+00:01:11.660 --> 00:01:15.072 line:-0.9 align:center
 subtract the reference velocity and add the task velocity.
 
 23
-00:01:16.600 --> 00:01:19.240 line:-2 align:center
+00:01:16.600 --> 00:01:19.240 line:-0.9 align:center
 This residual captures the task-induced shift,
 
 24
-00:01:19.280 --> 00:01:23.398 line:-2 align:center
+00:01:19.280 --> 00:01:23.398 line:-0.9 align:center
 steering the policy to approximate the fine-tuned action distribution.
 
 25
@@ -129,61 +129,61 @@ Therefore, the base retains control and recovers from the grasping failure.
 When the proxy policies agree with the base policy. The robot follows the shared behavior.
 
 33
-00:02:08.520 --> 00:02:13.240 line:-2 align:center
+00:02:08.520 --> 00:02:13.240 line:-0.9 align:center
 By combining proxy residual with the base prior, PPS injects task guidance while retaining
 
 34
-00:02:13.280 --> 00:02:18.456 line:-2 align:center
+00:02:13.280 --> 00:02:18.456 line:-0.9 align:center
 the general priors of the base model, achieving robust manipulation in downstream tasks.
 
 35
-00:02:19.180 --> 00:02:23.020 line:-2 align:center
+00:02:19.180 --> 00:02:23.020 line:-0.9 align:center
 We evaluate PPS on 12 tasks, spanning long-horizon goals,
 
 36
-00:02:23.260 --> 00:02:26.495 line:-2 align:center
+00:02:23.260 --> 00:02:26.495 line:-0.9 align:center
 deformable and articulated objects, and diverse skills.
 
 37
-00:02:26.540 --> 00:02:32.128 line:-2 align:center
+00:02:26.540 --> 00:02:32.128 line:-0.9 align:center
 PPS outperforms LoRA fine-tuning, previous steering methods, and trained-from-scratch policies.
 
 38
-00:02:32.540 --> 00:02:37.140 line:-2 align:center
+00:02:32.540 --> 00:02:37.140 line:-0.9 align:center
 Since PPS keeps the base model intact, it preserves the general priors from the base model.
 
 39
-00:02:37.180 --> 00:02:40.180 line:-2 align:center
+00:02:37.180 --> 00:02:40.180 line:-0.9 align:center
 This helps the policy recover under human interventions even though
 
 40
-00:02:40.220 --> 00:02:43.514 line:-2 align:center
+00:02:40.220 --> 00:02:43.514 line:-0.9 align:center
 no recovery behavior is collected in the demonstrations.
 
 41
-00:02:49.420 --> 00:02:52.360 line:-2 align:center
+00:02:49.420 --> 00:02:52.360 line:-0.9 align:center
 Whereas LoRA fine-tuning can overfit to the small-scale task-specific
 
 42
-00:02:52.400 --> 00:02:55.193 line:-2 align:center
+00:02:52.400 --> 00:02:55.193 line:-0.9 align:center
 demonstrations and overwrite parts of the manipulation priors learned
 
 43
-00:02:55.233 --> 00:02:58.763 line:-2 align:center
+00:02:55.233 --> 00:02:58.763 line:-0.9 align:center
 during pre-training, causing it to fail under perturbations.
 
 44
-00:02:59.960 --> 00:03:04.300 line:-2 align:center
+00:02:59.960 --> 00:03:04.300 line:-0.9 align:center
 PPS also enables injecting information from additional modalities into the base model,
 
 45
-00:03:04.340 --> 00:03:07.540 line:-2 align:center
+00:03:04.340 --> 00:03:07.540 line:-0.9 align:center
 such as using point cloud to locate textureless objects and
 
 46
-00:03:07.580 --> 00:03:10.462 line:-2 align:center
+00:03:07.580 --> 00:03:10.462 line:-0.9 align:center
 leveraging audio inputs to find the sound source.
 
 47
-00:03:11.260 --> 00:03:12.436 line:-2 align:center
+00:03:11.260 --> 00:03:12.436 line:-0.9 align:center
 Thanks for watching!
