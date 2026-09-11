@@ -1575,7 +1575,7 @@
     </section>
 
     <section class="section" id="steering-effect">
-      <div class="tagline">Visualize the Steering Effect</div>
+      <div class="tagline">Effect of Steering Strength</div>
       <p>
         Drag the steering strength <span class="math"><span class="var">&gamma;</span></span>
         and watch the trade-off between base priors and task guidance.
@@ -1583,57 +1583,6 @@
       <div class="pps-embed-block">
         <iframe class="pps-embed-frame" data-embed src="./static/modules/steering_video.html?v=68"
                 title="Real rollout vs. steering strength" scrolling="no" loading="lazy"></iframe>
-      </div>
-    </section>
-
-    <section class="section" id="analysis">
-      <div class="tagline">Analysis</div>
-
-      <p>
-        Through a series of analyses, we study what makes PPS effective and
-        where it still falls short.
-      </p>
-
-      <div class="figure-row">
-        <figure>
-          <img src="./static/images/gamma_web.png" class="analysis-fig"
-               alt="Success rate versus steering scale: PPS peaks near 0.4 to 0.6, above the specialist and base baselines.">
-          <p class="figure-caption">
-            <strong>Steering strength.</strong> The coefficient
-            <span class="math"><span class="var">&gamma;</span></span> trades
-            base priors against task steering. Success peaks for
-            <span class="math"><span class="var">&gamma;</span></span> in
-            (0.4, 0.6), well above both baselines.
-          </p>
-        </figure>
-        <figure>
-          <img src="./static/images/data_scaling_web.png" class="analysis-fig"
-               alt="Data scaling on Tea and Capsule: success rate versus number of demonstrations from 50 to 200 for Specialist, LoRA, and PPS.">
-          <p class="figure-caption">
-            <strong>Data scaling.</strong> On the two lowest-success tasks (Tea
-            and Capsule), PPS leads at every demonstration budget from 50 to 200,
-            with its largest margin in the low-data regime. The from-scratch
-            specialist improves steadily and catches up near 200 demonstrations.
-          </p>
-        </figure>
-        <figure>
-          <img src="./static/images/failure_pps_web.png" class="analysis-fig"
-               alt="Failure-mode breakdown for Specialist, base, and PPS by root cause; PPS has far fewer total failures.">
-          <p class="figure-caption">
-            <strong>Failure modes.</strong> PPS fails far less often than the
-            specialist and base, cutting incorrect-mode errors 93% versus the
-            base and out-of-distribution errors 87% versus the specialist.
-          </p>
-        </figure>
-        <figure>
-          <img src="./static/images/ablation_average_success_rate_web.png" class="analysis-fig"
-               alt="Proxy-training ablation: w/o ref, w/o vel, and w/o tune all trail the full method.">
-          <p class="figure-caption">
-            <strong>Proxy training.</strong> On-policy distillation,
-            velocity-level supervision, and reference initialization each
-            ensure the two proxies differ by task supervision alone, and their
-            difference is an informative task signal.           </p>
-        </figure>
       </div>
     </section>
 
@@ -1699,6 +1648,57 @@
       </div>
       <div class="crossmod-legend">
         <img src="./static/images/multimodal_legend_web.png" alt="Legend: base policy, Specialist, DSRL, LoRA, LoRA-MM, PPS.">
+      </div>
+    </section>
+
+    <section class="section" id="analysis">
+      <div class="tagline">Analysis of PPS</div>
+
+      <p>
+        Through a series of analyses, we study what makes PPS effective and
+        where it still falls short.
+      </p>
+
+      <div class="figure-row">
+        <figure>
+          <img src="./static/images/gamma_web.png" class="analysis-fig"
+               alt="Success rate versus steering scale: PPS peaks near 0.4 to 0.6, above the specialist and base baselines.">
+          <p class="figure-caption">
+            <strong>Steering strength.</strong> The coefficient
+            <span class="math"><span class="var">&gamma;</span></span> trades
+            base priors against task steering. Success peaks for
+            <span class="math"><span class="var">&gamma;</span></span> in
+            (0.4, 0.6), well above both baselines.
+          </p>
+        </figure>
+        <figure>
+          <img src="./static/images/data_scaling_web.png" class="analysis-fig"
+               alt="Data scaling on Tea and Capsule: success rate versus number of demonstrations from 50 to 200 for Specialist, LoRA, and PPS.">
+          <p class="figure-caption">
+            <strong>Data scaling.</strong> On the two lowest-success tasks (Tea
+            and Capsule), PPS leads at every demonstration budget from 50 to 200,
+            with its largest margin in the low-data regime. The from-scratch
+            specialist improves steadily and catches up near 200 demonstrations.
+          </p>
+        </figure>
+        <figure>
+          <img src="./static/images/failure_pps_web.png" class="analysis-fig"
+               alt="Failure-mode breakdown for Specialist, base, and PPS by root cause; PPS has far fewer total failures.">
+          <p class="figure-caption">
+            <strong>Failure modes.</strong> PPS fails far less often than the
+            specialist and base, cutting incorrect-mode errors 93% versus the
+            base and out-of-distribution errors 87% versus the specialist.
+          </p>
+        </figure>
+        <figure>
+          <img src="./static/images/ablation_average_success_rate_web.png" class="analysis-fig"
+               alt="Proxy-training ablation: w/o ref, w/o vel, and w/o tune all trail the full method.">
+          <p class="figure-caption">
+            <strong>Proxy training.</strong> On-policy distillation,
+            velocity-level supervision, and reference initialization each
+            ensure the two proxies differ by task supervision alone, and their
+            difference is an informative task signal.           </p>
+        </figure>
       </div>
     </section>
 
