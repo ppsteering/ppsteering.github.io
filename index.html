@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Proxy Policy Steering</title>
-  <meta name="description" content="Proxy Policy Steering">
+  <meta name="description" content="Proxy Policy Steering (PPS) adapts a frozen generalist robot policy to a new task by training two lightweight proxy policies and steering the base sampler with their velocity-space residual, eliciting task-specific behavior while preserving the base's broad priors.">
   <meta name="keywords"
         content="Proxy Policy Steering, PPS, VLA, robotic foundation models, flow matching, policy steering">
   <link rel="icon" href="./static/images/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./static/css/style.css?v=18">
+  <link rel="stylesheet" href="./static/css/style.css?v=45">
   <style>
     /* Interactive module embeds (added). Each module is an isolated same-origin
        iframe under static/modules/, auto-sized to its content by the script at
@@ -16,7 +16,7 @@
     .pps-embed-block { margin: 22px 0 4px; }
     .pps-embed-frame { width: 100%; border: 0; display: block; overflow: hidden; background: transparent; }
     .pps-new-flag { display: inline-block; font-family: 'Roboto Mono', ui-monospace, monospace;
-      font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: #4f9d5d;
+      font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase; color: #4f9d5d;
       border: 1px solid rgba(79,157,93,0.4); border-radius: 999px; padding: 2px 8px;
       margin-left: 10px; vertical-align: middle; }
   </style>
@@ -33,15 +33,23 @@
         <a href="https://www.linkedin.com/in/tianruiwang" target="_blank" rel="noopener">Tianrui Wang</a><sup>*</sup>,
         <a href="https://www.cs.cornell.edu/~weichiu/" target="_blank" rel="noopener">Wei-Chiu Ma</a><sup>&dagger;</sup>,
         <a href="https://kuanfang.github.io/" target="_blank" rel="noopener">Kuan Fang</a><sup>&dagger;</sup>
-        <span class="affiliation">Cornell University</span>
         <span class="author-note"><sup>*</sup>&nbsp;Equal contribution&nbsp;&nbsp;&nbsp;&nbsp;<sup>&dagger;</sup>&nbsp;Equal advising</span>
+        <div class="affiliation cornell-affiliation">
+          <img class="cornell-seal" src="./static/images/cornell-logo-0.png" alt="Cornell University">
+          <img class="cornell-name" src="./static/images/cornell-logo-3.png" alt="Cornell University">
+        </div>
         <span class="venue">CoRL 2026</span>
       </div>
 
       <nav class="hero-links" aria-label="Resource links">
-        <a class="hero-link" href="https://arxiv.org/abs/2609.09148" target="_blank" rel="noopener">arXiv</a>
-        <a class="hero-link" href="https://github.com/TritiumR/pps"
-           target="_blank" rel="noopener">Code</a>
+        <a class="hero-link" href="https://arxiv.org/pdf/2609.09148" target="_blank" rel="noopener">
+          <img class="quick-icon-img" src="./static/icons/pdf.svg" alt="" aria-hidden="true"><span>Paper</span></a>
+        <a class="hero-link" href="https://arxiv.org/abs/2609.09148" target="_blank" rel="noopener">
+          <img class="quick-icon-img" src="./static/icons/arxiv.png" alt="" aria-hidden="true"><span>arXiv</span></a>
+        <a class="hero-link" href="https://github.com/TritiumR/pps" target="_blank" rel="noopener">
+          <img class="quick-icon-img" src="./static/icons/code.svg" alt="" aria-hidden="true"><span>Code</span></a>
+        <a class="hero-link" href="#bibtex">
+          <img class="quick-icon-img" src="./static/icons/bibtex.svg" alt="" aria-hidden="true"><span>BibTeX</span></a>
       </nav>
     </header>
 
@@ -50,7 +58,7 @@
         <video id="heroVideo" autoplay muted loop playsinline preload="auto">
           <source src="./static/images/introduction.mp4?v=4" type="video/mp4">
           <track kind="captions" srclang="en" label="English"
-                 src="./static/captions/introduction.vtt?v=5" default>
+                 src="./static/captions/introduction.vtt?v=6" default>
           Your browser does not support the HTML5 video tag.
         </video>
 
@@ -117,7 +125,7 @@
       </figcaption>
     </figure>
 
-    <section class="section" id="abstract" style="max-width:700px; margin-left:auto; margin-right:auto;">
+    <section class="section" id="abstract" style="max-width:720px; margin-left:auto; margin-right:auto;">
       <div class="tagline">Abstract</div>
 
       <p>
@@ -228,7 +236,7 @@
           padding: 7.5%;
           line-height: 0;
           position: relative;
-          box-shadow: 0 6px 14px rgba(40, 32, 16, 0.10);
+          box-shadow: none;
           transition: box-shadow 0.25s ease;
         }
         /* Focus state: cursor anywhere on the distribution row makes EVERY
@@ -283,7 +291,7 @@
           text-align: center;
           font-family: 'STIX Two Text','Latin Modern Math','Cambria Math',Georgia,'Times New Roman',serif;
           font-size: 16px;
-          font-weight: 600;
+          font-weight: 400;
           line-height: 1;
         }
         .tih-dist-caption i { font-style: italic; }
@@ -292,19 +300,34 @@
         .tih-dist-caption.ref  { color: #F58A45; }
         .tih-dist-caption.task { color: #407CB6; }
         .tih-dist-caption.pps  { color: #55A86E; }
+        /* Label reads top-to-bottom (rotated 90 degrees clockwise) and sits
+           just above the arrow, so the pair fits the narrow gap between the
+           panels without pushing them apart. */
         .tih-arrow {
+          position: relative;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 4px;
           color: #6b6453;
+          /* Centre on the plots rather than on plot + caption: the caption
+             under each plot is ~22px tall, so lift the arrow by half of it. */
+          margin-bottom: 22px;
         }
+        /* The arrow stays on the panels' horizontal midline in both cells; the
+           label hangs below it from a fixed offset, so "Distill" and
+           "Fine-tune" start at the same height regardless of length. */
         .tih-arrow .lbl {
-          font-size: 14px;   /* +27% over the previous 11px */
-          font-weight: 600;
+          position: absolute;
+          left: 50%;
+          top: calc(50% + 14px);
+          transform: translateX(-50%);
+          font-size: 14px;
+          font-weight: 400;
           letter-spacing: 0.2px;
           white-space: nowrap;
+          writing-mode: vertical-rl;
+          line-height: 1;
         }
         /* SVG sized to match its inner path width so the arrow lands at the
            horizontal centre of its grid column. overflow: visible so the
@@ -329,14 +352,14 @@
           background: #efece4;
           border-radius: 12px;
           padding: 10px 10px;
-          transform: translateY(-2px);
-          box-shadow: 0 6px 14px rgba(40, 32, 16, 0.10);
+          transform: none;
+          box-shadow: none;
           transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
         .tih-eq-cell {
           text-align: center;
           font-family: 'STIX Two Text','Latin Modern Math','Cambria Math',Georgia,'Times New Roman',serif;
-          font-size: 17px;
+          font-size: 16px;
           line-height: 1.15;
         }
         .tih-eq-cell i { font-style: italic; }
@@ -350,8 +373,8 @@
         .tih-eq-cell .gam { color: #6b6453; }
         .tih-eq-op {
           text-align: center;
-          font-weight: 500;  /* thinned ~40% from the previous 900 */
-          font-size: 22px;
+          font-weight: 400;
+          font-size: 20px;
           color: #6b6453;    /* matches the Distill / Finetune arrow colour */
           line-height: 1;
         }
@@ -364,7 +387,8 @@
         .tih-row.act {
           grid-template-columns: repeat(3, 1fr);
           gap: 14px;
-          margin-bottom: 0;
+          margin-top: 14px;
+          margin-bottom: 36px;   /* room for the hover hint below the row */
         }
         .tih-act {
           background: #efece4;
@@ -409,25 +433,14 @@
         }
         .tih-act-frame.video-on .tih-act-video { opacity: 1; }
         .tih-act-frame.video-on img { opacity: 0; }
-        /* State label (s_in / s_out / s_both) top-left of each rollout image. */
-        .tih-act-state {
-          position: absolute;
-          top: 8px; left: 8px; z-index: 4;
-          font-family: 'Inter','Helvetica Neue',Arial,sans-serif;
-          font-size: 12.5px; font-weight: 500; color: #fff;
-          background: rgba(20,20,20,0.66); padding: 4px 9px; border-radius: 6px;
-          line-height: 1; pointer-events: none;
-        }
-        .tih-act-state i { font-style: italic; }
-        .tih-act-state sub { font-style: normal; font-size: 0.72em; font-weight: 500; vertical-align: -0.15em; }
         /* Per-image descriptive caption sits just below the image frame
            inside the same grey container. */
         .tih-act-caption {
           margin-top: 8px;
           text-align: center;
-          font-family: 'Inter','Helvetica Neue',Arial,sans-serif;
-          font-size: 14px;   /* keeps the (swapped-in) outcome text at its original size */
-          font-weight: 500;
+          font-family: 'Inter',-apple-system,'system-ui','Helvetica Neue',Arial,sans-serif;
+          font-size: 14px;
+          font-weight: 400;
           color: #6b6453;
           line-height: 1.35;
         }
@@ -437,29 +450,16 @@
         }
         .tih-act.active img { filter: none; }
 
-        /* On hover, all 4 dist containers (riding the row's transform) lift
-           together with the active action container, and the dist shadows
-           deepen for the "rise" feel. */
-        .tih.hovering .tih-row.dist {
-          transform: translateY(-6px);
-        }
-        .tih.hovering .tih-dist {
-          box-shadow: 0 16px 28px rgba(40, 32, 16, 0.18);
-        }
-        .tih.hovering .tih-eq {
-          transform: translateY(-6px);
-          box-shadow: 0 16px 28px rgba(40, 32, 16, 0.18);
-        }
+        /* The equation strip and the distribution row rest flat. Only the
+           active action card is lifted. */
         .tih.hovering .tih-act.active {
           transform: translateY(-7px);
           box-shadow: 0 16px 30px rgba(40, 32, 16, 0.22);
         }
-        /* Focus state (cursor on the dist row): the equation strip stays at
-           its hovering position (no extra float), and the dist row drops
-           back to its resting position and resting shadow. The arrow-pop +
-           white veil on each cell carry the focus instead. */
-        .tih.focused .tih-row.dist { transform: translateY(0); }
-        .tih.focused .tih-dist { box-shadow: none; }
+        /* Hovering the distribution row lifts that row and gives its panels a
+           shadow; the arrow-pop and white veil carry the focus on the plots. */
+        .tih.focused .tih-row.dist { transform: translateY(-6px); }
+        .tih.focused .tih-dist { box-shadow: 0 16px 28px rgba(40, 32, 16, 0.18); }
 
         /* 70%-opacity white mask over OTHER action images while in the
            floating state. The pseudo-element rides the image frame so it
@@ -476,13 +476,31 @@
         }
         .tih.hovering .tih-act:not(.active) .tih-act-frame::after { opacity: 1; }
 
+        .tih-mobile-note { display: none; }
         @media (max-width: 700px) {
           .tih-row.dist { grid-template-columns: repeat(2, 1fr); }
           .tih-arrow { display: none; }
           .tih-eq { display: none; }
+          .tih-row.act { margin-top: 14px; }
+          .tih-mobile-note {
+            display: block; margin: 0 0 10px; text-align: center;
+            font-family: 'Inter',-apple-system,'system-ui','Helvetica Neue',Arial,sans-serif;
+            font-size: 14px; line-height: 1.5; color: #6b6453;
+          }
+          .tih-mobile-note i { font-family: 'STIX Two Text','Latin Modern Math','Cambria Math',Georgia,'Times New Roman',serif; font-style: italic; }
+          .tih-mobile-note sub { font-style: normal; font-size: 0.78em; }
+          .tih-mobile-note .base { color: #AF56BF; }
+          .tih-mobile-note .ref  { color: #F58A45; }
+          .tih-mobile-note .task { color: #407CB6; }
+          .tih-mobile-note .pps  { color: #55A86E; }
         }
       </style>
       <div class="tih" id="tih">
+        <div class="tih-mobile-note" aria-hidden="true">
+          Distill <span class="base"><i>&pi;</i><sub>base</sub></span> &rarr; <span class="ref"><i>&pi;</i><sub>ref</sub></span>,
+          fine-tune <span class="ref"><i>&pi;</i><sub>ref</sub></span> &rarr; <span class="task"><i>&pi;</i><sub>task</sub></span>,
+          steer with their residual &rarr; <span class="pps"><i>&pi;</i><sub>PPS</sub></span>
+        </div>
         <div class="tih-eq">
           <div class="tih-eq-cell base">&nabla;<sub><i>a</i></sub> log <i>&pi;</i><sub>base</sub></div>
           <div class="tih-eq-op">&minus;</div>
@@ -514,7 +532,7 @@
             <div class="tih-dist-caption ref"><i>&pi;</i><sub>ref</sub></div>
           </div>
           <div class="tih-arrow">
-            <span class="lbl">Finetune</span>
+            <span class="lbl">Fine-tune</span>
             <svg viewBox="0 0 34 12" xmlns="http://www.w3.org/2000/svg"><path d="M0 6 L34 6 M28 1 L34 6 L28 11" stroke="currentColor" stroke-width="2.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
           <div class="tih-dist k-task">
@@ -542,7 +560,6 @@
             <div class="tih-act-frame">
               <img src="./static/teaser_web/teaser_1_final_action.jpg" alt="rollout 1">
               <video class="tih-act-video" src="./static/teaser_web/1_web.mp4" muted loop playsinline preload="metadata"></video>
-              <span class="tih-act-state"><i>s</i><sub>in</sub></span>
             </div>
             <div class="tih-act-caption">Steer to task behavior</div>
           </div>
@@ -550,7 +567,6 @@
             <div class="tih-act-frame">
               <img src="./static/teaser_web/teaser_2_final_action.jpg" alt="rollout 2">
               <video class="tih-act-video" src="./static/teaser_web/2_web.mp4" muted loop playsinline preload="metadata"></video>
-              <span class="tih-act-state"><i>s</i><sub>out</sub></span>
             </div>
             <div class="tih-act-caption">Recover via base prior</div>
           </div>
@@ -558,7 +574,6 @@
             <div class="tih-act-frame">
               <img src="./static/teaser_web/teaser_3_final_action.jpg" alt="rollout 3">
               <video class="tih-act-video" src="./static/teaser_web/3_web.mp4" muted loop playsinline preload="metadata"></video>
-              <span class="tih-act-state"><i>s</i><sub>both</sub></span>
             </div>
             <div class="tih-act-caption">Agree with base</div>
           </div>
@@ -577,24 +592,12 @@
             im.src = './static/teaser_web/fm_' + kind + '_' + i + '.png';
           });
         });
-        // Distribution caption labels and the S-argument per active panel.
-        var DIST_LABELS = { base: 'base', ref: 'ref', task: 'task', pps: 'PPS' };
-        var STATE_ARG = { 1: 'in', 2: 'out', 3: 'both' };
-        function updateDistCaptions(i) {
-          var arg = STATE_ARG[i] || 'in';
-          Object.keys(DIST_LABELS).forEach(function (kind) {
-            var el = root.querySelector('.tih-dist-caption.' + kind);
-            if (el) el.innerHTML = '<i>&pi;</i><sub>' + DIST_LABELS[kind] +
-              '</sub> (<i>s</i><sub>' + arg + '</sub>)';
-          });
-        }
         function activate(i) {
           acts.forEach(function (a) { a.classList.toggle('active', +a.dataset.i === i); });
           dists.forEach(function (img) {
             img.src = './static/teaser_web/fm_' + img.dataset.kind + '_' + i + '.png';
           });
           updateArrows(i);
-          updateDistCaptions(i);
         }
         // Hover an action: swap the distribution row to this variant AND
         // play its rollout video as a loop. Leaving the action snaps the
@@ -777,17 +780,19 @@
            Clears on the first hover (desktop) or tap (touch). -->
       <style>
         .tih-row.act { position: relative; }
+        /* Hint pill: ink fill, white label, small cursor glyph; same style as
+           the slider hint in the steering module. */
         .tih-hint-pill {
-          position: absolute; z-index: 30; left: 50%; top: -14px;
+          position: absolute; z-index: 30; left: calc(100% - (100% - 28px) / 6); top: calc(100% + 10px);
           display: inline-flex; align-items: center; gap: 7px;
-          padding: 7px 13px 7px 10px; border-radius: 999px; white-space: nowrap;
-          pointer-events: none; font: 600 13px/1 'Inter','Helvetica Neue',Arial,sans-serif;
-          background: #fffdf8; color: #3f8f5a; border: 1.5px solid #4f9d5d;
-          box-shadow: 0 6px 16px rgba(40,32,16,.12);
+          padding: 7px 12px 7px 10px; border-radius: 999px; white-space: nowrap;
+          pointer-events: none; font: 600 14px/1 'Inter',-apple-system,'system-ui','Helvetica Neue',Arial,sans-serif;
+          background: #131920; color: #fff; border: 0;
+          box-shadow: 0 6px 16px rgba(40,32,16,.18);
           --bob: translateX(-50%); transform: var(--bob);
           opacity: 0; animation: tih-bob 1.8s ease-in-out infinite;
         }
-        .tih-hint-pill .hint-cursor { width: 15px; height: 15px; flex: 0 0 auto; color: #4f9d5d; }
+        .tih-hint-pill .hint-cursor { width: 14px; height: 14px; flex: 0 0 auto; color: #fff; }
         /* The "Try me" pill stays visible (kept on purpose); panels are drawn
            attention to by the 2 s auto-rotation instead of a glow pulse. */
         .tih-hint-pill { opacity: 1; transition: opacity .3s ease; }
@@ -809,14 +814,16 @@
 
         var pill = document.createElement('div');
         pill.className = 'tih-hint-pill';
-        pill.innerHTML = '<svg class="hint-cursor" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 2.5l15.5 8.2-6.6 1.6-1.9 6.6z"/></svg><span class="hint-text">' + (touch ? 'Tap me' : 'Try me') + '</span>';
+        pill.innerHTML = '<svg class="hint-cursor" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 2.5l15.5 8.2-6.6 1.6-1.9 6.6z"/></svg><span class="hint-text">' + (touch ? 'Tap' : 'Hover') + '</span>';
         actRow.appendChild(pill);
 
         // Dismiss the "Try me" pill the first time the cursor lands on a
-        // rollout image (any action frame).
+        // rollout image (any action frame), or after one full auto-rotation
+        // cycle (3 panels x 3 s) if the visitor never hovers.
         tih.querySelectorAll('.tih-act-frame').forEach(function (fr) {
           fr.addEventListener('mouseenter', function () { tih.classList.add('tih-hinted'); });
         });
+        setTimeout(function () { tih.classList.add('tih-hinted'); }, 9500);
 
         // touch: tap switches panels (reuse the core mouseenter/leave logic)
         var lastTap = null;
@@ -839,7 +846,7 @@
           distilled from
           <span class="math"><span class="var">&pi;</span><sub>base</sub></span>
           on the observations from task-specific demonstrations, mimicking the
-          base behavior on the task distribution.
+          base behavior on those observations.
         </li>
         <li>
           <strong>Task proxy</strong>
@@ -852,8 +859,10 @@
         </li>
       </ul>
 
-      <p>At inference, PPS integrates the velocity predictions (<span class="math"><span class="var">v</span></span>)
-        of three models in each flow-matching step, with coefficient <span class="math"><span class="var">&gamma;</span></span>
+      <p>At inference, PPS integrates the velocity predictions
+        <span class="math"><span class="var">v</span><sub><em>i</em></sub></span> of the three
+        policies <span class="math"><span class="var">&pi;</span><sub><em>i</em></sub></span>
+        in each flow-matching step, with coefficient <span class="math"><span class="var">&gamma;</span></span>
         representing the steering strength:</p>
 
       <div class="equation">
@@ -865,20 +874,15 @@
         <span style="margin:0 8px;">&middot;</span>
         (<span style="color:#407CB6"><span class="var">v</span><sub>task</sub></span>
         <span style="margin:0 10px;">&minus;</span>
-        <span style="color:#F58A45"><span class="var">v</span><sub>ref</sub></span>),
-        <span style="margin-left:32px;">
-          <span class="var">v</span><sub><em>i</em></sub>
-          <span style="margin:0 10px;">:=</span>
-          &nabla;<sub><em>a</em></sub> log <span class="var">&pi;</span><sub><em>i</em></sub>
-        </span>
+        <span style="color:#F58A45"><span class="var">v</span><sub>ref</sub></span>)
       </div>
 
       <p>
-        The figure shows three representative cases: a state where the base
-        needs task guidance (residual steers toward the task behavior), a state
-        not covered by task demonstrations (residual cancels, base prior
-        recovers), and a state where the proxies agree with the base (reach
-        agreement).
+        Here we show three representative cases: a state where the base
+        acts differently from the demonstrations (residual steers toward the
+        task behavior), a state not covered by the demonstrations (residual
+        cancels, base prior recovers), and a state where the base already
+        agrees with the demonstrations (residual vanishes).
       </p>
 
       <!-- OLD "Try the steering yourself" widget — superseded by the
@@ -932,6 +936,11 @@
       <figure class="figure">
         <img src="./static/images/results_panels_web.png?v=4"
              alt="Three bar charts — Real-world, Simulation, and π0 transfer — comparing average success rates of π0.5 base, Specialist, Residual, DSRL, LoRA, and PPS. PPS leads every panel.">
+        <figcaption class="teaser-caption">
+          PPS lifts &pi;<sub>0.5</sub> from 22% to 79% in the real world and
+          from 12% to 64% in simulation, and lifts &pi;<sub>0</sub> from 5% to
+          55% with the same recipe.
+        </figcaption>
       </figure>
 
       <!-- Real-World Tasks + Simulated Tasks per-task video grids and the two
@@ -1037,60 +1046,72 @@
       <style>
         .ppsc { --ppsc-line:#e4dcc8; --ppsc-soft:#efece4; --ppsc-sub:#6b6453; --ppsc-ink:#1b1b1b;
           --ppsc-panel:#fffdf8; --ppsc-pps:#4f9d5d; --ppsc-base:#8a72b3; --ppsc-lora:#4f86c6;
-          --ppsc-spec:#A4B5BD; --ppsc-dsrl:#F58A45; margin:14px 0 4px; }
+          --ppsc-spec:#A4B5BD; --ppsc-dsrl:#F58A45; margin:14px 0 4px;
+          background:var(--ppsc-soft); border-radius:12px; padding:18px; }
         .ppsc *, .ppsc *::before, .ppsc *::after { box-sizing:border-box; }
         /* Per-task success-rate chips (Base -> PPS) above the task name. */
         .ppsc-stats { display:flex; align-items:center; justify-content:center;
           gap:14px; margin:16px 0 18px; }
-        .ppsc-stat { font:700 15px/1 'Inter','Helvetica Neue',Arial,sans-serif;
+        .ppsc-stat { font:400 14px/1 'Inter',-apple-system,'system-ui','Helvetica Neue',Arial,sans-serif;
           color:#fff; padding:6px 12px; border-radius:8px; white-space:nowrap; }
         .ppsc-stat.base { background:var(--ppsc-base); }
         .ppsc-stat.pps  { background:var(--ppsc-pps); }
-        .ppsc-stat-arrow { font:700 18px/1 'Inter','Helvetica Neue',Arial,sans-serif;
+        .ppsc-stat-arrow { font:400 14px/1 'Inter',-apple-system,'system-ui','Helvetica Neue',Arial,sans-serif;
           color:var(--ppsc-sub); }
         /* Current-task name shown between the videos and the thumbnail gallery. */
-        /* Match the section body text (Inter 18px, ink) but bold. */
-        .ppsc-nowname { text-align:center; margin:18px 0 14px;
-          font:700 18px/1.65 'Inter','Helvetica Neue',Arial,sans-serif;
-          color:var(--ppsc-ink); letter-spacing:normal; }
+        /* Match the section body text (18px, ink), medium weight. */
+        .ppsc-nowname { text-align:center; margin:18px 0 12px;
+          font:600 14px/1.6 'Inter',-apple-system,'system-ui','Helvetica Neue',Arial,sans-serif;
+          color:#131920; letter-spacing:normal; }
         /* Thumbnail gallery (grasping.io-style) BELOW the videos: each task is
            a small image tile; the selected tile scales up and floats above the
            row, the rest sit flat and dim. Extra top padding gives the lifted/
            scaled selected tile room so it isn't clipped at the row's top. */
         .ppsc-gallery { display:grid; grid-template-columns:repeat(12, 1fr); gap:8px;
-          margin:0; padding-top:10px; }
+          margin:0; padding-top:6px; }
         @media (max-width:900px) { .ppsc-gallery { grid-template-columns:repeat(6, 1fr); } }
         @media (max-width:560px) { .ppsc-gallery { grid-template-columns:repeat(4, 1fr); } }
-        .ppsc-gallery button { padding:0; border:2px solid var(--ppsc-line); border-radius:9px;
+        .ppsc-gallery button { padding:0; border:0; border-radius:9px;
           overflow:hidden; background:var(--ppsc-panel); cursor:pointer; line-height:0;
-          transition:border-color .16s ease, transform .16s ease, box-shadow .16s ease; }
+          transition:transform .16s ease, box-shadow .16s ease; }
         .ppsc-gallery button img { display:block; width:100%; aspect-ratio:1/1; object-fit:cover;
           opacity:0.55; transition:opacity .16s ease; }
-        .ppsc-gallery button:hover { border-color:var(--ppsc-sub); transform:translateY(-2px); }
+        .ppsc-gallery button { position:relative; }
+        .ppsc-gallery button:hover { transform:translateY(-2px); box-shadow:0 6px 14px rgba(40,32,16,0.10); }
         .ppsc-gallery button:hover img { opacity:0.85; }
+        /* Task name overlaid on the tile while hovering: a dark gradient band
+           along the bottom with the name (from data-name) in small white text. */
+        .ppsc-gallery button::after { content:attr(data-name); position:absolute; left:0; right:0; bottom:0;
+          padding:14px 4px 5px; font:400 10px/1.15 'Inter',-apple-system,'system-ui','Helvetica Neue',Arial,sans-serif;
+          color:#fff; text-align:center; white-space:normal; overflow-wrap:break-word;
+          background:linear-gradient(to top, rgba(20,20,20,0.82), rgba(20,20,20,0)); opacity:0;
+          transition:opacity .16s ease; pointer-events:none; }
+        .ppsc-gallery button:hover::after { opacity:1; }
+        .ppsc-gallery button.on::after { font-size:9px; }
         /* Selected tile: enlarged + lifted with a deeper shadow so it reads as
            floating above the plane of the other thumbnails. */
         .ppsc-gallery button.on { position:relative; z-index:3;
-          border-color:var(--ppsc-ink); transform:scale(1.22) translateY(-4px);
-          box-shadow:0 12px 24px rgba(40,32,16,0.30); }
+          transform:scale(1.22) translateY(-4px);
+          box-shadow:0 12px 24px rgba(40,32,16,0.22); }
         .ppsc-gallery button.on img { opacity:1; }
-        .ppsc-stage { background:var(--ppsc-panel); border:1px solid var(--ppsc-line); border-radius:16px; padding:18px; }
+        .ppsc-stage { background:transparent; border:0; padding:0; }
         .ppsc-panel { display:none; }
         .ppsc-panel.on { display:block; }
         /* rounding/border on the <video> itself, exactly like .result-video */
-        .ppsc-hero { position:relative; line-height:0; }
+        /* Each clip sits in the same filled card as the method figure's panels:
+           #efece4, 12px radius, 12px padding, soft shadow, no border. */
+        .ppsc-hero, .ppsc-item { position:relative; line-height:0; }
         .ppsc-hero video { display:block; width:100%; aspect-ratio:16/9; object-fit:cover;
-          background:#000; border-radius:12px; border:2px solid var(--ppsc-line); }
+          background:#000; border-radius:8px; }
         .ppsc-tag { position:absolute; left:14px; top:14px; display:inline-flex; align-items:center; gap:6px;
-          font-size:15px; line-height:1; font-weight:700; color:#fff; padding:6px 12px; border-radius:8px; }
-        .ppsc-hero .ppsc-tag { font-size:16px; padding:7px 13px; }
+          font-size:14px; line-height:1; font-weight:400; color:#fff; padding:6px 12px; border-radius:8px; }
+        .ppsc-hero .ppsc-tag { font-size:14px; padding:6px 12px; }
         .ppsc-tag.pps { background:var(--ppsc-pps); } .ppsc-tag.base { background:var(--ppsc-base); } .ppsc-tag.lora { background:var(--ppsc-lora); } .ppsc-tag.spec { background:var(--ppsc-spec); } .ppsc-tag.dsrl { background:var(--ppsc-dsrl); }
         .ppsc-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px; }
         @media (max-width:560px){ .ppsc-row { grid-template-columns:1fr; } }
-        .ppsc-item { position:relative; line-height:0; }
         .ppsc-item video { display:block; width:100%; aspect-ratio:16/9; object-fit:cover;
-          background:#000; border-radius:11px; border:2px solid var(--ppsc-line); }
-        .ppsc-foot { margin-top:16px; font-size:12.5px; color:var(--ppsc-sub); text-align:center; }
+          background:#000; border-radius:8px; }
+        .ppsc-foot { margin-top:16px; font-size:14px; color:var(--ppsc-sub); text-align:center; }
         /* End-of-playback overlay: fades a (nearly opaque) white veil over the
            video with a coloured outcome caption, shown for 3 s before the
            video restarts. */
@@ -1098,9 +1119,8 @@
           justify-content:center; background:rgba(255,255,255,0.82);
           opacity:0; pointer-events:none; transition:opacity .25s ease; }
         .ppsc-overlay.show { opacity:1; }
-        .ppsc-hero .ppsc-overlay { border-radius:12px; }
-        .ppsc-item .ppsc-overlay { border-radius:11px; }
-        .ppsc-overlay-text { font:700 24px/1.32 'Inter','Helvetica Neue',Arial,sans-serif; text-align:center;
+        .ppsc-hero .ppsc-overlay, .ppsc-item .ppsc-overlay { border-radius:8px; }
+        .ppsc-overlay-text { font:400 24px/1.32 'Inter',-apple-system,'system-ui','Helvetica Neue',Arial,sans-serif; text-align:center;
           padding:0 14px; letter-spacing:-0.3px; text-shadow:0 1px 0 rgba(255,255,255,0.9);
           /* Block-level so the text actually wraps inside the overlay width
              instead of overflowing on a single line. */
@@ -1115,31 +1135,31 @@
            half-width items below need a smaller font + roomier line-height
            so the long Base/LoRA captions wrap to 2 lines without lines
            visually crashing into each other. */
-        .ppsc-hero .ppsc-overlay-text { font-size:48px; line-height:1.18; }
-        .ppsc-item .ppsc-overlay-text { font-size:22px; line-height:1.34; }
+        .ppsc-hero .ppsc-overlay-text { font-size:24px; line-height:1.18; }
+        .ppsc-item .ppsc-overlay-text { font-size:20px; line-height:1.34; }
         @media (max-width:560px) {
-          .ppsc-hero .ppsc-overlay-text { font-size:30px; }
-          .ppsc-item .ppsc-overlay-text { font-size:15px; padding:0 10px; }
+          .ppsc-hero .ppsc-overlay-text { font-size:24px; }
+          .ppsc-item .ppsc-overlay-text { font-size:14px; padding:0 10px; }
         }
         /* Speed badge — same chip style as the method-name tag (Inter 700,
            15px / 16px on hero, pill shape), kept on a neutral dark fill
            since "2X" isn't a method. */
         .ppsc-speed-badge { position:absolute; top:14px; right:14px;
           display:inline-flex; align-items:center;
-          font-family:'Inter','Helvetica Neue',Arial,sans-serif;
-          font-size:15px; font-weight:700; line-height:1; color:#fff;
+          font-family:'Inter',-apple-system,'system-ui','Helvetica Neue',Arial,sans-serif;
+          font-size:14px; font-weight:400; line-height:1; color:#fff;
           background:rgba(27,27,27,0.7); padding:6px 12px; border-radius:8px;
           letter-spacing:0; pointer-events:none; z-index:2; }
-        .ppsc-hero .ppsc-speed-badge { font-size:16px; padding:7px 13px; }
+        .ppsc-hero .ppsc-speed-badge { font-size:14px; padding:6px 12px; }
         /* Persistent outcome chips (Success / failure reasons) sit permanently
            in the bottom-right corner. Same chip style as the method-name tag
            and the 2X badge: Inter 700, 15px (16px on hero), white text, solid
            fill, square-ish 8px corners; coloured by method. */
         .ppsc-caption { position:absolute; right:14px; bottom:14px; z-index:3; display:none;
           max-width:82%; text-align:right;
-          font-family:'Inter','Helvetica Neue',Arial,sans-serif; font-size:15px; font-weight:700; line-height:1.25;
+          font-family:'Inter',-apple-system,'system-ui','Helvetica Neue',Arial,sans-serif; font-size:14px; font-weight:400; line-height:1.25;
           color:#fff; background:rgba(27,27,27,0.7); padding:6px 12px; border-radius:8px; letter-spacing:0; }
-        .ppsc-hero .ppsc-caption { font-size:16px; padding:7px 13px; }
+        .ppsc-hero .ppsc-caption { font-size:14px; padding:6px 12px; }
         /* Success / failure-detail captions use the same solid dark chip as the
            2X badge (no per-method colour). */
         .ppsc.cap-persistent .ppsc-caption { display:inline-block; }
@@ -1153,20 +1173,23 @@
         .ppsc.cap-ftype .ppsc-caption[data-ftype="ood"] { border-left:4px solid var(--ft-ood); }
         .ppsc.cap-ftype .ppsc-caption[data-ftype="imprecise"] { border-left:4px solid var(--ft-imprecise); }
         .ppsc-ftlegend { display:none; gap:8px 18px; flex-wrap:wrap; justify-content:center;
-          margin-top:16px; font:500 13px/1 'Inter','Helvetica Neue',Arial,sans-serif; color:var(--ppsc-sub); }
+          margin-top:16px; font:400 14px/1 'Inter',-apple-system,'system-ui','Helvetica Neue',Arial,sans-serif; color:var(--ppsc-sub); }
         .ppsc.cap-ftype .ppsc-ftlegend { display:flex; }
         .ppsc-ftlegend span { display:inline-flex; align-items:center; gap:7px; }
         .ppsc-ftlegend i { width:12px; height:12px; border-radius:3px; display:inline-block; }
         /* caption-mode toggle */
         .ppsc-capmode { display:flex; align-items:center; gap:10px; justify-content:flex-end;
-          margin-bottom:12px; font-size:12.5px; color:var(--ppsc-sub); }
+          margin-bottom:12px; font-size:14px; color:var(--ppsc-sub); }
         .ppsc-capseg { display:inline-flex; padding:3px; background:var(--ppsc-soft);
           border:1px solid var(--ppsc-line); border-radius:9px; gap:2px; }
-        .ppsc-capseg button { font:600 12.5px/1 'Inter','Helvetica Neue',Arial,sans-serif; color:var(--ppsc-sub);
+        .ppsc-capseg button { font:600 14px/1 'Inter',-apple-system,'system-ui','Helvetica Neue',Arial,sans-serif; color:var(--ppsc-sub);
           background:transparent; border:0; cursor:pointer; padding:7px 12px; border-radius:7px; }
         .ppsc-capseg button.on { background:var(--ppsc-panel); color:var(--ppsc-ink); box-shadow:0 1px 2px rgba(40,32,16,0.08); }
       </style>
-      <div class="subheader">Select task to see example rollouts and comparisons</div>
+      <p>
+        Select a task below to compare PPS rollouts with the frozen base policy
+        and the strongest baselines on the same task.
+      </p>
       <div class="ppsc">
         <div class="ppsc-gallery" id="ppsc-tabs">
           <button class="on" data-i="0" data-name="Coffee Brewing" aria-label="Coffee Brewing"><img src="./static/images/task_thumbs/thumb_coffee.png" alt="Coffee Brewing"></button>
@@ -1191,79 +1214,79 @@
         <div class="ppsc-stage">
           <div class="ppsc-panel on" data-i="0">
             <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
-              <video src="./static/videos/compare/coffee_pps.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <video src="./static/videos/compare/coffee_pps.mp4" muted playsinline preload="none" data-speed="2"></video>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
             <div class="ppsc-row">
               <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
-                <video src="./static/videos/compare/coffee_base.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <video src="./static/videos/compare/coffee_base.mp4" muted playsinline preload="none" data-speed="2"></video>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text base" data-ftype="incorrect">Can't open the lid</span></div></div>
               <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
-                <video src="./static/videos/compare/coffee_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <video src="./static/videos/compare/coffee_lora.mp4" muted playsinline preload="none" data-speed="2"></video>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text lora" data-ftype="imprecise">Overfits after a near miss</span></div></div>
             </div>
           </div>
           <div class="ppsc-panel" data-i="1">
             <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
-              <video src="./static/videos/compare/flower_pps.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <video src="./static/videos/compare/flower_pps.mp4" muted playsinline preload="none" data-speed="2"></video>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
             <div class="ppsc-row">
               <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
-                <video src="./static/videos/compare/flower_base.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <video src="./static/videos/compare/flower_base.mp4" muted playsinline preload="none" data-speed="2"></video>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text base" data-ftype="incorrect">Places instead of inserting</span></div></div>
               <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
-                <video src="./static/videos/compare/flower_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <video src="./static/videos/compare/flower_lora.mp4" muted playsinline preload="none" data-speed="2"></video>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text lora" data-ftype="imprecise">Continues a wrong insertion</span></div></div>
             </div>
           </div>
           <div class="ppsc-panel" data-i="2">
             <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
-              <video src="./static/videos/compare/jeans_pps.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <video src="./static/videos/compare/jeans_pps.mp4" muted playsinline preload="none" data-speed="2"></video>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
             <div class="ppsc-row">
               <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
-                <video src="./static/videos/compare/jeans_base.mp4" autoplay muted playsinline preload="metadata" data-speed="4"></video>
+                <video src="./static/videos/compare/jeans_base.mp4" muted playsinline preload="none" data-speed="4"></video>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text base" data-ftype="incorrect">Can't fold</span></div></div>
               <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
-                <video src="./static/videos/compare/jeans_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <video src="./static/videos/compare/jeans_lora.mp4" muted playsinline preload="none" data-speed="2"></video>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text lora" data-ftype="ood">Overfits, tosses the jeans</span></div></div>
             </div>
           </div>
           <div class="ppsc-panel" data-i="3">
             <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
-              <video src="./static/videos/shoe.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <video src="./static/videos/shoe.mp4" muted playsinline preload="none" data-speed="2"></video>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
             <div class="ppsc-row">
               <div class="ppsc-item"><span class="ppsc-tag spec">Specialist</span>
-                <video src="./static/videos/compare/shoe_specialist.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <div class="ppsc-overlay"><span class="ppsc-overlay-text spec" data-ftype="imprecise">Overfits to demos</span></div></div>
+                <video src="./static/videos/compare/shoe_specialist.mp4" muted playsinline preload="none" data-speed="2"></video>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text spec" data-ftype="imprecise">Overfits to the demonstrations</span></div></div>
               <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
-                <video src="./static/videos/compare/shoe_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <video src="./static/videos/compare/shoe_lora.mp4" muted playsinline preload="none" data-speed="2"></video>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text lora" data-ftype="ood">Tips the box, can't recover</span></div></div>
             </div>
           </div>
           <div class="ppsc-panel" data-i="4">
             <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
-              <video src="./static/videos/compare/tissue_pps.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <video src="./static/videos/compare/tissue_pps.mp4" muted playsinline preload="none" data-speed="2"></video>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
             <div class="ppsc-row">
               <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
-                <video src="./static/videos/compare/tissue_base.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <video src="./static/videos/compare/tissue_base.mp4" muted playsinline preload="none" data-speed="2"></video>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text base" data-ftype="incorrect">Releases before wiping</span></div></div>
               <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
-                <video src="./static/videos/compare/tissue_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <video src="./static/videos/compare/tissue_lora.mp4" muted playsinline preload="none" data-speed="2"></video>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text lora" data-ftype="imprecise">Drags before the tissue is out</span></div></div>
             </div>
           </div>
           <div class="ppsc-panel" data-i="5">
             <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
-              <video src="./static/videos/drawer.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <video src="./static/videos/drawer.mp4" muted playsinline preload="none" data-speed="2"></video>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
             <div class="ppsc-row">
               <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
-                <video src="./static/videos/compare/drawer_dsrl.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <video src="./static/videos/compare/drawer_dsrl.mp4" muted playsinline preload="none" data-speed="2"></video>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text base" data-ftype="incorrect">Can't open the drawer</span></div></div>
               <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
-                <video src="./static/videos/compare/drawer_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <video src="./static/videos/compare/drawer_lora.mp4" muted playsinline preload="none" data-speed="2"></video>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text lora" data-ftype="incorrect">Stows before opening</span></div></div>
             </div>
           </div>
@@ -1272,80 +1295,80 @@
                baseline comparison row below the PPS rollout. -->
           <div class="ppsc-panel" data-i="6">
             <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
-              <video src="./static/videos/lever.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <video src="./static/videos/lever.mp4" muted playsinline preload="none" data-speed="2"></video>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
             <div class="ppsc-row">
               <div class="ppsc-item"><span class="ppsc-tag spec">Specialist</span>
-                <video src="./static/videos/compare/lever_specialist.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <div class="ppsc-overlay"><span class="ppsc-overlay-text spec" data-ftype="ood">Overfit to pressing action</span></div></div>
+                <video src="./static/videos/compare/lever_specialist.mp4" muted playsinline preload="none" data-speed="2"></video>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text spec" data-ftype="ood">Overfits to the pressing motion</span></div></div>
               <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
-                <video src="./static/videos/compare/lever_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <div class="ppsc-overlay"><span class="ppsc-overlay-text lora" data-ftype="ood">Overfit to pressing action</span></div></div>
+                <video src="./static/videos/compare/lever_lora.mp4" muted playsinline preload="none" data-speed="2"></video>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text lora" data-ftype="ood">Overfits to the pressing motion</span></div></div>
             </div>
           </div>
           <div class="ppsc-panel" data-i="7">
             <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
-              <video src="./static/videos/utensile.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <video src="./static/videos/utensile.mp4" muted playsinline preload="none" data-speed="2"></video>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
             <div class="ppsc-row">
               <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
-                <video src="./static/videos/compare/utensil_base.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <video src="./static/videos/compare/utensil_base.mp4" muted playsinline preload="none" data-speed="2"></video>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text base" data-ftype="imprecise">Imprecise insertion</span></div></div>
               <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
-                <video src="./static/videos/compare/utensil_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <div class="ppsc-overlay"><span class="ppsc-overlay-text lora" data-ftype="ood">Overfit to insertion mode</span></div></div>
+                <video src="./static/videos/compare/utensil_lora.mp4" muted playsinline preload="none" data-speed="2"></video>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text lora" data-ftype="ood">Overfits to the insertion motion</span></div></div>
             </div>
           </div>
           <div class="ppsc-panel" data-i="8">
             <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
-              <video src="./static/videos/sim_fruit.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <video src="./static/videos/sim_fruit.mp4" muted playsinline preload="none" data-speed="2"></video>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
             <div class="ppsc-row">
               <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
-                <video src="./static/videos/compare/fruit_base.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <video src="./static/videos/compare/fruit_base.mp4" muted playsinline preload="none" data-speed="2"></video>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text base">Misses the placing</span></div></div>
               <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
-                <video src="./static/videos/compare/fruit_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <div class="ppsc-overlay"><span class="ppsc-overlay-text lora">Grasping failure, can't recover</span></div></div>
+                <video src="./static/videos/compare/fruit_lora.mp4" muted playsinline preload="none" data-speed="2"></video>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text lora">Misses the grasp, can't recover</span></div></div>
             </div>
           </div>
           <div class="ppsc-panel" data-i="9">
             <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
-              <video src="./static/videos/sim_egg.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <video src="./static/videos/sim_egg.mp4" muted playsinline preload="none" data-speed="2"></video>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
             <div class="ppsc-row">
               <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
-                <video src="./static/videos/compare/egg_base.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <video src="./static/videos/compare/egg_base.mp4" muted playsinline preload="none" data-speed="2"></video>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text base">Picks egg before opening lid</span></div></div>
               <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
-                <video src="./static/videos/compare/egg_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <video src="./static/videos/compare/egg_lora.mp4" muted playsinline preload="none" data-speed="2"></video>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text lora">Overfits to incorrect placing mode</span></div></div>
             </div>
           </div>
           <div class="ppsc-panel" data-i="10">
             <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
-              <video src="./static/videos/sim_tea.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <video src="./static/videos/sim_tea.mp4" muted playsinline preload="none" data-speed="2"></video>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
             <div class="ppsc-row">
               <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
-                <video src="./static/videos/compare/tea_base.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <video src="./static/videos/compare/tea_base.mp4" muted playsinline preload="none" data-speed="2"></video>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text base">Can't pick up the teapot</span></div></div>
               <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
-                <video src="./static/videos/compare/tea_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <div class="ppsc-overlay"><span class="ppsc-overlay-text lora">Missed grasp and fails to recover</span></div></div>
+                <video src="./static/videos/compare/tea_lora.mp4" muted playsinline preload="none" data-speed="2"></video>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text lora">Misses the grasp, can't recover</span></div></div>
             </div>
           </div>
           <div class="ppsc-panel" data-i="11">
             <div class="ppsc-hero"><span class="ppsc-tag pps">PPS</span>
-              <video src="./static/videos/sim_capsule.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+              <video src="./static/videos/sim_capsule.mp4" muted playsinline preload="none" data-speed="2"></video>
               <div class="ppsc-overlay"><span class="ppsc-overlay-text pps">Success</span></div></div>
             <div class="ppsc-row">
               <div class="ppsc-item"><span class="ppsc-tag base">Base (&pi;&#8320;.&#8325;)</span>
-                <video src="./static/videos/compare/capsule_base.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
+                <video src="./static/videos/compare/capsule_base.mp4" muted playsinline preload="none" data-speed="2"></video>
                 <div class="ppsc-overlay"><span class="ppsc-overlay-text base">Can't open the lid</span></div></div>
               <div class="ppsc-item"><span class="ppsc-tag lora">LoRA</span>
-                <video src="./static/videos/compare/capsule_lora.mp4" autoplay muted playsinline preload="metadata" data-speed="2"></video>
-                <div class="ppsc-overlay"><span class="ppsc-overlay-text lora">Missed grasp and fails to recover</span></div></div>
+                <video src="./static/videos/compare/capsule_lora.mp4" muted playsinline preload="none" data-speed="2"></video>
+                <div class="ppsc-overlay"><span class="ppsc-overlay-text lora">Misses the grasp, can't recover</span></div></div>
             </div>
           </div>
         </div>
@@ -1389,6 +1412,9 @@
             p.classList.toggle('on', on);
             p.querySelectorAll('video').forEach(function (v) {
               if (on) {
+                // Clips ship with preload="none" so hidden tasks cost no
+                // bandwidth; the selected task's clips are fetched on demand.
+                if (v.preload !== 'auto') v.preload = 'auto';
                 // Always restart the selected task's clips from the beginning.
                 try { v.currentTime = 0; } catch (e) {}
                 v.playbackRate = parseFloat(v.dataset.speed) || 2.0;
@@ -1401,6 +1427,19 @@
           });
         }
         tabs.forEach(function (b) { b.onclick = function () { show(+b.dataset.i); }; });
+        // Start the initially selected task once the carousel scrolls into
+        // view (its clips are not autoplayed by the markup).
+        (function () {
+          var stage = document.querySelector('.ppsc-stage');
+          var started = false;
+          function start() { if (started) return; started = true; show(0); }
+          if (stage && 'IntersectionObserver' in window) {
+            var io = new IntersectionObserver(function (entries) {
+              if (entries.some(function (e) { return e.isIntersecting; })) { start(); io.disconnect(); }
+            }, { rootMargin: '400px 0px' });
+            io.observe(stage);
+          } else { start(); }
+        })();
 
         // End-of-playback effect: at the final frame, fade in a translucent
         // white veil with the per-video outcome caption, hold for 3 s, then
@@ -1488,19 +1527,6 @@
         ppsc.classList.add('cap-persistent');
       })();
       </script>
-
-      <!-- Steering-strength rollout (split out of the Method-section widget):
-           drag γ to watch a real rollout change. -->
-      <div class="subheader">Visualize the steering effect</div>
-      <p>
-        Drag the steering strength <span class="math"><span class="var">&gamma;</span></span>
-        and watch the trade-off between base priors and task guidance.
-      </p>
-      <div class="pps-embed-block">
-        <iframe class="pps-embed-frame" data-embed src="./static/modules/steering_video.html?v=46"
-                title="Real rollout vs. steering strength" scrolling="no" loading="lazy"></iframe>
-      </div>
-
     </section>
 
     <section class="section" id="robustness">
@@ -1510,8 +1536,8 @@
         Because PPS leaves the base model untouched, the combined policy
         inherits its broad priors and recovers from failures it never saw in
         the demonstrations. LoRA fine-tuning, by contrast, overfits to the
-        handful of demonstrations and loses these priors, breaking down under
-        the same perturbations.
+        handful of demonstrations and overwrites parts of these priors, breaking
+        down under the same perturbations.
       </p>
 
       <div class="recovery-grid">
@@ -1546,6 +1572,18 @@
                 title="Recovery storyboard" scrolling="no" loading="lazy"></iframe>
       </div>
       -->
+    </section>
+
+    <section class="section" id="steering-effect">
+      <div class="tagline">Visualize the Steering Effect</div>
+      <p>
+        Drag the steering strength <span class="math"><span class="var">&gamma;</span></span>
+        and watch the trade-off between base priors and task guidance.
+      </p>
+      <div class="pps-embed-block">
+        <iframe class="pps-embed-frame" data-embed src="./static/modules/steering_video.html?v=68"
+                title="Real rollout vs. steering strength" scrolling="no" loading="lazy"></iframe>
+      </div>
     </section>
 
     <section class="section" id="analysis">
@@ -1664,16 +1702,40 @@
       </div>
     </section>
 
+
     <section class="section" id="bibtex">
       <div class="tagline">BibTeX</div>
-      <pre class="bibtex"><code>@article{ning2026proxy,
-  title   = {Proxy Policy Steering},
-  author  = {Ning, Chuanruo and Wang, Tianrui and Ma, Wei-Chiu and Fang, Kuan},
-  journal = {arXiv preprint arXiv:2609.09148},
-  year    = {2026}
+      <div class="bibtex-code">
+        <button id="copy-bibtex" class="copy-btn" type="button">Copy</button>
+        <pre><code id="bibtex-text">@inproceedings{ning2026proxy,
+  title     = {Proxy Policy Steering},
+  author    = {Ning, Chuanruo and Wang, Tianrui and Ma, Wei-Chiu and Fang, Kuan},
+  booktitle = {Conference on Robot Learning (CoRL)},
+  year      = {2026}
 }</code></pre>
+      </div>
+      <script>
+      (function () {
+        var btn = document.getElementById('copy-bibtex');
+        if (!btn || !navigator.clipboard) return;
+        btn.addEventListener('click', function () {
+          var text = document.getElementById('bibtex-text').textContent;
+          navigator.clipboard.writeText(text).then(function () {
+            btn.textContent = 'Copied'; btn.classList.add('copied');
+            setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+          });
+        });
+      })();
+      </script>
     </section>
 
+    <footer class="footer">
+      By authors of PPS. Website template adapted from
+      <a href="https://uma-manipulation.github.io/" target="_blank" rel="noopener">UMA</a>,
+      <a href="https://www.videomimic.net/" target="_blank" rel="noopener">VideoMimic</a>,
+      <a href="https://transic-robot.github.io/" target="_blank" rel="noopener">TRANSIC</a>, and
+      <a href="https://relic-locoman.github.io/" target="_blank" rel="noopener">ReLIC</a>.
+    </footer>
   </main>
 
   <script>

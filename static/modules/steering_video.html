@@ -6,64 +6,83 @@
 <title>PPS rollout vs. steering strength &amp; input noise</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500&family=STIX+Two+Text:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Roboto+Mono:wght@400;500&family=STIX+Two+Text:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
 <style>
   body {
-    --font-original: 'Inter','Helvetica Neue',Arial,sans-serif;
+    --font-original: 'Inter',-apple-system,'system-ui','Helvetica Neue',Arial,sans-serif;
     --font-mono: 'Roboto Mono', ui-monospace, monospace;
     --font-math: 'STIX Two Text','Latin Modern Math','Cambria Math',Georgia,'Times New Roman',serif;
-    --bg: #fdfaf4; --panel: #fffdf8; --ink: #1b1b1b; --sub: #6b6453;
+    --bg: #fdfaf4; --panel: #fffdf8; --ink: #131920; --sub: #6b6453;
     --line: #e4dcc8; --soft: #efece4; --resid: #e0863a;
     --shadow: 0 1px 2px rgba(40,32,16,0.05);
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; }
-  body { background: var(--bg); color: var(--ink); font-family: var(--font-original);
+  body { background: var(--bg); color: var(--ink); font-family: var(--font-original); font-weight: 300;
     -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
   .wrap { max-width: 1120px; margin: 0 auto; padding: 22px 26px 36px; }
   .m { font-family: var(--font-math); }
-  .m i { font-style: italic; font-weight: 700; }
+  .m i { font-style: italic; font-weight: 400; }
   .m sub { font-style: normal; font-weight: 400; }
 
-  .module { background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
-    box-shadow: var(--shadow); padding: 20px 20px 22px; display: flex; flex-direction: column; gap: 16px; }
+  /* One filled block for the whole figure (same fill as the method figure's
+     panels); the clips inside sit directly on it without their own cards. */
+  .module { background: var(--soft); border: 0; border-radius: 12px;
+    box-shadow: none; padding: 18px; display: flex; flex-direction: column; gap: 16px; }
   /* Four rollouts shown in parallel (capsule + fruit + tea + egg), sharing the
      strength slider + input-noise buttons + legend. */
   /* Task tabs (matches the Baseline Comparison carousel tabs). */
   .task-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-  .task-tabs button { font: 600 14px/1.2 var(--font-original); color: var(--sub); background: var(--panel);
-    border: 1px solid var(--line); border-radius: 10px; padding: 10px 8px; cursor: pointer;
+  .task-tabs button { font: 600 14px/1.2 var(--font-original); color: var(--ink); background: var(--bg);
+    border: 0; border-radius: 12px; padding: 10px 8px; cursor: pointer;
     text-align: center; transition: all .18s ease; }
-  .task-tabs button:hover { background: var(--soft); }
-  .task-tabs button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .task-tabs button .stage { display: block; font-weight: 400; font-size: 14px; margin-top: 3px; color: var(--sub); }
+  .task-tabs button.on .stage { color: rgba(255,255,255,.8); }
+  .task-tabs button:hover { box-shadow: 0 6px 14px rgba(40,32,16,0.10); transform: translateY(-1px); }
+  .task-tabs button.on { background: var(--ink); color: #fff; }
   /* 2×2 grid = the 4 input-noise samples of the selected task. */
-  .vidrow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  /* One row of the four input-noise samples; falls back to 2x2 on narrow screens. */
+  .vidrow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  @media (max-width: 760px) { .vidrow { grid-template-columns: 1fr 1fr; gap: 12px; } }
   @media (max-width: 420px) { .vidrow { grid-template-columns: 1fr; } }
 
   /* Panels share one aspect (768/518); the taller 4:3 fruit clip is cover-fit. */
-  .vidwrap { position: relative; line-height: 0; background: var(--bg); border: 1px solid var(--line);
-    border-radius: 8px; overflow: hidden; aspect-ratio: 768 / 518; }
+  /* Frame is 80% of the clip width; cover-fit anchored to the right edge crops
+     the left 20% of every clip (the empty table area). */
+  .vidwrap { position: relative; line-height: 0; background: transparent; border: 0;
+    border-radius: 8px; padding: 0; box-shadow: none;
+    overflow: hidden; aspect-ratio: 614 / 518; }
   /* Subtask label overlaid on the rollout, top-left. */
-  .vidwrap .vidtask { position: absolute; top: 14px; left: 14px; z-index: 4;
-    font-family: var(--font-mono); font-size: 13px; font-weight: 500;
-    font: 700 15px/1 var(--font-original); color: #fff;
-    background: rgba(27, 27, 27, 0.7); padding: 6px 12px; border-radius: 8px;
+  .vidwrap .vidtask { position: absolute; top: 10px; left: 10px; z-index: 4;
+    font: 400 14px/1 var(--font-original); color: #fff;
+    background: rgba(27, 27, 27, 0.7); padding: 5px 9px; border-radius: 7px;
     letter-spacing: 0; pointer-events: none; }
+  @media (max-width: 760px) { .vidwrap .vidtask { top: 14px; left: 14px; font-size: 14px; padding: 6px 12px; border-radius: 8px; } }
   /* Outcome badge, bottom-right — green ✓ success / red ✗ failure. */
-  .vidwrap .vidout { position: absolute; bottom: 14px; right: 14px; z-index: 4;
-    display: inline-flex; align-items: center; gap: 7px; max-width: 84%;
-    font: 700 15px/1 var(--font-original); text-align: right;
-    background: rgba(27, 27, 27, 0.7); padding: 6px 12px; border-radius: 8px;
+  .vidwrap .vidout { position: absolute; bottom: 10px; right: 10px; z-index: 4;
+    display: inline-flex; align-items: center; gap: 6px; max-width: 88%;
+    font: 400 14px/1.15 var(--font-original); text-align: right;
+    background: rgba(27, 27, 27, 0.7); padding: 5px 9px; border-radius: 7px;
     letter-spacing: 0; pointer-events: none; }
-  .vidwrap .vidout svg { width: 15px; height: 15px; flex: 0 0 auto; display: block; }
+  .vidwrap .vidout svg { width: 13px; height: 13px; flex: 0 0 auto; display: block; }
+  @media (max-width: 760px) {
+    .vidwrap .vidout { bottom: 14px; right: 14px; gap: 7px; font-size: 14px; line-height: 1; padding: 6px 12px; border-radius: 8px; }
+    .vidwrap .vidout svg { width: 15px; height: 15px; }
+  }
   .vidwrap .vidout.ok  { color: #5fd07a; }
   .vidwrap .vidout.bad { color: #f0846a; }
   .vidwrap .vidout.mid { color: #f4d35e; }
-  .vidwrap .vidout .vo-mark { font: 800 15px/1 var(--font-original); letter-spacing: -1.5px; }
+  .vidwrap .vidout .vo-mark { font: 600 14px/1 var(--font-original); letter-spacing: -1.5px; }
   /* Poster (first frame) + video stacked; the poster covers the reload gap
      while changing γ / noise so there's no black flash. */
+  .vidwrap .vidframe { position: absolute; inset: 0; border-radius: 8px; overflow: hidden; background: var(--bg); }
   .vidwrap video, .vidwrap img.poster {
-    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; object-position: 100% 50%;
+    transform-origin: 56% 84%; transition: transform .25s ease; }
+  /* The grasp clips (pot) draw their trajectories on a small region around
+     the pear; zoom toward it so the coloured paths are legible at panel size. */
+  .module[data-task="pot"] .vidwrap video, .module[data-task="pot"] .vidwrap img.poster { transform: scale(1.35); }
   .vidwrap img.poster { z-index: 1; }
   .vidwrap video { z-index: 2; opacity: 0; transition: opacity .12s ease; }
   .vidwrap.playing video { opacity: 1; }
@@ -71,43 +90,55 @@
   /* Input-noise selector: 5 buttons (1–5) shared across all panels. */
   .noise-ctl { display: flex; align-items: center; justify-content: center; gap: 12px;
     flex-wrap: wrap; margin: 2px 0 0; }
-  .noise-ctl .k { font-family: var(--font-original); font-size: 18px; font-weight: 600; color: var(--ink); }
+  .noise-ctl .k { font-family: var(--font-original); font-size: 14px; font-weight: 400; color: var(--sub); }
   .noise-ctl .k .m { font-weight: 600; }
   .noise-btns { display: inline-flex; gap: 6px; }
-  .noise-btns button { font: 600 15px/1 var(--font-original); color: var(--sub);
+  .noise-btns button { font: 600 14px/1 var(--font-original); color: var(--sub);
     background: var(--soft); border: 1px solid var(--line); border-radius: 8px;
     width: 36px; height: 32px; cursor: pointer; transition: background .12s ease, color .12s ease, border-color .12s ease; }
   .noise-btns button:hover { border-color: var(--resid); color: var(--ink); }
   .noise-btns button.on { background: var(--resid); border-color: var(--resid); color: #fff; }
 
   .ctl-label { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
-  .ctl-label .k { font-family: var(--font-original); font-size: 18px; font-weight: 600; }
-  .ctl-label .v { font-family: var(--font-original); font-size: 18px; color: var(--resid); font-weight: 500; }
-  input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 4px;
-    background: var(--line); border-radius: 99px; outline: none; margin: 6px 0 2px; display: block; }
+  .ctl-ends { display: flex; justify-content: space-between; margin-top: 4px;
+    font-family: var(--font-original); font-size: 14px; color: var(--sub); }
+  .ctl-label .k { font-family: var(--font-original); font-size: 14px; font-weight: 400; color: var(--sub); }
+  .ctl-label .v { font-family: var(--font-original); font-size: 14px; color: var(--ink); font-weight: 600;
+    display: inline-block; min-width: 2.2em; }
+  /* Slider: filled track up to the thumb (--fill set by script), ink thumb
+     with a cream ring, matching the flat card palette. */
+  input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+    background: linear-gradient(to right, var(--ink) 0 var(--fill, 40%), var(--line) var(--fill, 40%) 100%);
+    border-radius: 99px; outline: none; margin: 8px 0 2px; display: block; cursor: pointer; }
   input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none;
-    width: 18px; height: 18px; border-radius: 50%; background: var(--resid);
-    border: 3px solid var(--panel); box-shadow: var(--shadow); cursor: pointer; }
-  input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%;
-    background: var(--resid); border: 3px solid var(--panel); cursor: pointer; }
+    width: 18px; height: 18px; border-radius: 50%; background: var(--ink);
+    border: 0; box-shadow: none;
+    cursor: grab; transition: transform .12s ease, box-shadow .12s ease; }
+  input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); box-shadow: 0 4px 10px rgba(40,32,16,0.22); }
+  input[type=range]:active::-webkit-slider-thumb { cursor: grabbing; transform: scale(1.15);
+    box-shadow: 0 4px 10px rgba(40,32,16,0.22); }
+  input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--ink);
+    border: 0; box-shadow: none; cursor: grab; }
+  input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgba(19,25,32,0.18); }
 
   /* Trajectory-colour legend (base / ref / task / PPS). */
   .teaser-legend {
     display: flex; flex-wrap: wrap; justify-content: center;
-    gap: 10px 40px; margin-top: 6px;
-    font-family: var(--font-original); font-size: 18px; color: var(--sub);
+    gap: 8px 22px; margin-top: 4px;
+    font-family: var(--font-original); font-size: 14px; color: var(--sub);
   }
-  .teaser-legend .leg-item { display: inline-flex; align-items: center; gap: 9px; }
-  .teaser-legend .leg-swatch { display: inline-block; width: 30px; height: 3px; border-radius: 2px; }
+  .teaser-legend .leg-title { color: var(--ink); font-weight: 600; }
+  .teaser-legend .leg-item { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
+  .teaser-legend .leg-swatch { display: inline-block; width: 26px; height: 3px; border-radius: 2px; }
 
   /* γ slider "Try me" hint — pill sits BELOW the bar, arrow pointing up. */
   .gamma-wrap { position: relative; margin: 22px 0 22px; }
-  .gamma-hint { position:absolute; top:calc(100% + 6px); z-index:6; transform:translateX(-50%);
-    display:inline-flex; align-items:center; gap:6px; padding:5px 11px 5px 9px; border-radius:999px;
-    white-space:nowrap; pointer-events:none; font:600 12px/1 var(--font-original);
-    background:#fffdf8; color:#3f8f5a; border:1.5px solid #4f9d5d; box-shadow:0 4px 12px rgba(40,32,16,.14); opacity:0; }
-  .gamma-hint .gh-cursor { width:13px; height:13px; flex:0 0 auto; color:#4f9d5d; }
-  .gamma-hint::after { content:''; position:absolute; bottom:100%; left:50%; margin-left:-5px; border:5px solid transparent; border-bottom-color:#4f9d5d; }
+  .gamma-hint { position:absolute; top:calc(100% + 8px); z-index:6; transform:translateX(-50%);
+    display:inline-flex; align-items:center; gap:6px; padding:6px 11px 6px 9px; border-radius:999px;
+    white-space:nowrap; pointer-events:none; font:600 14px/1 var(--font-original);
+    background:var(--ink); color:#fff; border:0; box-shadow:0 6px 16px rgba(40,32,16,.18); opacity:0; }
+  .gamma-hint .gh-cursor { width:13px; height:13px; flex:0 0 auto; color:#fff; }
+  .gamma-hint::after { content:''; position:absolute; bottom:100%; left:50%; margin-left:-5px; border:5px solid transparent; border-bottom-color:var(--ink); }
   .gamma-hint.show { opacity:1; }
   @keyframes gh-bob { 0%,100%{ transform:translateX(calc(-50% - 5px)); } 50%{ transform:translateX(calc(-50% + 5px)); } }
   .gamma-hint.show.gh-bob { animation: gh-bob 1.5s ease-in-out infinite; }
@@ -119,48 +150,58 @@
 </head>
 <body data-theme="a">
   <div class="wrap">
-    <div class="module">
+    <div class="module" data-task="pot">
       <div class="task-tabs" id="task-tabs" role="tablist" aria-label="Task">
-        <button type="button" data-dir="pot" class="on">Grasp the pear</button>
-        <button type="button" data-dir="capsule">Open the lid</button>
-        <button type="button" data-dir="tea">Pick up the teapot</button>
-        <button type="button" data-dir="fruit">Regrasp the pear</button>
+        <button type="button" data-dir="pot" class="on">Fruit Weighing<span class="stage">Grasp the pear</span></button>
+        <button type="button" data-dir="capsule">Capsule Loading<span class="stage">Open the lid</span></button>
+        <button type="button" data-dir="tea">Tea Pouring<span class="stage">Reach the teapot</span></button>
+        <button type="button" data-dir="fruit">Fruit Weighing<span class="stage">Regrasp the pear</span></button>
       </div>
       <div class="vidrow">
         <div class="vidwrap" data-noise="1">
+          <div class="vidframe">
           <img class="poster" src="" alt="" aria-hidden="true">
           <video muted loop playsinline preload="auto" aria-label="Rollout for input noise 1 at the current steering strength"></video>
-          <span class="vidtask">Input noise 1</span>
+          </div>
+          <span class="vidtask">Noise 1</span>
           <span class="vidout"></span>
         </div>
         <div class="vidwrap" data-noise="0">
+          <div class="vidframe">
           <img class="poster" src="" alt="" aria-hidden="true">
           <video muted loop playsinline preload="auto" aria-label="Rollout for input noise 2 at the current steering strength"></video>
-          <span class="vidtask">Input noise 2</span>
+          </div>
+          <span class="vidtask">Noise 2</span>
           <span class="vidout"></span>
         </div>
         <div class="vidwrap" data-noise="2">
+          <div class="vidframe">
           <img class="poster" src="" alt="" aria-hidden="true">
           <video muted loop playsinline preload="auto" aria-label="Rollout for input noise 3 at the current steering strength"></video>
-          <span class="vidtask">Input noise 3</span>
+          </div>
+          <span class="vidtask">Noise 3</span>
           <span class="vidout"></span>
         </div>
         <div class="vidwrap" data-noise="3">
+          <div class="vidframe">
           <img class="poster" src="" alt="" aria-hidden="true">
           <video muted loop playsinline preload="auto" aria-label="Rollout for input noise 4 at the current steering strength"></video>
-          <span class="vidtask">Input noise 4</span>
+          </div>
+          <span class="vidtask">Noise 4</span>
           <span class="vidout"></span>
         </div>
       </div>
       <div>
-        <div class="ctl-label"><span class="k">Steering strength <span class="m"><i>γ</i></span></span><span class="v" id="gval">0.4</span></div>
+        <div class="ctl-label"><span class="k">Steering strength <span class="m"><i>γ</i></span> = <span class="v" id="gval">0.4</span></span></div>
         <input id="gamma" type="range" min="0" max="1.0" step="0.01" value="0.4" />
+        <div class="ctl-ends" aria-hidden="true"><span>0 (base only)</span><span>1 (task proxy)</span></div>
       </div>
       <div class="teaser-legend" aria-label="Trajectory colours">
-        <span class="leg-item"><span class="leg-swatch" style="background:#AF56BF"></span><span class="m"><i>&pi;</i><sub>base</sub></span>&nbsp;trajectory</span>
-        <span class="leg-item"><span class="leg-swatch" style="background:#F58A45"></span><span class="m"><i>&pi;</i><sub>ref</sub></span>&nbsp;trajectory</span>
-        <span class="leg-item"><span class="leg-swatch" style="background:#407CB6"></span><span class="m"><i>&pi;</i><sub>task</sub></span>&nbsp;trajectory</span>
-        <span class="leg-item"><span class="leg-swatch" style="background:#4f9d5d"></span><span class="m"><i>&pi;</i><sub>PPS</sub></span>&nbsp;trajectory</span>
+        <span class="leg-title">Trajectories</span>
+        <span class="leg-item"><span class="leg-swatch" style="background:#AF56BF"></span><span class="m"><i>&pi;</i><sub>base</sub></span></span>
+        <span class="leg-item"><span class="leg-swatch" style="background:#F58A45"></span><span class="m"><i>&pi;</i><sub>ref</sub></span></span>
+        <span class="leg-item"><span class="leg-swatch" style="background:#407CB6"></span><span class="m"><i>&pi;</i><sub>task</sub></span></span>
+        <span class="leg-item"><span class="leg-swatch" style="background:#4f9d5d"></span><span class="m"><i>&pi;</i><sub>PPS</sub></span></span>
       </div>
     </div>
   </div>
@@ -195,21 +236,21 @@
     var ICON_MID = '<span class="vo-mark" aria-hidden="true">--</span>';   // partial outcome (yellow)
     // Base rule per task, resolved by γ index (first matching max wins).
     var OUTCOMES = {
-      capsule: [ { max: 1,  cls: 'bad', txt: "Can't open the lid" },
-                 { max: 10, cls: 'ok',  txt: 'Successfully open' } ],
-      fruit:   [ { max: 4,  cls: 'ok',  txt: 'Open gripper to regrasp' },
-                 { max: 10, cls: 'bad', txt: 'Fails to regrasp' } ],
-      tea:     [ { max: 3,  cls: 'bad', txt: "Can't reach the teapot" },
-                 { max: 10, cls: 'ok',  txt: 'Approach teapot' } ],
-      pot:     [ { max: 1,  cls: 'bad', txt: 'Fails to grasp' },
-                 { max: 10, cls: 'ok',  txt: 'Successfully grasp' } ]
+      capsule: [ { max: 1,  cls: 'bad', txt: 'Opening failure' },
+                 { max: 10, cls: 'ok',  txt: 'Opening success' } ],
+      fruit:   [ { max: 4,  cls: 'ok',  txt: 'Open to regrasp' },
+                 { max: 10, cls: 'bad', txt: 'Regrasping failure' } ],
+      tea:     [ { max: 3,  cls: 'bad', txt: 'Reaching failure' },
+                 { max: 10, cls: 'ok',  txt: 'Reaching success' } ],
+      pot:     [ { max: 1,  cls: 'bad', txt: 'Grasping failure' },
+                 { max: 10, cls: 'ok',  txt: 'Grasping success' } ]
     };
     // Per-(γ index, noise index) overrides, keyed "<idx>_<noise>" (noise 0-4 =
     // buttons 1-5). Take precedence over the base rule.
     function ov(cls, txt) { return { cls: cls, txt: txt }; }
-    var SLIGHT = 'slightly open', REGRASP = 'Fails to regrasp';
-    var COLLIDE = 'Collide with teapot', SLIGHT_COLLIDE = 'slightly collide with teapot';
-    var GRASP_FAIL = 'Fails to grasp', GRASP_OK = 'Successfully grasp', GRASP_SLIGHT = 'Slightly grasp',
+    var SLIGHT = 'Partial opening', REGRASP = 'Regrasping failure';
+    var COLLIDE = 'Collision with teapot', SLIGHT_COLLIDE = 'Slight collision';
+    var GRASP_FAIL = 'Grasping failure', GRASP_OK = 'Grasping success', GRASP_SLIGHT = 'Partial grasp',
         GRASP_UNSTABLE = 'Unstable grasp', GRASP_MISS = 'Missed grasp';
     var OVERRIDES = {
       capsule: { '1_1': ov('mid', SLIGHT), '1_2': ov('mid', SLIGHT),
@@ -298,8 +339,14 @@
 
     // γ slider: update readout always; on an index change swap clips + outcome
     // and (re)arm the 2 s idle play.
+    function paintFill() {
+      var lo = parseFloat(gammaEl.min), hi = parseFloat(gammaEl.max), v = parseFloat(gammaEl.value);
+      gammaEl.style.setProperty('--fill', (100 * (v - lo) / (hi - lo)).toFixed(2) + '%');
+    }
+    paintFill();
     gammaEl.addEventListener('input', function () {
       var g = parseFloat(this.value);
+      paintFill();
       var idx = Math.round(g * 10); if (idx < 0) idx = 0; else if (idx > 10) idx = 10;
       document.getElementById('gval').textContent = fmt(g);
       if (idx === curIdx) return;
@@ -315,6 +362,7 @@
         var d = b.dataset.dir;
         if (d === curDir) return;
         curDir = d;
+        var mod = document.querySelector('.module'); if (mod) mod.setAttribute('data-task', curDir);
         taskBtns.forEach(function (x) { x.classList.toggle('on', x.dataset.dir === curDir); });
         sets.forEach(function (s) { updateOutcome(s, curIdx); });
         preloadTask(curDir);
@@ -328,7 +376,7 @@
       var wrap = document.createElement('div'); wrap.className = 'gamma-wrap';
       gammaEl.parentNode.insertBefore(wrap, gammaEl); wrap.appendChild(gammaEl);
       var pill = document.createElement('div'); pill.className = 'gamma-hint';
-      pill.innerHTML = '<svg class="gh-cursor" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 2.5l15.5 8.2-6.6 1.6-1.9 6.6z"/></svg><span>' + ('ontouchstart' in window ? 'Drag me' : 'Try me') + '</span>';
+      pill.innerHTML = '<svg class="gh-cursor" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 2.5l15.5 8.2-6.6 1.6-1.9 6.6z"/></svg><span>' + 'Drag' + '</span>';
       wrap.appendChild(pill);
       var RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches, dismissed = false, wiggled = false;
       function place(){ var lo=parseFloat(gammaEl.min),hi=parseFloat(gammaEl.max),v=parseFloat(gammaEl.value),f=(v-lo)/(hi-lo),w=gammaEl.clientWidth,t=18; pill.style.left=(gammaEl.offsetLeft+t/2+f*(w-t))+'px'; }
@@ -338,8 +386,8 @@
       ['pointerdown','touchstart','keydown'].forEach(function(e){ gammaEl.addEventListener(e, dismiss); });
       function applyG(g){ gammaEl.value=g.toFixed(2); gammaEl.dispatchEvent(new Event('input')); }
       function tween(a,b,d,done){ var t0=null; function s(ts){ if(dismissed)return; if(t0===null)t0=ts; var k=Math.min(1,(ts-t0)/d); var e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2; applyG(a+(b-a)*e); if(k<1)requestAnimationFrame(s); else if(done)done(); } requestAnimationFrame(s); }
-      function wiggle(){ if(wiggled||dismissed||RM)return; wiggled=true; var st=parseFloat(gammaEl.value); tween(st,0.5,820,function(){ tween(0.5,0.1,1000,function(){ tween(0.1,st,820); }); }); }
-      var begun=false; function begin(){ if(begun)return; begun=true; show(); setTimeout(wiggle,750); }
+      function wiggle(){ if(wiggled||dismissed||RM)return; wiggled=true; var st=parseFloat(gammaEl.value); tween(st,0.5,1600,function(){ tween(0.5,0.1,2200,function(){ tween(0.1,st,1600); }); }); }
+      var begun=false; function begin(){ if(begun)return; begun=true; show(); setTimeout(wiggle,1200); }
       if(document.readyState==='complete') setTimeout(begin,150); else window.addEventListener('load', function(){ setTimeout(begin,150); });
     })();
   </script>
