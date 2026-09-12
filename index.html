@@ -301,25 +301,26 @@
         /* Label reads horizontally and sits above the arrow. The slot is 45px,
            so the longer label spills into the 14px gaps on either side; it is
            centred and non-wrapping, and still clears the plots. */
+        /* The arrow cell spans the full row height and the arrow sits on the
+           panels' vertical centre; the label hangs above it at a fixed offset,
+           so both arrows share one midline whatever the label length. */
         .tih-arrow {
           position: relative;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
+          align-self: stretch;
           color: #6b6453;
-          /* Centre on the plots rather than on plot + caption: the caption
-             under each plot is ~22px tall, so lift the arrow by half of it. */
-          margin-bottom: 22px;
+          --plot-mid: 50%;
         }
-        /* The arrow stays on the panels' horizontal midline in both cells; the
-           label sits above it at a fixed offset, so "Distill" and "Fine-tune"
-           share a baseline regardless of length. */
+        .tih-arrow svg {
+          position: absolute;
+          left: 50%;
+          top: var(--plot-mid);
+          transform: translate(-50%, -50%);
+        }
         .tih-arrow .lbl {
           position: absolute;
           left: 50%;
-          bottom: calc(50% + 10px);
-          transform: translateX(-50%);
+          top: calc(var(--plot-mid) - 16px);
+          transform: translate(-50%, -100%);
           font-size: 14.3px;
           font-weight: 400;
           letter-spacing: 0.1px;
@@ -330,11 +331,12 @@
            horizontal centre of its grid column. overflow: visible so the
            thick stroke caps + arrow head aren't clipped at the viewBox edge. */
         .tih-arrow svg { display: block; width: 34px; height: 12px; overflow: visible; }
+        .tih-arrow svg { position: absolute; }
         .tih-arrow-empty { visibility: hidden; }
         /* Distill arrow nudged right a few px so it lands at the optical
            midpoint between the unprefixed ∇log π_base and the γ-prefixed
            ∇log π_ref — the γ shifts that midpoint to the right. */
-        .tih-row.dist > .tih-arrow:first-of-type { transform: translateX(4px); }
+        .tih-row.dist > .tih-arrow:first-of-type { left: 4px; }
 
         /* Wide-but-short equation strip above the dist row. Uses the SAME
            7-column grid template so each math expression sits vertically
